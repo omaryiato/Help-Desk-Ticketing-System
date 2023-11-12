@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="layout/css/bootstrap.min.css">
+    <link rel="stylesheet" href="layout/css/all.min.css">
+    <link rel="stylesheet" href="layout/css/style.css">
+    <title>View</title>
+</head>
+<body>
+
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <aside id="sidebar">
+            <div class="h-100">
+                <div class="sidebar-logo">
+                    <a href="#">Ticketing System</a>
+                </div>
+                <!-- Sidebar Navigation -->
+                <ul class="sidebar-nav">
+                    <li class="sidebar-header">
+                        <i class="fa-solid fa-gauge-high pe-2"></i>
+                        Dashboard
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="ticket.html" class="sidebar-link">
+                            <i class="fa-solid fa-ticket-simple pe-2"></i>
+                            My Ticket
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="response.html" class="sidebar-link">
+                            <i class="fa-solid fa-comment pe-2"></i>
+                            Messages
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed" data-bs-toggle="collapse" data-bs-target="#auth"
+                            aria-expanded="false" aria-controls="auth">
+                            <i class="fa-regular fa-user pe-2"></i>
+                            Auth
+                        </a>
+                        <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="profile.html" class="sidebar-link"><i class="fa-solid fa-address-card pe-2"></i>Profile</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="#" class="sidebar-link"><i class="fa-solid fa-power-off pe-2"></i>Logout</a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                </ul>
+            </div>
+        </aside>
+        <!-- Main Component -->
+        <div class="main">
+            <nav class="navbar navbar-expand px-3 border-bottom d-flex justify-content-between">
+                <!-- Button for sidebar toggle -->
+                
+                <button class="btn d-flex" type="button" data-bs-theme="dark">
+                    <h5 class="text-white pe-2" >Ticketing System</h5>
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <a href="" class="text-white"><i class="fa-solid fa-power-off pe-2"></i><span>Logout</span></a>
+            </nav>
+            <main class="content px-3 py-2">
+                <div class="container-fluid">
+                    <div class="mb-3">
+
+                        <h2 class="text-center mt-3">View Tickets</h2>
+
+            <div class="container">
+                <form class="form-horizontal" action="" method="">
+                    <input type="hidden" name="tickid" value="">
+
+                    <div class="information block">
+                        <div class="container">
+                            <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
+                                <div class="panel-heading" style="background-color: #00205b; border: 0;">
+                                    <h2 class="text-white p-2">Issue Description:</h2>
+                                    <h3></h3>
+                                </div>
+                                <div class="panel-body">
+                                    <ul class="list-unstyled">
+                                        <li>
+                                            <i class="fa-solid fa-clock"></i>
+                                            <span>Send Date:</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-user"></i>
+                                            <span>Created By:</span>
+                                        </li>
+                                        <li>
+                                            <i class="fa-solid fa-briefcase"></i>
+                                            <span>Department:</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <div class="review block">
+
+                        <div class="container">
+                            <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
+                                <div class="panel-heading" style="background-color: #00205b; border: 0;">
+                                    <h3 class="text-white p-3">Tickets Evaluation</h3>
+                                </div>
+                                <div class="panel-body">
+    
+                                    <ul class="list-unstyled">
+                                            <li>
+                                                <i class="fa-solid fa-ticket"></i>
+                                                <span>Ticket No: </span>
+                                            </li>
+        
+                                            <li>
+                                                <i class="fa-solid fa-clock"></i>
+                                                <span>Response Time: </span>
+                                            </li>
+        
+                                            <li>
+                                                <i class="fa-solid fa-comment"></i>
+                                                <span>Admin Response: </span>
+                                            </li>
+        
+                                            <li>
+                                                <i class="fa-solid fa-clock"></i>
+                                                <span>User Evaluation: </span>
+                                            </li>
+        
+                                            <li>
+                                                <i class="fa-solid fa-reply"></i>
+                                                <span>User Evaluation: </span>
+                                            </li>
+                                        
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+    
+                <hr class="custom-hr">
+                
+            </main>
+
+        </div>
+    </div>
+
+
+            <!--** End Add Reponse **-->
+    <script src="layout/js/jquery-3.7.0.min.js"></script>
+    <script src="layout/js/bootstrap.min.js"></script>
+    <script src="layout/js/all.min.js"></script>
+    <script src="layout/js/admin.js"></script>
+</body>
+</html>
