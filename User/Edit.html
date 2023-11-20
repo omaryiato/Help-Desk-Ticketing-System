@@ -10,14 +10,15 @@
 </head>
 <body>
 
-    <div class="wrapper">
-        <!-- Sidebar -->
+    <!-- Edit Ticket Information Page Start -->
+    <div class="wrapper">  <!-- wrapper Div Start  -->
+        <!-- Sidebar Start-->
         <aside id="sidebar">
             <div class="h-100">
                 <div class="sidebar-logo">
                     <a href="#">Ticketing System</a>
                 </div>
-                <!-- Sidebar Navigation -->
+                <!-- Sidebar Navigation Start-->
                 <ul class="sidebar-nav">
                     <li class="sidebar-header">
                         <i class="fa-solid fa-gauge-high pe-2"></i>
@@ -53,31 +54,32 @@
                     </li>
                     
                 </ul>
+                <!-- Sidebar Navigation End-->
             </div>
         </aside>
-        <!-- Main Component -->
+        <!-- Sidebar End-->
+        <!-- Main Component Start-->
         <div class="main">
             <nav class="navbar navbar-expand px-3 border-bottom d-flex justify-content-between">
                 <!-- Button for sidebar toggle -->
-                
                 <button class="btn d-flex" type="button" data-bs-theme="dark">
                     <h5 class="text-white pe-2" >Ticketing System</h5>
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
                 <a href="" class="text-white"><i class="fa-solid fa-power-off pe-2"></i><span>Logout</span></a>
+            <!-- Button for sidebar toggle -->
             </nav>
             <main class="content px-3 py-2">
                 <div class="container-fluid">
                     <div class="mb-3">
-
                         
                     </div>
                 </div>
 
                 <h2 class="text-center mt-3">Create New Ticket</h2>
 
-                <div class="container">
+                <div class="container">  <!-- Container Div Start  -->
+                    <!-- Edit Ticket Information Form Start -->
                     <form class="form-horizontal" action="" method="" style="margin: auto;">
         
                         <!-- Start Name SelectBox -->
@@ -93,13 +95,13 @@
                         <!-- End Name  SelectBox -->
         
                         <!-- Start Issue Description Field -->
-                    <div class="form-group">
-                        <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="description" value="" class=" form-control" placeholder="Enter issue description please..." required='required'>
-                        </div>
-                    </div>
-                    <!-- End Issue Description Field -->
+                            <div class="form-group">
+                                <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="description" value="" class=" form-control" placeholder="Enter issue description please..." required='required'>
+                                </div>
+                            </div>
+                            <!-- End Issue Description Field -->
 
         
                         <!-- Start Periority Field -->
@@ -149,11 +151,14 @@
                         </div>
                         <!-- End Submit Button  -->
                     </form>
-                </div>
+                    <!-- Edit Ticket Information Form End -->
+                </div> <!-- Container Div End  -->
 
                 <h2 class="text-center mt-3">Edit Tickets</h2>
 
-                <div class="container">
+                <div class="container">  <!-- Container Div Start  -->
+
+                    
                     <form class="form-horizontal" action="" method="" style="margin: auto;">
         
                         <!-- Start Name SelectBox -->
@@ -169,13 +174,13 @@
                         <!-- End Name  SelectBox -->
         
                         <!-- Start Issue Description Field -->
-                    <div class="form-group">
-                        <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
-                        <div class="col-sm-10">
-                            <input type="text" name="description" value="" class=" form-control" placeholder=" Enter issue description please..." required='required'>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="description" value="" class=" form-control" placeholder=" Enter issue description please..." required='required'>
+                            </div>
                         </div>
-                    </div>
-                    <!-- End Issue Description Field -->
+                            <!-- End Issue Description Field -->
 
         
                         <!-- Start Periority Field -->
@@ -225,16 +230,17 @@
                         </div>
                         <!-- End Submit Button  -->
                     </form>
-                </div>
+                </div>  <!-- Container Div End  -->
 
             </main>
 
 
             <!--** Start Add Reponse **-->
         </div>
-    </div>
+        <!-- Main Component End-->
+    </div> <!-- wrapper Div End  -->
+    <!-- Edit Ticket Information Page End -->
 
-            <!--** End Add Reponse **-->
     <script src="layout/js/jquery-3.7.0.min.js"></script>
     <script src="layout/js/bootstrap.min.js"></script>
     <script src="layout/js/all.min.js"></script>

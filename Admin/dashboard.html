@@ -10,14 +10,16 @@
 </head>
 <body>
 
-    <div class="wrapper">
-        <!-- Sidebar -->
+        <!-- Dashboard (Main)  Page Start  -->
+
+    <div class="wrapper">  <!-- wrapper Div Start  -->
+        <!-- Sidebar Start -->
         <aside id="sidebar">
             <div class="h-100">
                 <div class="sidebar-logo">
                     <a href="#">Admin Panel</a>
                 </div>
-                <!-- Sidebar Navigation -->
+                <!-- Sidebar Navigation Start-->
                 <ul class="sidebar-nav">
                     <li class="sidebar-header">
                         <i class="fa-solid fa-gauge-high pe-2"></i>
@@ -77,13 +79,16 @@
                         </ul>
                     </li>
                     
-                </ul>
+                </ul>                  
+                <!-- Sidebar Navigation End-->
             </div>
         </aside>
-        <!-- Main Component -->
+        <!-- Sidebar End -->
+
+        <!-- Main Component Start -->
         <div class="main">
             <nav class="navbar navbar-expand px-3 border-bottom d-flex justify-content-between">
-                <!-- Button for sidebar toggle -->
+                <!-- Button for sidebar toggle Start-->
                 
                 <button class="btn d-flex" type="button" data-bs-theme="dark">
                     <h5 class="text-white pe-2" >Ticketing System</h5>
@@ -91,7 +96,9 @@
                 </button>
 
                 <a href="" class="text-white"><i class="fa-solid fa-power-off pe-2"></i><span>Logout</span></a>
+                    <!-- Button for sidebar toggle Start-->
             </nav>
+                <!-- Main Table Start -->
             <main class="content px-3 py-2">
                 <div class="container-fluid">
                     <div class="mb-3">
@@ -212,9 +219,13 @@
                 </div>
 
             </main>
+            <!-- Main Table End -->
 
         </div>
-    </div>
+        <!-- Main Component Start -->
+    </div>  <!-- wrapper Div End  -->
+
+    <!-- Dashboard (Main)  Page End  -->
 
 <script src="layout/js/jquery-3.7.0.min.js"></script>
 <script src="layout/js/bootstrap.min.js"></script>
