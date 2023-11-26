@@ -28,7 +28,63 @@ $(function () {
         return confirm('Are You Sure About Delete This Information !!!');
     });
 
-    
+    $(document).on('click', '.startTicket', function(e) {
+
+        e.preventDefault();
+
+        var tickid = $(this).val();
+
+        // alert( tickid );
+        
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "tickid":        tickid,
+                "action" :      "start"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    alert('Ticket Started ');
+                } else {
+                    alert('Something Wrong Please Try Again Later...');
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
+
+    $(document).on('click', '.solveTicket', function(e) {
+
+        e.preventDefault();
+
+        var tickid = $(this).val();
+
+        // alert( tickid );
+        
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "tickid":        tickid,
+                "action" :      "solve"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    alert('Ticket Solved Successfully ');
+                } else {
+                    alert('Something Wrong Please Try Again Later...');
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
 
 });
 
