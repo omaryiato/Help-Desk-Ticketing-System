@@ -33,24 +33,24 @@ $(function () {
 
         e.preventDefault();
 
+        var details        =$(this).closest('.content').find('.details').val();
         var name        =$(this).closest('.content').find('.name').val();
-        var user        =$(this).closest('.content').find('.user').val();
         var description =$(this).closest('.content').find('.description').val();
-        var department  =$(this).closest('.content').find('.department').val();
+        var service     =$(this).closest('.content').find('.service').val();
         var tags        =$(this).closest('.content').find('.tags').val();
 
-        // alert(name + user + description + department + tags);
+        // alert(name + service + description + details + tags);
         
         $.ajax({
             method: "POST",
             url: "handel.php",
             data: {
-                "name":         name,
-                "user":         user,
-                "description":  description,
-                "department":   department,
-                "tags":         tags,
-                "action" : "add"
+                "name":             name,
+                "details":          details,
+                "description":      description,
+                "service":          service,
+                "tags":             tags,
+                "action" :          "add"
             },
             success: function (response) {
 
@@ -120,6 +120,22 @@ $(function () {
                 setTimeout(function () {
                     location.reload();
                 }, 100);
+            }
+        });
+    });
+
+    $('#service').on('change', function () {
+        var selectedService = $(this).val();
+
+        $.ajax({
+            type: 'POST',
+            url: 'handel.php', // Handel Page For All ajax Function
+            data: { type: selectedService },
+            success: function (data) {
+                $('#details').html(data);
+            },
+            error: function () {
+                alert('Error fetching users');
             }
         });
     });

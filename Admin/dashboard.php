@@ -74,13 +74,17 @@ if (isset($_SESSION['member'])) {
         $id = oci_result($all, 'ID');
 
         $ticketInfo = "SELECT 
-                            tickets.*, users.name AS Username 
+                            tickets.*, users.name AS Username, service_details.service_details 
                         FROM 
                             tickets  
                         INNER JOIN
                             users 
                         ON 
-                            tickets.user_id = users.id  
+                            tickets.user_id = users.id
+                        LEFT OUTER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
                         WHERE 
                             TEAM_MEMBER_ASSIGNED_ID = :v_member
                         ORDER BY 
@@ -160,17 +164,15 @@ if (isset($_SESSION['member'])) {
                             <div class="table-responsive">
                                 <table class="main-table text-center table table-bordered mt-3">
                                     <tr>
-                                        <td>Ticket_NO</td>
+                                        <td>Ticket NO</td>
                                         <td>User Name</td>
-                                        <td>Ticket Name</td>
                                         <td>Description</td>
-                                        <td>Team Member</td>
+                                        <td>Service Details</td>
                                         <td>Status</td>
                                         <td>Comments</td>
                                         <td>Tickets Date</td>
-                                        <td>UPDATED_DATE</td>
+                                        <td>Update Date</td>
                                         <td>Created By</td>
-                                        <td>Tickets Date</td>
                                         <td>Control</td>
                                     </tr>
                                     <?php
@@ -180,9 +182,8 @@ if (isset($_SESSION['member'])) {
 
                                         echo "<td>" . $ticks["ID"] . "</td>\n";
                                         echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                        echo "<td>" . $ticks["NAME"] . "</td>\n";
                                         echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                        echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                        echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                         echo "<td>";
                                         if ($ticks["STATUS"] == 'initial') {
                                             echo '<span class="badge bg-primary ">' . $ticks["STATUS"] . '</span>';
@@ -202,18 +203,13 @@ if (isset($_SESSION['member'])) {
                                         echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                         echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
                                         echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                        echo "<td>" . $ticks["UPDATED_BY"] . "</td>\n";
                                         echo "<td> 
                                         <div style='display: flex; justify-content: center; align-items: center;'>";
                                         if ($ticks["STATUS"] == 'assign') {
                                             echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info  startTicket' ><i class='fa-solid fa-play' ></i></button>";
-                                        } else {
-                                            echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info' disabled><i class='fa-solid fa-play' ></i></button>";
                                         }
                                         if ($ticks["STATUS"] == 'started') {
                                             echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-success solveTicket' ><i class='fa-solid fa-check'></i></button>";
-                                        } else {
-                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-success' disabled><i class='fa-solid fa-check'></i></button>";
                                         }
                                         echo "<a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["ID"] . "' class='btn btn-primary text-white'><i class='fa-solid fa-eye '></i></a>
                                         </div>
@@ -235,6 +231,62 @@ if (isset($_SESSION['member'])) {
 
         }
     } elseif ($action == 'Open') {
+
+        $userName = $_SESSION['member'];
+
+        $ticketStatus = 'started';
+
+        // Select All Users Except Admin 
+
+
+        $allTicket = "SELECT 
+                            ID 
+                        FROM 
+                            users  
+                        WHERE 
+                        name = :v_user ";
+
+        $all = oci_parse($conn, $allTicket);
+
+        // Bind the variables
+        oci_bind_by_name($all, ":v_user", $userName);
+
+        // Execute the query
+        oci_execute($all);
+
+        // Fetch the result
+        oci_fetch($all);
+
+
+        $id = oci_result($all, 'ID');
+
+        $startedTicket = "SELECT 
+                            tickets.*, users.name AS Username, service_details.service_details 
+                        FROM 
+                            tickets  
+                        INNER JOIN
+                            users 
+                        ON 
+                            tickets.user_id = users.id
+                        LEFT OUTER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
+                        WHERE 
+                            TEAM_MEMBER_ASSIGNED_ID = :v_member
+                        AND
+                            tickets.STATUS = :t_status
+                        ORDER BY 
+                            tickets.ID DESC";
+
+        $started = oci_parse($conn, $startedTicket);
+
+        // Bind the variables
+        oci_bind_by_name($started, ":v_member", $id);
+        oci_bind_by_name($started, ":t_status", $ticketStatus);
+
+        // Execute the query
+        oci_execute($started);
         ?>
         <!-- Open Table Start -->
         <main class="content px-3 py-2">
@@ -245,24 +297,32 @@ if (isset($_SESSION['member'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
+                                    <td>Ticket NO</td>
+                                    <td>User Name</td>
                                     <td>Description</td>
-                                    <td>Department</td>
-                                    <td>Created By</td>
+                                    <td>Service Details</td>
+                                    <td>Comments</td>
                                     <td>Tickets Date</td>
+                                    <td>Update Date</td>
+                                    <td>Created By</td>
                                 </tr>
-                                <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
-                                    <td>Description</td>
-                                    <td>Department</td>
-                                    <td>Created By</td>
-                                    <td>Tickets Date</td>
+                                <?php
+                                while ($ticks = oci_fetch_assoc($started)) {
 
-                                </tr>
+                                    echo "<tr>\n";
+                                    echo "<td>" . $ticks["ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
+                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
+                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
+                                    echo "</tr>\n";
+                                }
+
+                                oci_free_statement($started);
+                                ?>
 
                             </table>
                         </div>
@@ -274,6 +334,62 @@ if (isset($_SESSION['member'])) {
         <!-- Open Table End -->
     <?php
     } elseif ($action == 'Rejected') {
+
+        $userName = $_SESSION['member'];
+
+        $ticketStatus = 'rejected';
+
+        // Select All Users Except Admin 
+
+
+        $allTicket = "SELECT 
+                            ID 
+                        FROM 
+                            users  
+                        WHERE 
+                        name = :v_user ";
+
+        $all = oci_parse($conn, $allTicket);
+
+        // Bind the variables
+        oci_bind_by_name($all, ":v_user", $userName);
+
+        // Execute the query
+        oci_execute($all);
+
+        // Fetch the result
+        oci_fetch($all);
+
+
+        $id = oci_result($all, 'ID');
+
+        $rejectedTicket = "SELECT 
+                            tickets.*, users.name AS Username, service_details.service_details 
+                        FROM 
+                            tickets  
+                        INNER JOIN
+                            users 
+                        ON 
+                            tickets.user_id = users.id
+                        LEFT OUTER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
+                        WHERE 
+                            TEAM_MEMBER_ASSIGNED_ID = :v_member
+                        AND
+                            tickets.STATUS = :t_status
+                        ORDER BY 
+                            tickets.ID DESC";
+
+        $rejected = oci_parse($conn, $rejectedTicket);
+
+        // Bind the variables
+        oci_bind_by_name($rejected, ":v_member", $id);
+        oci_bind_by_name($rejected, ":t_status", $ticketStatus);
+
+        // Execute the query
+        oci_execute($rejected);
     ?>
         <!-- Rejected Table Start -->
         <main class="content px-3 py-2">
@@ -284,36 +400,96 @@ if (isset($_SESSION['member'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
+                                    <td>Ticket NO</td>
+                                    <td>User Name</td>
                                     <td>Description</td>
-                                    <td>Department</td>
-                                    <td>Created By</td>
+                                    <td>Service Details</td>
+                                    <td>Comments</td>
                                     <td>Tickets Date</td>
-                                </tr>
-                                <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
-                                    <td>Description</td>
-                                    <td>Department</td>
+                                    <td>Update Date</td>
                                     <td>Created By</td>
-                                    <td>Tickets Date</td>
-
                                 </tr>
-
+                                <?php
+                                while ($ticks = oci_fetch_assoc($rejected)) {
+                                    echo "<tr>\n";
+                                    echo "<td>" . $ticks["ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
+                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
+                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
+                                    echo "</tr>\n";
+                                }
+                                oci_free_statement($rejected);
+                                ?>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-
         </main>
         <!-- Rejected Table End -->
 
     <?php
     } elseif ($action == 'Assigned') {
+
+        $userName = $_SESSION['member'];
+
+        $ticketStatus = 'assign';
+
+        // Select All Users Except Admin 
+
+
+        $allTicket = "SELECT 
+                            ID 
+                        FROM 
+                            users  
+                        WHERE 
+                        name = :v_user ";
+
+        $all = oci_parse($conn, $allTicket);
+
+        // Bind the variables
+        oci_bind_by_name($all, ":v_user", $userName);
+
+        // Execute the query
+        oci_execute($all);
+
+        // Fetch the result
+        oci_fetch($all);
+
+
+        $id = oci_result($all, 'ID');
+
+        $assignedTicket = "SELECT 
+                            tickets.*, users.name AS Username, service_details.service_details 
+                        FROM 
+                            tickets  
+                        INNER JOIN
+                            users 
+                        ON 
+                            tickets.user_id = users.id
+                        LEFT OUTER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
+                        WHERE 
+                            TEAM_MEMBER_ASSIGNED_ID = :v_member
+                        AND
+                            tickets.STATUS = :t_status
+                        ORDER BY 
+                            tickets.ID DESC";
+
+        $assign = oci_parse($conn, $assignedTicket);
+
+        // Bind the variables
+        oci_bind_by_name($assign, ":v_member", $id);
+        oci_bind_by_name($assign, ":t_status", $ticketStatus);
+
+        // Execute the query
+        oci_execute($assign);
     ?>
         <!-- Assign Table Start -->
         <main class="content px-3 py-2">
@@ -324,25 +500,30 @@ if (isset($_SESSION['member'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
+                                    <td>Ticket NO</td>
+                                    <td>User Name</td>
                                     <td>Description</td>
-                                    <td>Department</td>
-                                    <td>Created By</td>
+                                    <td>Service Details</td>
+                                    <td>Comments</td>
                                     <td>Tickets Date</td>
-
-                                </tr>
-                                <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
-                                    <td>Description</td>
-                                    <td>Department</td>
+                                    <td>Update Date</td>
                                     <td>Created By</td>
-                                    <td>Tickets Date</td>
-
                                 </tr>
+                                <?php
+                                while ($ticks = oci_fetch_assoc($assign)) {
+                                    echo "<tr>\n";
+                                    echo "<td>" . $ticks["ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
+                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
+                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
+                                    echo "</tr>\n";
+                                }
+                                oci_free_statement($assign);
+                                ?>
 
                             </table>
                         </div>
@@ -353,6 +534,62 @@ if (isset($_SESSION['member'])) {
         </main> <!-- Assign Table End -->
     <?php
     } elseif ($action == 'Solved') {
+
+        $userName = $_SESSION['member'];
+
+        $ticketStatus = 'solved';
+
+        // Select All Users Except Admin 
+
+
+        $allTicket = "SELECT 
+                            ID 
+                        FROM 
+                            users  
+                        WHERE 
+                        name = :v_user ";
+
+        $all = oci_parse($conn, $allTicket);
+
+        // Bind the variables
+        oci_bind_by_name($all, ":v_user", $userName);
+
+        // Execute the query
+        oci_execute($all);
+
+        // Fetch the result
+        oci_fetch($all);
+
+
+        $id = oci_result($all, 'ID');
+
+        $solvedTicket = "SELECT 
+                            tickets.*, users.name AS Username, service_details.service_details 
+                        FROM 
+                            tickets  
+                        INNER JOIN
+                            users 
+                        ON 
+                            tickets.user_id = users.id
+                        LEFT OUTER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
+                        WHERE 
+                            TEAM_MEMBER_ASSIGNED_ID = :v_member
+                        AND
+                            tickets.STATUS = :t_status
+                        ORDER BY 
+                            tickets.ID DESC";
+
+        $solved = oci_parse($conn, $solvedTicket);
+
+        // Bind the variables
+        oci_bind_by_name($solved, ":v_member", $id);
+        oci_bind_by_name($solved, ":t_status", $ticketStatus);
+
+        // Execute the query
+        oci_execute($solved);
     ?>
         <!-- Solved Table Start -->
         <main class="content px-3 py-2">
@@ -363,25 +600,32 @@ if (isset($_SESSION['member'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
+                                    <td>Ticket NO</td>
+                                    <td>User Name</td>
                                     <td>Description</td>
-                                    <td>Department</td>
-                                    <td>Created By</td>
+                                    <td>Service Details</td>
+                                    <td>Comments</td>
                                     <td>Tickets Date</td>
-
-                                </tr>
-                                <tr>
-                                    <td>Ticket_NO</td>
-                                    <td>Periority</td>
-                                    <td>Service No</td>
-                                    <td>Description</td>
-                                    <td>Department</td>
+                                    <td>Update Date</td>
                                     <td>Created By</td>
-                                    <td>Tickets Date</td>
-
                                 </tr>
+                                <?php
+                                while ($ticks = oci_fetch_assoc($solved)) {
+
+                                    echo "<tr>\n";
+                                    echo "<td>" . $ticks["ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
+                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
+                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
+                                    echo "</tr>\n";
+                                }
+
+                                oci_free_statement($solved);
+                                ?>
 
                             </table>
                         </div>

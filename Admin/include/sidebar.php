@@ -74,6 +74,6 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <a href="logout.php" class="text-white"><i class="fa-solid fa-power-off pe-2"></i><span>Logout</span></a>
+            <a href="dashboard.php" class="text-white"><i class="fa-solid fa-user pe-2"></i><span>Welcome: <?php echo $_SESSION['member'] ?></span></a>
             <!-- Button for sidebar toggle Start-->
         </nav>

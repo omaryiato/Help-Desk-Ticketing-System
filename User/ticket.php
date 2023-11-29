@@ -52,13 +52,21 @@ if (isset($_SESSION['employee'])) {
         // Select All Users Except Admin 
 
         $ticketInfo = "SELECT 
-                            tickets.*, users.name AS Username 
+                            tickets.*, users.name AS Username, service_type.type, service_details.service_details
                         FROM 
                             tickets  
                         INNER JOIN
                             users 
                         ON 
-                            tickets.user_id = users.id  
+                            tickets.user_id = users.id
+                        INNER JOIN
+                            service_type
+                        ON
+                            tickets.service_type = service_type.id
+                        JOIN
+                            service_details
+                        ON
+                            tickets.service_detailS = service_details.id
                         WHERE 
                             users.name = :v_user
                         ORDER BY 
@@ -91,25 +99,23 @@ if (isset($_SESSION['employee'])) {
                                     <tr>
                                         <td>Ticket_NO</td>
                                         <td>User Name</td>
-                                        <td>Ticket Name</td>
                                         <td>Description</td>
                                         <td>Status</td>
+                                        <td>Service Type</td>
+                                        <td>Service Details</td>
                                         <td>Tags</td>
                                         <td>Comments</td>
                                         <td>Tickets Date</td>
                                         <td>UPDATED_DATE</td>
                                         <td>Created By</td>
-                                        <td>Tickets Date</td>
                                         <td>Control</td>
                                     </tr>
                                     <?php
                                     while ($tick = oci_fetch_assoc($ticket)) {
 
                                         echo "<tr>\n";
-
                                         echo "<td>" . $tick["ID"] . "</td>\n";
                                         echo "<td>" . $tick["USERNAME"] . "</td>\n";
-                                        echo "<td>" . $tick["NAME"] . "</td>\n";
                                         echo "<td>" . $tick["DESCRIPTION"] . "</td>\n";
                                         echo "<td>";
                                         if ($tick["STATUS"] == 'initial') {
@@ -126,12 +132,13 @@ if (isset($_SESSION['employee'])) {
                                             echo '<span class="badge bg-danger">' . $tick["STATUS"] . '</span>';
                                         }
                                         echo "</td>\n";
+                                        echo "<td>" . $tick["TYPE"] . "</td>\n";
+                                        echo "<td>" . $tick["SERVICE_DETAILS"] . "</td>\n";
                                         echo "<td>" . $tick["TAGS"] . "</td>\n";
                                         echo "<td>" . $tick["COMMENTS"] . "</td>\n";
                                         echo "<td>" . $tick["CREATED_DATE"] . "</td>\n";
                                         echo "<td>" . $tick["UPDATED_DATE"] . "</td>\n";
                                         echo "<td>" . $tick["CREATED_BY"] . "</td>\n";
-                                        echo "<td>" . $tick["UPDATED_BY"] . "</td>\n";
                                         echo "<td> 
                                         <div style='display: flex; justify-content: center; align-items: center;'>
                                         <a style='margin-right: 5px;' href='?action=Edit&tickid=" . $tick["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square '></i></a>
@@ -139,12 +146,9 @@ if (isset($_SESSION['employee'])) {
                                         <button style='margin-right: 5px;' value='" . $tick["ID"] . "' class='btn btn-danger deleteTicket'><i class='fa-solid fa-trash-can '></i></button>";
                                         if ($tick["STATUS"] == 'solved') {
                                             echo "<button  value='" . $tick["ID"] . "' class='btn btn-success completTicket'><i class='fa-solid fa-check'></i></button>";
-                                        } else {
-                                            echo "<button  value='" . $tick["ID"] . "' class='btn btn-success' disabled><i class='fa-solid fa-check'></i></button>";
-                                        }
+                                        } 
                                         echo "</div>
                                             </td>\n";
-
                                         echo "</tr>\n";
                                     }
 
@@ -178,33 +182,45 @@ if (isset($_SESSION['employee'])) {
                             <div class="form-group">
                                 <label class="col-sm-2 form-label mt-3" for="">User Name</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select user" name="user" id="" required>
-                                        <option value="0">Choes Your Name</option>
-                                        <?php
-                                        // // Query to retrieve a list of tables
-                                        $newTicket = "SELECT ID, NAME FROM users WHERE type = 'employee'";
-                                        $ticket = oci_parse($conn, $newTicket);
-
-                                        // Execute the query
-                                        oci_execute($ticket);
-
-                                        while ($tick = oci_fetch_assoc($ticket)) {
-                                            echo "<option value='" . $tick['ID'] . "'>" . $tick['NAME'] . "</option>";
-                                        }
-                                        ?>
-                                    </select>
+                                    <input type="text" name="name" value="<?php echo $_SESSION['employee'] ?>" class=" form-control name" disabled>
                                 </div>
                             </div>
                             <!-- End Name  SelectBox -->
 
-                            <!-- Start Ticket Name Field Start-->
+                            <!-- Start Service Type Field Start-->
                             <div class="form-group">
-                                <label class="col-sm-2 control-lable mt-3" for="">Ticket Name</label>
+                                <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="name" value="" class=" form-control name" placeholder="Enter ticket subject please..." required='required'>
+                                    <select class="form-select service" name="service" id="service" required>
+                                        <option value="">Choes Service</option>
+                                        <?php
+                                        // // Query to retrieve a list of tables
+                                        $department = "SELECT  * FROM service_type";
+                                        $dep = oci_parse($conn, $department);
+
+                                        // Execute the query
+                                        oci_execute($dep);
+
+                                        while ($dept = oci_fetch_assoc($dep)) {
+                                            echo "<option value='" . $dept['ID'] . "'>" . $dept['TYPE'] . "</option>";
+                                        }
+                                        ?>
+
+                                    </select>
                                 </div>
                             </div>
-                            <!-- End Ticket Name Field End -->
+                            <!-- End TService Type Field End -->
+
+                            <!-- Start Service Details Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="details">Service Details</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select details" name="details" id="details" required>
+                                        <option value="">Choose Service Detail</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End Service Details Field End -->
 
                             <!-- Start Issue Description Field -->
                             <div class="form-group">
@@ -227,30 +243,6 @@ if (isset($_SESSION['employee'])) {
                                     </select>
                                 </div>
                                 <!-- End Tags Field -->
-
-                                <!-- Start Department SelectBox -->
-                                <div class="form-group">
-                                    <label class="col-sm-2 form-label mt-3" for="">Department</label>
-                                    <div class="col-sm-10">
-                                        <select class="form-select department" name="department" id="" required>
-                                            <option value="0">Choes Department</option>
-                                            <?php
-                                            // // Query to retrieve a list of tables
-                                            $department = "SELECT  DEPARTMENT FROM users WHERE type = 'employee' ";
-                                            $dep = oci_parse($conn, $department);
-
-                                            // Execute the query
-                                            oci_execute($dep);
-
-                                            while ($dept = oci_fetch_assoc($dep)) {
-                                                echo "<option value='" . $dept['DEPARTMENT'] . "'>" . $dept['DEPARTMENT'] . "</option>";
-                                            }
-                                            ?>
-
-                                        </select>
-                                    </div>
-                                </div>
-                                <!-- End Department  SelectBox -->
 
                                 <!-- Start Submit Button -->
                                 <div class="form-group">

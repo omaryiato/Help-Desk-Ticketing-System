@@ -24,35 +24,6 @@ if (!$conn) {
     echo "Connectoin to Oracle Database Failed!<br>";
 }
 
-// if (isset($_POST['assignTicket'])) {  // Assign Ticket To The Team Member  
-
-//     $userID         = $_POST['user'];
-//     $userDep        = $_POST['department'];
-//     $ticketid       = $_POST['id'];
-//     $assignedMember = 'assign';
-
-//     // // Query to Insert the Data To Tickets Table  
-
-//     $assignTicket = "UPDATE tickets SET 
-//                             TEAM_MEMBER_ASSIGNED_ID = :t_member, STATUS = :new_status
-//                             WHERE ID = :t_id";
-
-//     $assign = oci_parse($conn, $assignTicket);
-
-//     oci_bind_by_name($assign, ':t_member', $userID);
-//     oci_bind_by_name($assign, ':new_status', $assignedMember);
-//     oci_bind_by_name($assign, ':t_id', $ticketid);
-
-//     oci_execute($assign, OCI_NO_AUTO_COMMIT);
-
-//     oci_commit($conn);  // commits all new Data
-
-//     redirect("dashboard.php");
-// } else {
-//     echo 'Theres Somting Wrong';
-// }
-
-
 if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
 
     $action = $_POST['action'];
@@ -80,12 +51,15 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
 
         if ($run) {
             oci_commit($conn);
-            echo 'done';
+            return 'done';
         } else {
-            $e = oci_error($add);
+            $e = oci_error($assign);
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
             oci_rollback($conn);
         }
+
+        // Simulate a success response for demonstration purposes
+
     } elseif ($action == 'start') {
 
         $ticketid       = $_POST['tickid'];
@@ -186,6 +160,65 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             $e = oci_error($user);
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
             oci_rollback($conn);
+        }
+    } elseif ($action == 'new') {
+
+        $max = "SELECT MAX(ID) FROM USERS";
+
+        // -- Increment the ID for the new User
+        $incrId = oci_parse($conn, $max);
+        oci_execute($incrId);
+        $id = oci_fetch_assoc($incrId);
+
+        $username       = $_POST['username'];
+        $password       = $_POST['password'];
+        $email          = $_POST['email'];
+        $department     = $_POST['department'];
+        $usertype       = $_POST['usertype'];
+        $phone          = $_POST['phone'];
+        $admin          = $_POST['admin'];
+        $userid         = ++$id['MAX(ID)'];
+        $status         = 'Active';
+
+        $users = "SELECT NAME FROM users WHERE NAME = :t_name";
+
+        $user = oci_parse($conn, $users);
+        oci_bind_by_name($user, ':t_name', $username);
+
+        // Execute the query
+        oci_execute($user);
+
+        $row = oci_fetch_assoc($user);
+
+        if ($row['NAME'] == $username) {
+            echo 'exist';
+        } else {
+
+            $addUser = "INSERT INTO USERS (ID, NAME, TYPE, PASSWORD, EMAIL, DEPARTMENT, PHONE_NUMBER, STATUS, created_date, created_by) 
+            VALUES (:t_id, :t_user, :t_type, :t_pass, :t_email,  :t_dep, :t_phone, :t_status, CURRENT_TIMESTAMP, :t_create)";
+
+            $add = oci_parse($conn, $addUser);
+
+            oci_bind_by_name($add, ':t_id', $userid);
+            oci_bind_by_name($add, ':t_user', $username);
+            oci_bind_by_name($add, ':t_type', $usertype);
+            oci_bind_by_name($add, ':t_pass', $password);
+            oci_bind_by_name($add, ':t_email', $email);
+            oci_bind_by_name($add, ':t_dep', $department);
+            oci_bind_by_name($add, ':t_phone', $phone);
+            oci_bind_by_name($add, ':t_status', $status);
+            oci_bind_by_name($add, ':t_create', $admin);
+
+            $run = oci_execute($add, OCI_NO_AUTO_COMMIT);
+
+            if ($run) {
+                oci_commit($conn);
+                echo 'success';
+            } else {
+                $e = oci_error($add);
+                echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+                oci_rollback($conn);
+            }
         }
     }
 }

@@ -47,20 +47,42 @@ if (isset($_SESSION['leader'])) {
 
     if ($action == 'Manage') {
 
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
         // Select All Users Except Admin 
 
         $allTicket = "SELECT 
-                            tickets.*, users.name AS Username 
+                            tickets.*, users.name AS Username , service_type.type AS ServiceType , service_details.service_details
                         FROM 
                             tickets  
                         INNER JOIN
                             users 
                         ON 
-                            tickets.user_id = users.id 
+                            tickets.user_id = users.id
+                        INNER JOIN
+                            service_type
+                        ON
+                        tickets.service_type = service_type.id
+                        JOIN
+                            service_details
+                        ON
+                            tickets.service_detailS = service_details.id
+                        WHERE service_type.type = :t_service
                         ORDER BY 
                             tickets.ID DESC";
 
         $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_service", $user['DEPARTMENT']);
 
         // Execute the query
         oci_execute($all);
@@ -130,17 +152,16 @@ if (isset($_SESSION['leader'])) {
                             <div class="table-responsive">
                                 <table class="main-table text-center table table-bordered mt-3">
                                     <tr>
-                                        <td>Ticket_NO</td>
+                                        <td>Ticket NO</td>
                                         <td>User Name</td>
-                                        <td>Ticket Name</td>
                                         <td>Description</td>
                                         <td>Team Member</td>
+                                        <td>Service Details</td>
                                         <td>Status</td>
                                         <td>Comments</td>
                                         <td>Tickets Date</td>
-                                        <td>UPDATED_DATE</td>
+                                        <td>Update Date</td>
                                         <td>Created By</td>
-                                        <td>Tickets Date</td>
                                         <td>Control</td>
                                     </tr>
 
@@ -148,12 +169,11 @@ if (isset($_SESSION['leader'])) {
                                     while ($ticks = oci_fetch_assoc($all)) {
 
                                         echo "<tr>\n";
-
                                         echo "<td>" . $ticks["ID"] . "</td>\n";
                                         echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                        echo "<td>" . $ticks["NAME"] . "</td>\n";
                                         echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
                                         echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                        echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                         echo "<td>";
                                         if ($ticks["STATUS"] == 'initial') {
                                             echo '<span class="badge bg-primary ">' . $ticks["STATUS"] . '</span>';
@@ -173,22 +193,23 @@ if (isset($_SESSION['leader'])) {
                                         echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                         echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
                                         echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                        echo "<td>" . $ticks["UPDATED_BY"] . "</td>\n";
                                         echo "<td > 
-                                        <div style='display: flex; justify-content: center; align-items: center;'>
-                                            <a style='margin-right: 5px;' href='?action=Assign&tickid=" . $ticks["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-at'></i></a>
-                                            <button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-danger  rejectTicket'><i class='fa-solid fa-circle-xmark'></i></button>";
+                                        <div style='display: flex; justify-content: center; align-items: center;'>";
+
+                                        if ($ticks["STATUS"] == 'initial') {
+                                            echo "<a style='margin-right: 5px;' href='?action=Assign&tickid=" . $ticks["ID"] . "' class='btn btn-warning' ><i class='fa-solid fa-at'></i></a>";
+                                        }
                                         if ($ticks["STATUS"] == 'initial') {
                                             echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info startTicket' ><i class='fa-solid fa-play' ></i></button>";
-                                        } else {
-                                            echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info' disabled ><i class='fa-solid fa-play' ></i></button>";
                                         }
                                         if ($ticks["STATUS"] == 'started') {
                                             echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-success solveTicket' ><i class='fa-solid fa-check'></i></button>";
-                                        } else {
-                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-success' disabled><i class='fa-solid fa-check'></i></button>";
                                         }
-                                        echo "<a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["ID"] . "' class='btn btn-primary text-white'><i class='fa-solid fa-eye '></i></a>";
+                                        if ($ticks["STATUS"] == 'initial') {
+                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-danger  rejectTicket'><i class='fa-solid fa-circle-xmark'></i></button>";
+                                        }
+                                        echo "
+                                        <a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["ID"] . "' class='btn btn-primary text-white'><i class='fa-solid fa-eye '></i></a>";
                                         echo "</div>
                                         </td>\n";
 
@@ -212,25 +233,47 @@ if (isset($_SESSION['leader'])) {
         }
     } elseif ($action == 'Open') {
 
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
         $ticketStatus = 'started';
 
         // Select Started Ticket
 
         $startedTicket = "SELECT 
-                            tickets.*, users.name AS Username 
+                            tickets.*, users.name AS Username, service_type.type, service_details.service_details
                         FROM 
                             tickets  
                         INNER JOIN
                             users 
                         ON 
                             tickets.user_id = users.id 
+                        INNER JOIN
+                            service_type
+                        ON
+                            tickets.service_type = service_type.id
+                        JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
                         WHERE 
-                            tickets.STATUS = :t_status
+                            tickets.STATUS = :t_status AND
+                            service_type.type = :dpt_name
                         ORDER BY 
                             tickets.ID DESC";
 
         $start = oci_parse($conn, $startedTicket);
         oci_bind_by_name($start, ":t_status", $ticketStatus);
+        oci_bind_by_name($start, ":dpt_name", $user['DEPARTMENT']);
 
         // Execute the query
         oci_execute($start);
@@ -245,14 +288,14 @@ if (isset($_SESSION['leader'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
+                                    <td>Ticket NO</td>
                                     <td>User Name</td>
-                                    <td>Ticket Name</td>
                                     <td>Description</td>
                                     <td>Team Member</td>
+                                    <td>Service Details</td>
                                     <td>Comments</td>
                                     <td>Tickets Date</td>
-                                    <td>UPDATED_DATE</td>
+                                    <td>Updated Date</td>
                                     <td>Created By</td>
                                 </tr>
                                 <?php
@@ -261,9 +304,9 @@ if (isset($_SESSION['leader'])) {
                                     echo "<tr>\n";
                                     echo "<td>" . $ticks["ID"] . "</td>\n";
                                     echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["NAME"] . "</td>\n";
                                     echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
                                     echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                     echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
                                     echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                     echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
@@ -284,25 +327,47 @@ if (isset($_SESSION['leader'])) {
     <?php
     } elseif ($action == 'Solved') {
 
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
         $ticketStatus = 'solved';
 
         // Select Started Ticket
 
         $solvedTicket = "SELECT 
-                            tickets.*, users.name AS Username 
+                            tickets.*, users.name AS Username, service_type.type, service_details.service_details
                         FROM 
                             tickets  
                         INNER JOIN
                             users 
                         ON 
                             tickets.user_id = users.id 
+                        INNER JOIN
+                            service_type
+                        ON
+                            tickets.service_type = service_type.id
+                        JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
                         WHERE 
-                            tickets.STATUS = :t_status
+                            tickets.STATUS = :t_status AND
+                            service_type.type = :dpt_name
                         ORDER BY 
                             tickets.ID DESC";
 
         $solved = oci_parse($conn, $solvedTicket);
         oci_bind_by_name($solved, ":t_status", $ticketStatus);
+        oci_bind_by_name($solved, ":dpt_name", $user['DEPARTMENT']);
 
         // Execute the query
         oci_execute($solved);
@@ -316,14 +381,14 @@ if (isset($_SESSION['leader'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
+                                    <td>Ticket NO</td>
                                     <td>User Name</td>
-                                    <td>Ticket Name</td>
                                     <td>Description</td>
                                     <td>Team Member</td>
+                                    <td>Service Details</td>
                                     <td>Comments</td>
                                     <td>Tickets Date</td>
-                                    <td>UPDATED_DATE</td>
+                                    <td>Updated Date</td>
                                     <td>Created By</td>
                                 </tr>
                                 <?php
@@ -332,9 +397,9 @@ if (isset($_SESSION['leader'])) {
                                     echo "<tr>\n";
                                     echo "<td>" . $ticks["ID"] . "</td>\n";
                                     echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["NAME"] . "</td>\n";
                                     echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
                                     echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                     echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
                                     echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                     echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
@@ -356,25 +421,47 @@ if (isset($_SESSION['leader'])) {
     <?php
     } elseif ($action == 'Rejected') {
 
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
         $ticketStatus = 'rejected';
 
         // Select Started Ticket
 
         $rejectedTicket = "SELECT 
-                            tickets.*, users.name AS Username 
-                        FROM 
-                            tickets  
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id 
-                        WHERE 
-                            tickets.STATUS = :t_status
-                        ORDER BY 
-                            tickets.ID DESC";
+                                tickets.*, users.name AS Username, service_type.type, service_details.service_details
+                            FROM 
+                                tickets  
+                            INNER JOIN
+                                users 
+                            ON 
+                                tickets.user_id = users.id 
+                            INNER JOIN
+                                service_type
+                            ON
+                                tickets.service_type = service_type.id
+                            JOIN
+                                service_details
+                            ON
+                                tickets.service_details = service_details.id
+                            WHERE 
+                                tickets.STATUS = :t_status AND
+                                service_type.type = :dpt_name
+                            ORDER BY 
+                                tickets.ID DESC";
 
         $rejected = oci_parse($conn, $rejectedTicket);
         oci_bind_by_name($rejected, ":t_status", $ticketStatus);
+        oci_bind_by_name($rejected, ":dpt_name", $user['DEPARTMENT']);
 
         // Execute the query
         oci_execute($rejected);
@@ -388,14 +475,14 @@ if (isset($_SESSION['leader'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
+                                    <td>Ticket NO</td>
                                     <td>User Name</td>
-                                    <td>Ticket Name</td>
                                     <td>Description</td>
                                     <td>Team Member</td>
+                                    <td>Service Details</td>
                                     <td>Comments</td>
                                     <td>Tickets Date</td>
-                                    <td>UPDATED_DATE</td>
+                                    <td>Updated Date</td>
                                     <td>Created By</td>
                                 </tr>
                                 <?php
@@ -404,9 +491,9 @@ if (isset($_SESSION['leader'])) {
                                     echo "<tr>\n";
                                     echo "<td>" . $ticks["ID"] . "</td>\n";
                                     echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["NAME"] . "</td>\n";
                                     echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
                                     echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                     echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
                                     echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                     echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
@@ -428,25 +515,47 @@ if (isset($_SESSION['leader'])) {
     <?php
     } elseif ($action == 'Pending') {
 
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
         $ticketStatus = 'initial';
 
         // Select Started Ticket
 
         $pendingTicket = "SELECT 
-                            tickets.*, users.name AS Username 
-                        FROM 
-                            tickets  
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id 
-                        WHERE 
-                            tickets.STATUS = :t_status
-                        ORDER BY 
-                            tickets.ID DESC";
+                                tickets.*, users.name AS Username, service_type.type, service_details.service_details
+                            FROM 
+                                tickets  
+                            INNER JOIN
+                                users 
+                            ON 
+                                tickets.user_id = users.id 
+                            INNER JOIN
+                                service_type
+                            ON
+                                tickets.service_type = service_type.id
+                            JOIN
+                                service_details
+                            ON
+                                tickets.service_details = service_details.id
+                            WHERE 
+                                tickets.STATUS = :t_status AND
+                                service_type.type = :dpt_name
+                            ORDER BY 
+                                tickets.ID DESC";
 
         $pending = oci_parse($conn, $pendingTicket);
         oci_bind_by_name($pending, ":t_status", $ticketStatus);
+        oci_bind_by_name($pending, ":dpt_name", $user['DEPARTMENT']);
 
         // Execute the query
         oci_execute($pending);
@@ -460,14 +569,14 @@ if (isset($_SESSION['leader'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
+                                    <td>Ticket NO</td>
                                     <td>User Name</td>
-                                    <td>Ticket Name</td>
                                     <td>Description</td>
                                     <td>Team Member</td>
+                                    <td>Service Details</td>
                                     <td>Comments</td>
                                     <td>Tickets Date</td>
-                                    <td>UPDATED_DATE</td>
+                                    <td>Updated Date</td>
                                     <td>Created By</td>
 
                                 </tr>
@@ -477,9 +586,9 @@ if (isset($_SESSION['leader'])) {
                                     echo "<tr>\n";
                                     echo "<td>" . $ticks["ID"] . "</td>\n";
                                     echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["NAME"] . "</td>\n";
                                     echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
                                     echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                     echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
                                     echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                     echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
@@ -489,8 +598,6 @@ if (isset($_SESSION['leader'])) {
 
                                 oci_free_statement($pending);
                                 ?>
-
-
                             </table>
                         </div>
                     </div>
@@ -502,25 +609,47 @@ if (isset($_SESSION['leader'])) {
     <?php
     } elseif ($action == 'Assigned') {
 
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
         $ticketStatus = 'assign';
 
         // Select Started Ticket
 
-        $assignedTicket = "SELECT 
-                            tickets.*, users.name AS Username 
-                        FROM 
-                            tickets  
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id 
-                        WHERE 
-                            tickets.STATUS = :t_status
-                        ORDER BY 
-                            tickets.ID DESC";
+        $assignedTicket =  "SELECT 
+                                tickets.*, users.name AS Username, service_type.type, service_details.service_details
+                            FROM 
+                                tickets  
+                            INNER JOIN
+                                users 
+                            ON 
+                                tickets.user_id = users.id 
+                            INNER JOIN
+                                service_type
+                            ON
+                                tickets.service_type = service_type.id
+                            JOIN
+                                service_details
+                            ON
+                                tickets.service_details = service_details.id
+                            WHERE 
+                                tickets.STATUS = :t_status AND
+                                service_type.type = :dpt_name
+                            ORDER BY 
+                                tickets.ID DESC";
 
         $assigned = oci_parse($conn, $assignedTicket);
         oci_bind_by_name($assigned, ":t_status", $ticketStatus);
+        oci_bind_by_name($assigned, ":dpt_name", $user['DEPARTMENT']);
 
         // Execute the query
         oci_execute($assigned);
@@ -534,14 +663,14 @@ if (isset($_SESSION['leader'])) {
                         <div class="table-responsive">
                             <table class="main-table text-center table table-bordered mt-3">
                                 <tr>
-                                    <td>Ticket_NO</td>
+                                    <td>Ticket NO</td>
                                     <td>User Name</td>
-                                    <td>Ticket Name</td>
                                     <td>Description</td>
                                     <td>Team Member</td>
+                                    <td>Service Details</td>
                                     <td>Comments</td>
                                     <td>Tickets Date</td>
-                                    <td>UPDATED_DATE</td>
+                                    <td>Updated Date</td>
                                     <td>Created By</td>
                                 </tr>
                                 <?php
@@ -550,9 +679,9 @@ if (isset($_SESSION['leader'])) {
                                     echo "<tr>\n";
                                     echo "<td>" . $ticks["ID"] . "</td>\n";
                                     echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["NAME"] . "</td>\n";
                                     echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
                                     echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
+                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
                                     echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
                                     echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                     echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
@@ -573,14 +702,29 @@ if (isset($_SESSION['leader'])) {
     <?php
     } elseif ($action == 'User') {
 
-        // Select Started Ticket
+        // Select Users Based On Department E
 
-        $users = "SELECT * FROM users ORDER BY ID DESC";
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
 
-        $user = oci_parse($conn, $users);
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
 
         // Execute the query
-        oci_execute($user);
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
+        $admin = 'team_leader';
+        // Select Started Ticket
+
+        $users = "SELECT * FROM users WHERE DEPARTMENT = :t_dep AND TYPE != :t_type  ORDER BY ID DESC";
+
+        $all = oci_parse($conn, $users);
+        oci_bind_by_name($all, ":t_dep", $user['DEPARTMENT']);
+        oci_bind_by_name($all, ":t_type", $admin);
+
+        // Execute the query
+        oci_execute($all);
     ?>
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
@@ -593,39 +737,40 @@ if (isset($_SESSION['leader'])) {
                                 <tr>
                                     <td>#ID</td>
                                     <td>Username</td>
-                                    <td>Email</td>
-                                    <td>Department</td>
-                                    <td>Registerd Date</td>
                                     <td>User Type</td>
-                                    <td>Status</td>
+                                    <td>Email</td>
+                                    <td>Phone Number</td>
+                                    <td>Registerd Date</td>
+                                    <td>Created By</td>
                                     <td>Control</td>
                                 </tr>
 
                                 <?php
-                                while ($member = oci_fetch_assoc($user)) {
+                                while ($member = oci_fetch_assoc($all)) {
 
                                     echo "<tr>\n";
                                     echo "<td>" . $member["ID"] . "</td>\n";
                                     echo "<td>" . $member["NAME"] . "</td>\n";
                                     echo "<td>" . $member["TYPE"] . "</td>\n";
                                     echo "<td>" . $member["EMAIL"] . "</td>\n";
-                                    echo "<td>" . $member["DEPARTMENT"] . "</td>\n";
-                                    echo "<td>" . $member["IP_ADDRESS"] . "</td>\n";
                                     echo "<td>" . $member["PHONE_NUMBER"] . "</td>\n";
+                                    echo "<td>" . $member["CREATED_DATE"] . "</td>\n";
+                                    echo "<td>" . $member["CREATED_BY"] . "</td>\n";
                                     echo "<td > 
                                         <div style='display: flex; justify-content: center; align-items: center;'>
-                                            <a style='margin-right: 5px;' href='?action=Edit&tickid=" . $member["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square'></i></a>
+                                            <a style='margin-right: 5px;' href='?action=Edit&userid=" . $member["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square'></i></a>
                                             <button style='margin-right: 5px;' value='" . $member["ID"] . "' class='btn btn-danger  deleteUser'><i class='fa-solid fa-trash-can'></i></button>";
                                     echo "</div>
                                         </td>\n";
                                     echo "</tr>\n";
                                 }
 
-                                oci_free_statement($user);
+                                oci_free_statement($all);
                                 ?>
 
                             </table>
                         </div>
+
                         <a class="btn btn-primary " href="?action=Add" style="margin-top: 50px; margin-bottom: 30px;"><i class="fa-solid fa-plus"></i> Add New Mermber </a>
                     </div>
                 </div>
@@ -635,6 +780,19 @@ if (isset($_SESSION['leader'])) {
         <!-- Manage Users Table End -->
     <?php
     } elseif ($action == 'Add') {
+
+        $userName = $_SESSION['leader'];
+
+        $leader = "SELECT NAME FROM users  WHERE NAME = :t_name";
+
+        $admin = oci_parse($conn, $leader);
+        oci_bind_by_name($admin, ":t_name", $userName);
+
+        // Execute the query
+        oci_execute($admin);
+
+        $row = oci_fetch_assoc($admin);
+
     ?>
 
         <!-- Manage Users Table Start -->
@@ -650,7 +808,7 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Username</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="username" class="form-control" placeholder=" Enter username to access please..." autocomplete="off" required="required">
+                                    <input type="text" name="username" class="form-control  username" placeholder=" Enter username to access please..." autocomplete="off" required="required">
                                 </div>
                             </div>
                             <!-- End Username Field -->
@@ -669,17 +827,32 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Email</label>
                                 <div class="col-sm-10">
-                                    <input type="email" name="email" class="form-control" placeholder="  Enter a valide email please..." autocomplete="off">
+                                    <input type="email" name="email" class="form-control  email" placeholder="  Enter a valide email please..." autocomplete="off">
                                 </div>
                             </div>
                             <!-- End Email Field -->
+
+                            <!-- Start Phone Number Field -->
+                            <div class="form-group form-group-lg">
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Phone Number</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="phone" oninput="restrictInput(event)" class="form-control  phone" placeholder="  Enter Phone number please..." autocomplete="off">
+                                </div>
+                            </div>
+                            <!-- End Phone Number Field -->
+
+                            <!-- Start Phone Number Field -->
+                            <input type="text" name="admin" class="form-control  admin" value="<?php echo $row['NAME'] ?>" hidden>
+                            <!-- End Phone Number Field -->
 
                             <!-- Start Department SelectBox -->
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Department</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select" name="department" id="">
+                                    <select class="form-select  department" name="department" id="">
                                         <option value="0">Choes Department</option>
+                                        <option value="EBS">EBS</option>
+                                        <option value="IT">IT Services</option>
                                     </select>
                                 </div>
                             </div>
@@ -689,10 +862,11 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">User Type</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select" name="usertype" id="">
+                                    <select class="form-select usertype" name="usertype" id="">
                                         <option value="0">Choes User Type</option>
-                                        <option value='admin'>admin</option>
-                                        <option value='member'>member</option>
+                                        <option value='employee'>Employee</option>
+                                        <option value='team_member_assigned'>Team member assigned</option>
+                                        <option value='team_leader'>Team leader</option>
                                     </select>
                                 </div>
                             </div>
@@ -701,7 +875,7 @@ if (isset($_SESSION['leader'])) {
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg mt-3 mb-1">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <input type="submit" value="Add Users" class="btn btn-success btn-lg">
+                                    <button type="submit" class="btn btn-primary btn-lg addUsers">Add Users</button>
                                 </div>
                             </div>
                             <!-- End Submit Button  -->
@@ -715,6 +889,18 @@ if (isset($_SESSION['leader'])) {
 
     <?php
     } elseif ($action == 'Edit') {
+
+        $userid = isset($_GET['userid']) && is_numeric($_GET['userid']) ?   intval($_GET['userid']) : 0;
+
+        $userInfo = "SELECT * FROM users  WHERE ID = :t_id";
+
+        $user = oci_parse($conn, $userInfo);
+        oci_bind_by_name($user, ":t_id", $userid);
+
+        // Execute the query
+        oci_execute($user);
+
+        $row = oci_fetch_assoc($user);
     ?>
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
@@ -723,12 +909,13 @@ if (isset($_SESSION['leader'])) {
                     <h2 class="text-center">Edit User Information</h2>
                     <div class="container">
                         <form class="form-horizontal" action="" method="">
-                            <input type="hidden" name="id" value="">
+                            <input type="hidden" name="id" value="<?php echo $row['ID'] ?>">
+
                             <!-- Start Username Field -->
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Username</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="username" value="" class="form-control" placeholder="Enter new username please..." autocomplete="off" required="required">
+                                    <input type="text" name="username" value="<?php echo $row['NAME'] ?>" class="form-control  username" placeholder="Enter new username please..." autocomplete="off" required="required">
                                 </div>
                             </div>
                             <!-- End Username Field -->
@@ -740,9 +927,9 @@ if (isset($_SESSION['leader'])) {
 
                                 <div class="col-sm-10">
 
-                                    <input type="hidden" name="oldpassword" value=" ">
+                                    <input type="hidden" name="oldpassword" value="<?php echo $row['PASSWORD'] ?>">
 
-                                    <input type="password" name="newpassword" class="form-control" placeholder="Enter new password please... (optional)" autocomplete="new-password">
+                                    <input type="password" name="newpassword" class="form-control  newpassword" placeholder="Enter new password please... (optional)" autocomplete="new-password">
                                 </div>
                             </div>
                             <!-- End Password Field -->
@@ -751,18 +938,33 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Email</label>
                                 <div class="col-sm-10">
-                                    <input type="email" name="email" value="" class="form-control" placeholder="Enter new email please..." autocomplete="off">
+                                    <input type="email" name="email" value="<?php echo $row['EMAIL'] ?>" class="form-control   email" placeholder="Enter new email please..." autocomplete="off">
                                 </div>
                             </div>
                             <!-- End Email Field -->
+
+                            <!-- Start Phone Number Field -->
+                            <div class="form-group form-group-lg">
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Phone Number</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="phone" value="<?php echo $row['PHONE_NUMBER'] ?>" oninput="restrictInput(event)" class="form-control   phone" placeholder="Enter new email please..." autocomplete="off">
+                                </div>
+                            </div>
+                            <!-- End Phone Number Field -->
 
                             <!-- Start Department SelectBox -->
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Department</label>
                                 <div class="col-sm-10">
                                     <select class="form-select" name="department" id="">
-                                        <option value="0">Choes Your Department</option>
-                                        <option value=""></option>
+                                        <?php
+                                        $userDept = "SELECT department FROM users WHERE ID = :t_id";
+                                        $dept = oci_parse($conn, $userDept);
+                                        oci_bind_by_name($dept, ':t_id', $row['ID']);
+                                        oci_execute($dept);
+
+                                        ?>
+                                        <option value='<?php echo $row['DEPARTMENT'] ?>' selected><?php echo $row['DEPARTMENT'] ?></option>
                                     </select>
                                 </div>
                             </div>
@@ -780,6 +982,19 @@ if (isset($_SESSION['leader'])) {
                                 </div>
                             </div>
                             <!-- End User Type  SelectBox -->
+
+                            <!-- Start User Status SelectBox -->
+                            <div class="form-group form-group-lg">
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">User Status</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select" name="usertype" id="">
+                                        <option value="0">Choes User Status</option>
+                                        <option value='Active'>Active</option>
+                                        <option value='Deactive'>Deactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End User Status SelectBox -->
 
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg mt-3 mb-1">
@@ -1000,26 +1215,48 @@ if (isset($_SESSION['leader'])) {
 
                         <form class="form-horizontal" action="" method="POST" style="margin: auto;">
 
-                            <!-- Start Department SelectBox -->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="department">Department</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select department" name="department" id="department" required>
-                                        <option value="0">Choes Department</option>
-                                        <option value="IT">IT Services</option>
-                                        <option value="EBS">EBS</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- End Department  SelectBox -->
-
                             <!-- Start Name SelectBox -->
                             <div class="form-group">
                                 <label class="col-sm-2 form-label mt-3" for="user">User Name</label>
                                 <div class="col-sm-10">
                                     <select class="form-select user" name="user" id="user" required>
-                                        <option value="0">Choes Your Name</option>
+                                        <option value="">Choes Member Name</option>
+                                        <?php
+                                        // Select Users Based On Department E
 
+                                        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+                                        $leader = oci_parse($conn, $leaderMember);
+                                        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+                                        // Execute the query
+                                        oci_execute($leader);
+
+                                        $user = oci_fetch_assoc($leader);
+
+                                        // Select All Users Except Admin 
+
+                                        $addigned = 'team_member_assigned';
+
+                                        $allTicket = "SELECT 
+                                                            ID, NAME
+                                                        FROM 
+                                                            users  
+                                                        WHERE DEPARTMENT = :t_service AND
+                                                                TYPE = :t_type";
+
+                                        $all = oci_parse($conn, $allTicket);
+                                        oci_bind_by_name($all, ":t_service", $user['DEPARTMENT']);
+                                        oci_bind_by_name($all, ":t_type", $addigned);
+
+                                        // Execute the query
+                                        oci_execute($all);
+
+                                        while ($dept = oci_fetch_assoc($all)) {
+                                            echo "<option value='" . $dept['ID'] . "'>" . $dept['NAME'] . "</option>";
+                                        }
+
+                                        ?>
                                     </select>
                                 </div>
                             </div>

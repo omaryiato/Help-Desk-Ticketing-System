@@ -29,34 +29,62 @@ if (isset($_POST['action'])) {  // Add New Ticket
 
     if ($action == 'add') {
 
-        $userName       = $_POST['user'];
-        $ticketName     = $_POST['name'];
+        $details        = $_POST['details'];
+        $userName       = $_POST['name'];
         $ticketDes      = $_POST['description'];
-        $userDep        = $_POST['department'];
+        $service        = $_POST['service'];
         $tags           = $_POST['tags'];
 
+        
         // Convert the PHP array to a JSON string
         $tagsJson = json_encode($tags);
 
         $id = rand(1, 1000000);
 
-        $leader = 1;
+        $leader = $_SESSION['employee'];
 
-        // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
+        // Query to fetch users based on the selected department
+        $supUser = "SELECT ID FROM users WHERE NAME = :t_name";
+        $sup = oci_parse($conn, $supUser);
+
+        // Bind the variables
+        oci_bind_by_name($sup, ":t_name", $leader);
+
+        // Execute the query
+        oci_execute($sup);
+
+        $row = oci_fetch_assoc($sup);
+
+        $supLeader = 15;
+
+        // Query to fetch users based on the selected department
+        $memUser = "SELECT ID FROM users WHERE NAME = :t_name";
+        $mem = oci_parse($conn, $memUser);
+
+        // Bind the variables
+        oci_bind_by_name($mem, ":t_name", $userName);
+
+        // Execute the query
+        oci_execute($mem);
+
+        $row = oci_fetch_assoc($mem);
+
+        $memberuser = $row['ID'];
 
         // // Query to Insert the Data To Tickets Table  
 
-        $addTicket = "INSERT INTO TICKETS (ID, USER_ID, TEAM_LEADER_MEMBER_ID, NAME, DESCRIPTION, TAGS, created_date, created_by) 
-                            VALUES (:t_id, :t_user, :t_leader, :t_name, :t_des,  :t_tags, CURRENT_TIMESTAMP, :t_create)";
+        $addTicket = "INSERT INTO TICKETS (ID, USER_ID, TEAM_LEADER_MEMBER_ID, DESCRIPTION, TAGS, created_date, created_by, SERVICE_TYPE, SERVICE_DETAILS) 
+                            VALUES (:t_id, :t_user, :t_leader, :t_des,  :t_tags, CURRENT_TIMESTAMP, :t_create, :t_type, :t_details)";
         $add = oci_parse($conn, $addTicket);
 
         oci_bind_by_name($add, ':t_id', $id);
-        oci_bind_by_name($add, ':t_user', $userName);
-        oci_bind_by_name($add, ':t_leader', $leader);
-        oci_bind_by_name($add, ':t_name', $ticketName);
+        oci_bind_by_name($add, ':t_user', $memberuser);
+        oci_bind_by_name($add, ':t_leader', $supLeader);
         oci_bind_by_name($add, ':t_des', $ticketDes);
         oci_bind_by_name($add, ':t_tags', $tagsJson);
-        oci_bind_by_name($add, ':t_create', $userName);
+        oci_bind_by_name($add, ':t_create', $memberuser);
+        oci_bind_by_name($add, ':t_type', $service);
+        oci_bind_by_name($add, ':t_details', $details);
 
         $run = oci_execute($add, OCI_NO_AUTO_COMMIT);
 
@@ -68,10 +96,10 @@ if (isset($_POST['action'])) {  // Add New Ticket
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
             oci_rollback($conn);
         }
-    }  elseif ($action == 'complete') {
+    } elseif ($action == 'complete') {
 
         $ticketid       = $_POST['tickid'];
-        
+
         $statusUpdate = 'completed';
 
         // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
@@ -95,10 +123,10 @@ if (isset($_POST['action'])) {  // Add New Ticket
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
             oci_rollback($conn);
         }
-    }  elseif ($action == 'delete') {
+    } elseif ($action == 'delete') {
 
         $ticketid       = $_POST['tickid'];
-        
+
         $statusTicket = "DELETE FROM tickets WHERE ID = :t_id";
 
         $status = oci_parse($conn, $statusTicket);
@@ -116,4 +144,27 @@ if (isset($_POST['action'])) {  // Add New Ticket
             oci_rollback($conn);
         }
     }
+}
+
+
+if (isset($_POST['type'])) {   // Choose User Debends On His Department
+    $selectedService = $_POST['type'];
+
+    // Query to fetch users based on the selected department
+    $depUser = "SELECT * FROM service_details WHERE service_type_id = :t_service";
+    $dept = oci_parse($conn, $depUser);
+
+    // Bind the variables
+    oci_bind_by_name($dept, ":t_service", $selectedService);
+
+    // Execute the query
+    oci_execute($dept);
+
+    // Build HTML options for users
+    $options = '';
+    while ($row = oci_fetch_assoc($dept)) {
+        $options .= "<option value='{$row['ID']}'>{$row['SERVICE_DETAILS']}</option>";
+    }
+
+    echo $options;
 }

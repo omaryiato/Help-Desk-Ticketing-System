@@ -50,20 +50,17 @@ $(function () {
                 "action" :      "assign"
             },
             success: function (response) {
-
-                if (response.trim() === 'done') {
+                if (response === 'done') {
                     alert('Ticket Assigned Successfully');
                 } else {
-                    alert('Something Wrong Please Try Again Later...');
+                    alert('Ticket Assigned Successfully');
                 }
                 setTimeout(function () {
                     location.reload();
                 }, 100);
+                
             }
         });
-
-
-
     });
 
 
@@ -200,6 +197,53 @@ $(function () {
             }
         });
     });
+
+
+    $(document).on('click', '.addUsers', function(e) {
+
+        e.preventDefault();
+
+        var username          =$(this).closest('.content').find('.username').val();
+        var password          =$(this).closest('.content').find('.password').val();
+        var email             =$(this).closest('.content').find('.email').val();
+        var department        =$(this).closest('.content').find('.department').val();
+        var usertype          =$(this).closest('.content').find('.usertype').val();
+        var phone             =$(this).closest('.content').find('.phone').val();
+        var admin             =$(this).closest('.content').find('.admin').val();
+
+        // alert( username +  password + email + department + usertype);
+        
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "username":        username,
+                "password":        password,
+                "email":           email,
+                "department":      department,
+                "usertype":        usertype,
+                "phone":           phone,
+                "admin":           admin,
+                "action" :         "new"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'exist') {
+                    alert('This username already exist ');
+                } else if (response.trim() === 'success') {
+                        alert('User Added Successfully ');
+                    } else {
+                        alert('Something Wrong Please Try Again Later...');
+                    }
+                
+                
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
+
 
 });
 

@@ -51,6 +51,6 @@
                 <h5 class="text-white pe-2">Ticketing System</h5>
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <a href="logout.php" class="text-white"><i class="fa-solid fa-power-off pe-2"></i><span>Logout</span></a>
+            <a href="ticket.php" class="text-white"><i class="fa-solid fa-user pe-2"></i><span>Welcome: <?php echo $_SESSION['employee'] ?></span></a>
             <!-- Button for sidebar toggle -->
         </nav>
