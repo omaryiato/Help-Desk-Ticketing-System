@@ -35,7 +35,7 @@ if (isset($_POST['action'])) {  // Add New Ticket
         $service        = $_POST['service'];
         $tags           = $_POST['tags'];
 
-        
+
         // Convert the PHP array to a JSON string
         $tagsJson = json_encode($tags);
 
@@ -99,18 +99,20 @@ if (isset($_POST['action'])) {  // Add New Ticket
     } elseif ($action == 'complete') {
 
         $ticketid       = $_POST['tickid'];
+        $comment       = $_POST['comment'];
 
         $statusUpdate = 'completed';
 
         // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
 
         $statusTicket = "UPDATE tickets SET 
-                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP
+                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP, comments = :t_comments
                             WHERE ID = :t_id";
 
         $status = oci_parse($conn, $statusTicket);
 
         oci_bind_by_name($status, ':new_status', $statusUpdate);
+        oci_bind_by_name($status, ':t_comments', $comment);
         oci_bind_by_name($status, ':t_id', $ticketid);
 
         $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
@@ -132,6 +134,32 @@ if (isset($_POST['action'])) {  // Add New Ticket
         $status = oci_parse($conn, $statusTicket);
 
         oci_bind_by_name($status, ':t_id', $ticketid);
+
+        $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
+
+        if ($run) {
+            oci_commit($conn);
+            echo 'done';
+        } else {
+            $e = oci_error($status);
+            echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+            oci_rollback($conn);
+        }
+    } elseif ($action == 'updateProfile') {
+
+        $userid       = $_POST['userid'];
+        $userName       = $_POST['userName'];
+        $userNumber       = $_POST['userNumber'];
+
+        $statusTicket = "UPDATE users SET 
+                            NAME = :t_name, PHONE_NUMBER = :t_number
+                            WHERE ID = :t_id";
+
+        $status = oci_parse($conn, $statusTicket);
+
+        oci_bind_by_name($status, ':t_name', $userName);
+        oci_bind_by_name($status, ':t_number', $userNumber);
+        oci_bind_by_name($status, ':t_id', $userid);
 
         $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
 

@@ -90,18 +90,20 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
     } elseif ($action == 'solve') {
 
         $ticketid       = $_POST['tickid'];
+        $comment       = $_POST['comment'];
 
         $statusUpdate = 'solved';
 
         // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
 
         $statusTicket = "UPDATE tickets SET 
-                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP
+                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP, admin_comments = :t_comments
                             WHERE ID = :t_id";
 
         $status = oci_parse($conn, $statusTicket);
 
         oci_bind_by_name($status, ':new_status', $statusUpdate);
+        oci_bind_by_name($status, ':t_comments', $comment);
         oci_bind_by_name($status, ':t_id', $ticketid);
 
         $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
@@ -173,22 +175,26 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
         $username       = $_POST['username'];
         $password       = $_POST['password'];
         $email          = $_POST['email'];
-        $department     = $_POST['department'];
+        $userStatus     = $_POST['userStatus'];
         $usertype       = $_POST['usertype'];
         $phone          = $_POST['phone'];
         $admin          = $_POST['admin'];
         $userid         = ++$id['MAX(ID)'];
-        $status         = 'Active';
+
+        $serviceType = "SELECT DEPARTMENT FROM users WHERE NAME = :t_name";
+        $service = oci_parse($conn, $serviceType);
+        oci_bind_by_name($service, ':t_name', $admin);
+        oci_execute($service);
+        $department = oci_fetch_assoc($service);
+
 
         $users = "SELECT NAME FROM users WHERE NAME = :t_name";
-
         $user = oci_parse($conn, $users);
         oci_bind_by_name($user, ':t_name', $username);
-
         // Execute the query
         oci_execute($user);
-
         $row = oci_fetch_assoc($user);
+
 
         if ($row['NAME'] == $username) {
             echo 'exist';
@@ -204,9 +210,9 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             oci_bind_by_name($add, ':t_type', $usertype);
             oci_bind_by_name($add, ':t_pass', $password);
             oci_bind_by_name($add, ':t_email', $email);
-            oci_bind_by_name($add, ':t_dep', $department);
+            oci_bind_by_name($add, ':t_dep', $department['DEPARTMENT']);
             oci_bind_by_name($add, ':t_phone', $phone);
-            oci_bind_by_name($add, ':t_status', $status);
+            oci_bind_by_name($add, ':t_status', $userStatus);
             oci_bind_by_name($add, ':t_create', $admin);
 
             $run = oci_execute($add, OCI_NO_AUTO_COMMIT);
@@ -219,6 +225,144 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
                 echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
                 oci_rollback($conn);
             }
+        }
+    } elseif ($action == 'edit') {
+
+        $userid         = $_POST['userid'];
+        $username       = $_POST['username'];
+        $email          = $_POST['email'];
+        $phone          = $_POST['phone'];
+        $usertype       = $_POST['usertype'];
+
+        $statusTicket = "UPDATE users SET 
+                            NAME = :t_name,
+                            EMAIL = :t_email,
+                            PHONE_NUMBER = :t_phone,
+                            STATUS = :t_status,
+                            UPDATED_DATE = CURRENT_TIMESTAMP
+                            WHERE ID = :t_id";
+
+        $status = oci_parse($conn, $statusTicket);
+
+        oci_bind_by_name($status, ':t_id', $userid);
+        oci_bind_by_name($status, ':t_name', $username);
+        oci_bind_by_name($status, ':t_email', $email);
+        oci_bind_by_name($status, ':t_phone', $phone);
+        oci_bind_by_name($status, ':t_status', $usertype);
+
+        $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
+
+        if ($run) {
+            oci_commit($conn);
+            echo 'done';
+        } else {
+            $e = oci_error($status);
+            echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+            oci_rollback($conn);
+        }
+    } elseif ($action == 'service') {
+
+        $max = "SELECT MAX(ID) FROM service_details";
+
+        // -- Increment the ID for the new User
+        $incrId = oci_parse($conn, $max);
+        oci_execute($incrId);
+        $id = oci_fetch_assoc($incrId);
+
+        $name           = $_POST['name'];
+        $admin          = $_POST['admin'];
+        $userid         = ++$id['MAX(ID)'];
+
+        $serviceType = "SELECT 
+                            service_type.*, users.department AS department
+                        FROM 
+                            service_type
+                        JOIN 
+                            users 
+                        ON 
+                            users.department = service_type.type
+                        WHERE users.NAME = :t_name";
+        $service = oci_parse($conn, $serviceType);
+        oci_bind_by_name($service, ':t_name', $admin);
+        oci_execute($service);
+        $department = oci_fetch_assoc($service);
+
+        $users = "SELECT service_details FROM service_details WHERE service_details = :t_name";
+        $user = oci_parse($conn, $users);
+        oci_bind_by_name($user, ':t_name', $name);
+        // Execute the query
+        oci_execute($user);
+        $row = oci_fetch_assoc($user);
+
+
+        if ($row['SERVICE_DETAILS'] == $name) {
+            echo 'exist';
+        } else {
+
+            $addUser = "INSERT INTO service_details (ID, service_type_id, service_details) 
+            VALUES (:t_id, :t_dept, :t_details)";
+
+            $add = oci_parse($conn, $addUser);
+
+            oci_bind_by_name($add, ':t_id', $userid);
+            oci_bind_by_name($add, ':t_dept', $department['ID']);
+            oci_bind_by_name($add, ':t_details', $name);
+
+
+            $run = oci_execute($add, OCI_NO_AUTO_COMMIT);
+
+            if ($run) {
+                oci_commit($conn);
+                echo 'success';
+            } else {
+                $e = oci_error($add);
+                echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+                oci_rollback($conn);
+            }
+        }
+    } elseif ($action == 'editservice') {
+
+        $serviceID         = $_POST['serviceID'];
+        $serviceName       = $_POST['serviceName'];
+
+        $statusTicket = "UPDATE service_details SET 
+                            service_details = :t_name
+                            WHERE ID = :t_id";
+
+        $status = oci_parse($conn, $statusTicket);
+
+        oci_bind_by_name($status, ':t_id', $serviceID);
+        oci_bind_by_name($status, ':t_name', $serviceName);
+
+        $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
+
+        if ($run) {
+            oci_commit($conn);
+            echo 'done';
+        } else {
+            $e = oci_error($status);
+            echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+            oci_rollback($conn);
+        }
+    } elseif ($action == 'deleservice') {
+
+        $serviceid       = $_POST['serviceid'];
+
+        $member = "DELETE FROM service_details WHERE ID = :t_id";
+
+        $user = oci_parse($conn, $member);
+
+        oci_bind_by_name($user, ':t_id', $serviceid);
+
+        $run = oci_execute($user, OCI_NO_AUTO_COMMIT);
+
+        if ($run) {
+            oci_commit($conn);
+            echo 'done';
+        } else {
+            $e = oci_error($user);
+            echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+            oci_rollback($conn);
         }
     }
 }

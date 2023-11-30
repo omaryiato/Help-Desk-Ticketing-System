@@ -51,9 +51,9 @@ $(function () {
             },
             success: function (response) {
                 if (response === 'done') {
-                    alert('Ticket Assigned Successfully');
+                    Swal.fire("Ticket Assigned Successfully ");
                 } else {
-                    alert('Ticket Assigned Successfully');
+                    Swal.fire("Ticket Assigned Successfully ");
                 }
                 setTimeout(function () {
                     location.reload();
@@ -99,9 +99,13 @@ $(function () {
             success: function (response) {
 
                 if (response.trim() === 'done') {
-                    alert('Ticket Started  ');
+                    Swal.fire("Ticket Started... ");
                 } else {
-                    alert('Something Wrong Please Try Again Later...');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
                 }
                 setTimeout(function () {
                     location.reload();
@@ -114,23 +118,27 @@ $(function () {
 
         e.preventDefault();
 
-        var tickid = $(this).val();
-
-        // alert( tickid );
+        var tickid              = $(this).val();
+        var comment             =$(this).closest('.content').find('.comment').val();
         
         $.ajax({
             method: "POST",
             url: "handel.php",
             data: {
                 "tickid":        tickid,
+                "comment":        comment,
                 "action" :      "solve"
             },
             success: function (response) {
 
                 if (response.trim() === 'done') {
-                    alert('Ticket Solved Successfully  ');
+                    Swal.fire("Ticket Solved Successfully");
                 } else {
-                    alert('Something Wrong Please Try Again Later...');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
                 }
                 setTimeout(function () {
                     location.reload();
@@ -158,10 +166,13 @@ $(function () {
             success: function (response) {
 
                 if (response.trim() === 'done') {
-                    alert('Ticket Rejected Successfully  ');
+                    Swal.fire("Ticket Rejected Successfully");
                 } else {
-                    alert('Something Wrong Please Try Again Later...');
-                }
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });                }
                 setTimeout(function () {
                     location.reload();
                 }, 100);
@@ -187,9 +198,13 @@ $(function () {
             success: function (response) {
 
                 if (response.trim() === 'done') {
-                    alert('User Deleted Successfully  ');
+                    Swal.fire("User Deleted Successfully");
                 } else {
-                    alert('Something Wrong Please Try Again Later...');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    }); 
                 }
                 setTimeout(function () {
                     location.reload();
@@ -206,10 +221,10 @@ $(function () {
         var username          =$(this).closest('.content').find('.username').val();
         var password          =$(this).closest('.content').find('.password').val();
         var email             =$(this).closest('.content').find('.email').val();
-        var department        =$(this).closest('.content').find('.department').val();
         var usertype          =$(this).closest('.content').find('.usertype').val();
         var phone             =$(this).closest('.content').find('.phone').val();
         var admin             =$(this).closest('.content').find('.admin').val();
+        var userStatus        =$(this).closest('.content').find('.userStatus').val();
 
         // alert( username +  password + email + department + usertype);
         
@@ -220,7 +235,7 @@ $(function () {
                 "username":        username,
                 "password":        password,
                 "email":           email,
-                "department":      department,
+                "userStatus":      userStatus,
                 "usertype":        usertype,
                 "phone":           phone,
                 "admin":           admin,
@@ -231,9 +246,9 @@ $(function () {
                 if (response.trim() === 'exist') {
                     alert('This username already exist ');
                 } else if (response.trim() === 'success') {
-                        alert('User Added Successfully ');
+                        Swal.fire("User Added Successfully ");
                     } else {
-                        alert('Something Wrong Please Try Again Later...');
+                        Swal.fire("User Added Successfully ");
                     }
                 
                 
@@ -243,6 +258,152 @@ $(function () {
             }
         });
     });
+
+    $(document).on('click', '.updateTicket', function(e) {
+
+        e.preventDefault();
+
+        var userid              = $(this).val();
+        var username            =$(this).closest('.content').find('.username').val();
+        var email               =$(this).closest('.content').find('.email').val();
+        var phone               =$(this).closest('.content').find('.phone').val();
+        var usertype            =$(this).closest('.content').find('.usertype').val();
+
+        // alert( userid + username + email + phone + usertype );
+        
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "userid":           userid,
+                "username":         username,
+                "email":            email,
+                "phone":            phone,
+                "usertype":         usertype,
+                "action" :         "edit"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    Swal.fire("User Information Updated Successfully ");
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
+
+
+    $(document).on('click', '.addService', function(e) {
+
+        e.preventDefault();
+
+        var name             =$(this).closest('.content').find('.name').val();
+        var admin             =$(this).closest('.content').find('.admin').val();
+        
+        // alert(name + admin)
+
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "name":        name,
+                "admin":        admin,
+                "action" :      "service"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'exist') {
+                    Swal.fire("This Name already exist");
+                } else if (response.trim() === 'success') {
+                    Swal.fire("Service Added Successfully");
+                    } else {
+                        Swal.fire("Service Added Successfully");
+                    }
+                
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
+
+
+
+    $(document).on('click', '.updateService', function(e) {
+
+        e.preventDefault();
+
+        var serviceID              = $(this).val();
+        var serviceName            =$(this).closest('.content').find('.serviceName').val();
+        
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "serviceID":           serviceID,
+                "serviceName":         serviceName,
+                "action" :         "editservice"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    Swal.fire("Service Information Updated Successfully ");
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    });
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
+
+
+    $(document).on('click', '.deleteService', function(e) {
+
+        e.preventDefault();
+
+        var serviceid = $(this).val();
+
+        // alert( tickid );
+        
+        $.ajax({
+            method: "POST",
+            url: "handel.php",
+            data: {
+                "serviceid":        serviceid,
+                "action" :      "deleservice"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    Swal.fire("Service Deleted Successfully");
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                    }); 
+                }
+                setTimeout(function () {
+                    location.reload();
+                }, 100);
+            }
+        });
+    });
+
 
 
 });
@@ -255,6 +416,26 @@ toggler.addEventListener("click",function(){
 function restrictInput(event) {
     const input = event.target;
     input.value = input.value.replace(/[^0-9]/g, '');
+}
+
+
+const exampleModal = document.getElementById('exampleModal')
+if (exampleModal) {
+  exampleModal.addEventListener('show.bs.modal', event => {
+    // Button that triggered the modal
+    const button = event.relatedTarget
+    // Extract info from data-bs-* attributes
+    const recipient = button.getAttribute('data-bs-whatever')
+    // If necessary, you could initiate an Ajax request here
+    // and then do the updating in a callback.
+
+    // Update the modal's content.
+    const modalTitle = exampleModal.querySelector('.modal-title')
+    const modalBodyInput = exampleModal.querySelector('.modal-body input')
+
+    modalTitle.textContent = `New message to ${recipient}`
+    modalBodyInput.value = recipient
+  })
 }
 
 

@@ -104,7 +104,8 @@ if (isset($_SESSION['employee'])) {
                                         <td>Service Type</td>
                                         <td>Service Details</td>
                                         <td>Tags</td>
-                                        <td>Comments</td>
+                                        <td>User Comments</td>
+                                        <td>Admin Comments</td>
                                         <td>Tickets Date</td>
                                         <td>UPDATED_DATE</td>
                                         <td>Created By</td>
@@ -136,17 +137,47 @@ if (isset($_SESSION['employee'])) {
                                         echo "<td>" . $tick["SERVICE_DETAILS"] . "</td>\n";
                                         echo "<td>" . $tick["TAGS"] . "</td>\n";
                                         echo "<td>" . $tick["COMMENTS"] . "</td>\n";
+                                        echo "<td>" . $tick["ADMIN_COMMENTS"] . "</td>\n";
                                         echo "<td>" . $tick["CREATED_DATE"] . "</td>\n";
                                         echo "<td>" . $tick["UPDATED_DATE"] . "</td>\n";
                                         echo "<td>" . $tick["CREATED_BY"] . "</td>\n";
                                         echo "<td> 
                                         <div style='display: flex; justify-content: center; align-items: center;'>
-                                        <a style='margin-right: 5px;' href='?action=Edit&tickid=" . $tick["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square '></i></a>
-                                        <a style='margin-right: 5px;' href='?action=View&tickid=" . $tick["ID"] . "' class='btn btn-info text-white'><i class='fa-solid fa-eye '></i></a>
-                                        <button style='margin-right: 5px;' value='" . $tick["ID"] . "' class='btn btn-danger deleteTicket'><i class='fa-solid fa-trash-can '></i></button>";
+                                        <a style='margin-right: 5px;' href='?action=Edit&tickid=" . $tick["ID"] . "' class='btn btn-warning'  data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket' ><i class='fa-solid fa-pen-to-square '></i></a>
+                                        <a style='margin-right: 5px;' href='?action=View&tickid=" . $tick["ID"] . "' class='btn btn-info text-white'  data-bs-toggle='tooltip' data-bs-placement='top' title='View Ticket' ><i class='fa-solid fa-eye '></i></a>
+                                        <button style='margin-right: 5px;' value='" . $tick["ID"] . "' class='btn btn-danger deleteTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Delete Ticket' ><i class='fa-solid fa-trash-can '></i></button>";
                                         if ($tick["STATUS"] == 'solved') {
-                                            echo "<button  value='" . $tick["ID"] . "' class='btn btn-success completTicket'><i class='fa-solid fa-check'></i></button>";
-                                        } 
+                                    ?>
+                                            <button class='btn btn-success' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#exampleModal" data-bs-whatever="Admin" data-bs-toggle='tooltip' data-bs-placement='top' title='Complete Ticket'><i class='fa-solid fa-check'></i></button>
+
+                                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Any Comment For User</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form>
+                                                                <!-- <div class="mb-3">
+                                                                <label for="recipient-name" class="col-form-label">Recipient:</label>
+                                                                <input type="text" class="form-control" id="recipient-name">
+                                                                        </div> -->
+                                                                <div class="mb-3">
+                                                                    <label for="message-text" class="col-form-label">Message:</label>
+                                                                    <textarea class="form-control comment" id="message-text"></textarea>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            <button type="button" value='<?php echo $tick["ID"] ?>' class="btn btn-primary completTicket">Send message</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    <?php
+                                        }
                                         echo "</div>
                                             </td>\n";
                                         echo "</tr>\n";
@@ -226,7 +257,7 @@ if (isset($_SESSION['employee'])) {
                             <div class="form-group">
                                 <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="description" value="" class=" form-control  description" placeholder="Enter issue description please..." required='required'>
+                                    <textarea name="description" id="" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
                                 </div>
                             </div>
                             <!-- End Issue Description Field -->
@@ -280,70 +311,75 @@ if (isset($_SESSION['employee'])) {
                             <div class="form-group">
                                 <label class="col-sm-2 form-label mt-3" for="">User Name</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select" name="name" id="" required>
-                                        <option value="0">Choes Your Name</option>
+                                    <input type="text" name="name" value="<?php echo $_SESSION['employee'] ?>" class=" form-control name" disabled>
+                                </div>
+                            </div>
+                            <!-- End Name  SelectBox -->
+
+                            <!-- Start Service Type Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select service" name="service" id="service" required>
+                                        <option value="">Choes Service</option>
+                                        <?php
+                                        // // Query to retrieve a list of tables
+                                        $department = "SELECT  * FROM service_type";
+                                        $dep = oci_parse($conn, $department);
+
+                                        // Execute the query
+                                        oci_execute($dep);
+
+                                        while ($dept = oci_fetch_assoc($dep)) {
+                                            echo "<option value='" . $dept['ID'] . "'>" . $dept['TYPE'] . "</option>";
+                                        }
+                                        ?>
 
                                     </select>
                                 </div>
                             </div>
-                            <!-- End Name  SelectBox -->
+                            <!-- End TService Type Field End -->
+
+                            <!-- Start Service Details Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="details">Service Details</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select details" name="details" id="details" required>
+                                        <option value="">Choose Service Detail</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End Service Details Field End -->
 
                             <!-- Start Issue Description Field -->
                             <div class="form-group">
                                 <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="description" value="" class=" form-control" placeholder=" Enter issue description please..." required='required'>
+                                    <textarea name="description" id="" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
                                 </div>
                             </div>
                             <!-- End Issue Description Field -->
 
-
-                            <!-- Start Periority Field -->
+                            <!-- Start Tags Field -->
                             <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="">Periority</label>
-                                <div class="col-sm-10 ">
-                                    <input type="text" name="periority" class=" form-control" placeholder="Enter ticket periority..." required='required'>
-                                </div>
-                            </div>
-                            <!-- End Periority Field -->
-
-                            <!-- Start   SERVICE_NO Field -->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="">Service No</label>
+                                <label class="col-sm-2 form-label mt-3" for="">Tags</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="service" class=" form-control" placeholder=" Enter service number ..." required>
-                                </div>
-                            </div>
-                            <!-- End   SERVICE_NOField -->
-
-                            <!-- Start Department SelectBox -->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="">Department</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select" name="department" id="" required>
-                                        <option value="0">Choes Department</option>
-
+                                    <select class="form-select tags" name="tags[]" id="" required multiple>
+                                        <option value="Hardware">Hardware</option>
+                                        <option value="Software">Software</option>
+                                        <option value="IT">IT</option>
+                                        <option value="Fix">Fix</option>
                                     </select>
                                 </div>
-                            </div>
-                            <!-- End Department  SelectBox -->
+                                <!-- End Tags Field -->
 
-                            <!-- Start Ticket Start Date Cal -->
-                            <!-- <div class="form-group form-group-lg">
-                            <label class="col-sm-2 control-lable" for="">Ticket Start Date</label>
-                            <div class="col-sm-10">
-                                <input type="date" name="date" class=" form-control" required>
-                            </div>
-                        </div> -->
-                            <!-- End Ticket Start Date  Cal -->
-
-                            <!-- Start Submit Button -->
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <input type="submit" value="Update" class="btn btn-success btn-lg mt-3">
+                                <!-- Start Submit Button -->
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <input type="submit" value="Update" class="btn btn-success btn-lg mt-3">
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- End Submit Button  -->
+                                <!-- End Submit Button  -->
                         </form>
                     </div> <!-- Container Div End  -->
                 </div>
@@ -352,6 +388,25 @@ if (isset($_SESSION['employee'])) {
         <!-- Edit Ticket Info End -->
     <?php
     } elseif ($action == 'Info') {  // User Profile Info Page
+
+        $userid = isset($_GET['userid']) && is_numeric($_GET['userid']) ?   intval($_GET['userid']) : 0;
+
+        $ticketInfo = "SELECT
+                            users.*, service_type.type
+                        FROM 
+                            users
+                        INNER JOIN
+                            service_type
+                        ON
+                            users.department = service_type.type
+                        WHERE users.ID = :t_id";
+        $info = oci_parse($conn, $ticketInfo);
+
+        oci_bind_by_name($info, ':t_id', $userid);
+
+        oci_execute($info);
+
+        $infos = oci_fetch_assoc($info);
     ?>
         <!-- User Profile Info STart -->
         <main class="content px-3 py-2"> <!-- Main Start -->
@@ -373,22 +428,30 @@ if (isset($_SESSION['employee'])) {
 
                                                 <li>
                                                     <i class="fa-solid fa-user"></i>
-                                                    <span>User Name : </span>
+                                                    <span>User Name : <?php echo " " . $infos['NAME'] ?></span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-phone"></i>
-                                                    <span>Phone Number : </span>
+                                                    <span>Phone Number : <?php echo " " . $infos['PHONE_NUMBER'] ?></span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Department :</span>
+                                                    <span>Department : <?php echo " " . $infos['DEPARTMENT'] ?></span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-envelope"></i>
-                                                    <span>Email Address : </span>
+                                                    <span>Email Address : <?php echo " " . $infos['EMAIL'] ?> </span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    <span>Register Date : <?php echo " " . $infos['CREATED_DATE'] ?> </span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-battery-half"></i>
+                                                    <span>Status : <?php echo " " . $infos['STATUS'] ?> </span>
                                                 </li>
                                             </ul>
                                         </div> <!-- Panel-body Div End -->
@@ -397,7 +460,7 @@ if (isset($_SESSION['employee'])) {
                                 </div>
                             </div> <!-- Information Div End -->
                         </form>
-                        <a href='?action=update' class='btn btn-success mt-5 mb-5'><i class='fa-solid fa-pen-to-square pe-2'></i>Edit Information</a>
+                        <a href='?action=update&userid=<?php echo $infos['ID'] ?>' class='btn btn-success mt-5 mb-5'><i class='fa-solid fa-pen-to-square pe-2'></i>Edit Information</a>
                     </div>
 
                 </div>
@@ -406,6 +469,21 @@ if (isset($_SESSION['employee'])) {
         <!-- User Profile Info End -->
     <?php
     } elseif ($action == 'update') {   // Edit User Info Page
+
+        $userid = isset($_GET['userid']) && is_numeric($_GET['userid']) ?   intval($_GET['userid']) : 0;
+
+        $ticketInfo = "SELECT
+                            *
+                        FROM 
+                            users
+                        WHERE users.ID = :t_id";
+        $info = oci_parse($conn, $ticketInfo);
+
+        oci_bind_by_name($info, ':t_id', $userid);
+
+        oci_execute($info);
+
+        $infos = oci_fetch_assoc($info);
     ?>
         <!-- Edit User Info Page STart -->
         <main class="content px-3 py-2"> <!-- Main STart -->
@@ -420,7 +498,7 @@ if (isset($_SESSION['employee'])) {
                             <div class="form-group form-group-lg ">
                                 <label class="col-sm-2 control-lable mt-3 mb-2" for="">User Name</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="name" value="" class=" form-control input" placeholder=" Enter your name please...">
+                                    <input type="text" name="name" value="<?php echo $infos['NAME'] ?>" class=" form-control input userName" placeholder=" Enter your name please...">
                                 </div>
                             </div>
                             <!-- End User Name Field -->
@@ -429,7 +507,7 @@ if (isset($_SESSION['employee'])) {
                             <div class="form-group form-group-lg ">
                                 <label class="col-sm-2 control-lable mt-3 mb-2" for="">Phone Number</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="number" value="" oninput="restrictInput(event)" class=" form-control input" placeholder=" Enter your phone number please...">
+                                    <input type="text" name="number" value="<?php echo $infos['PHONE_NUMBER'] ?>" oninput="restrictInput(event)" class=" form-control input userNumber" placeholder=" Enter your phone number please...">
                                 </div>
                             </div>
                             <!-- End Phone Number Field -->
@@ -437,7 +515,7 @@ if (isset($_SESSION['employee'])) {
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <input type="submit" value="Update" class="btn btn-success btn-lg mt-3 mb-2">
+                                    <button type="button" value="<?php echo $infos['ID'] ?>" class="btn btn-success btn-lg mt-3 mb-2 updateProfile">UPDATE</button>
                                 </div>
                             </div>
                             <!-- End Submit Button  -->
@@ -451,6 +529,34 @@ if (isset($_SESSION['employee'])) {
         <!-- Edit User Info Page End -->
     <?php
     } elseif ($action == 'View') {  // View Tickets Info Page
+
+        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0;
+
+        $ticketInfo = "SELECT
+                            tickets.*, users.name AS Username, service_type.type, service_details.service_details 
+                        FROM 
+                            tickets
+                        INNER JOIN
+                            users 
+                        ON 
+                            tickets.user_id = users.id
+                        INNER JOIN
+                            service_type
+                        ON
+                            tickets.service_type = service_type.id
+                        INNER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
+                        WHERE tickets.ID = :t_id";
+        $info = oci_parse($conn, $ticketInfo);
+
+        oci_bind_by_name($info, ':t_id', $ticketid);
+
+        oci_execute($info);
+
+        $infos = oci_fetch_assoc($info);
+
     ?>
         <!-- View Tickets Info Page STart -->
         <main class="content px-3 py-2"> <!-- Main STart -->
@@ -468,22 +574,42 @@ if (isset($_SESSION['employee'])) {
                                 <div class="container">
                                     <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
                                         <div class="panel-heading" style="background-color: #00205b; border: 0;">
-                                            <h2 class="text-white p-2">Issue Description:</h2>
-                                            <h3></h3>
+                                            <h2 class="text-white p-2">Ticket Information</h2>
                                         </div>
                                         <div class="panel-body">
-                                            <ul class="list-unstyled">
-                                                <li>
-                                                    <i class="fa-solid fa-clock"></i>
-                                                    <span>Send Date:</span>
-                                                </li>
+                                            <ul class="list-unstyled ">
+
                                                 <li>
                                                     <i class="fa-solid fa-user"></i>
-                                                    <span>Created By:</span>
+                                                    <span>Created By: <?php echo " " . $infos['USERNAME'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    <span>Send Date: <?php echo " " . $infos['CREATED_DATE'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Department:</span>
+                                                    <span>Service Type: <?php echo " " .  $infos['TYPE'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-circle-info"></i>
+                                                    <span>Service Details: <?php echo " " . $infos['SERVICE_DETAILS'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-box-tissue"></i>
+                                                    <span>Issue Description: <?php echo " " . $infos['DESCRIPTION'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-comment"></i>
+                                                    <span>Employee Comment: <?php echo " " . $infos['COMMENTS'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-comment"></i>
+                                                    <span>Admin Comment:</span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-battery-half"></i>
+                                                    <span>Ticket Status: <?php echo " " . $infos['STATUS'] ?></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -495,49 +621,7 @@ if (isset($_SESSION['employee'])) {
                     </div> <!-- Container Div End  -->
                 </div>
             </div> <!-- Container-fluid Div End -->
-            <div class="container"> <!-- Container Div Start  -->
-                <div class="review block"> <!-- Review Div Start  -->
 
-                    <div class="container"> <!-- Container Div Start  -->
-                        <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
-                            <div class="panel-heading" style="background-color: #00205b; border: 0;">
-                                <h3 class="text-white p-3">Tickets Evaluation</h3>
-                            </div>
-                            <div class="panel-body"> <!-- panel-body Div Start  -->
-
-                                <ul class="list-unstyled">
-                                    <li>
-                                        <i class="fa-solid fa-ticket"></i>
-                                        <span>Ticket No: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-clock"></i>
-                                        <span>Response Time: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-comment"></i>
-                                        <span>Admin Response: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-clock"></i>
-                                        <span>User Evaluation: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-reply"></i>
-                                        <span>User Evaluation: </span>
-                                    </li>
-
-                                </ul>
-                            </div> <!-- panel-body Div End  -->
-                        </div>
-                    </div> <!-- Container Div End  -->
-
-                </div> <!-- Review Div End  -->
-            </div> <!-- Container Div End  -->
 
             <hr class="custom-hr">
 

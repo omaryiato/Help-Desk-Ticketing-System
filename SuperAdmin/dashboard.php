@@ -103,48 +103,71 @@ if (isset($_SESSION['leader'])) {
 
                                 <div class="col-4">
                                     <div class="card text-bg-info text-white mb-3" style="max-width: 10rem;">
-                                        <div class="card-header"><i class="fa-solid fa-layer-group pe-2"></i>All Ticket: 5</div>
+                                        <?php
+                                        $allTickets = "SELECT 
+                                                            tickets.*, service_type.type  
+                                                        FROM 
+                                                            tickets
+                                                        INNER JOIN
+                                                            service_type
+                                                        ON
+                                                            tickets.service_type = service_type.id
+                                                        WHERE service_type.type = :t_service";
+                                        $alltick = oci_parse($conn, $allTickets);
+                                        oci_bind_by_name($alltick, ":t_service", $user['DEPARTMENT']);
+
+                                        // Execute the query
+                                        oci_execute($alltick);
+
+                                        while ($row = oci_fetch_assoc($alltick)) {
+                                            // Process each row
+                                        }
+
+                                        $allRows = oci_num_rows($alltick);
+                                        ?>
+
+                                        <div class="card-header"><i class="fa-solid fa-layer-group pe-2"></i>All Ticket: <?php echo $allRows ?></div>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="card text-bg-primary mb-3" style="max-width: 10rem;">
-                                        <div class="card-header"><i class="fa-solid fa-unlock pe-2"></i>Opend: 5</div>
+
+                                        <div class="card-header"><i class="fa-solid fa-unlock pe-2"></i>Opend: <?php echo getcount('started') ?></div>
                                     </div>
                                 </div>
 
 
                                 <div class="col-4">
                                     <div class="card text-bg-success mb-3" style="max-width: 10rem;">
-                                        <div class="card-header"><i class="fa-solid fa-circle-check pe-2"></i>Solved: 5</div>
+
+                                        <div class="card-header"><i class="fa-solid fa-circle-check pe-2"></i>Solved: <?php echo getcount('solved') ?></div>
                                     </div>
                                 </div>
-
 
                                 <div class="col-4">
                                     <div class="card text-bg-danger mb-3" style="max-width: 10rem;">
-                                        <div class="card-header"><i class="fa-solid fa-circle-xmark pe-2"></i>Rejected: 5</div>
+
+                                        <div class="card-header"><i class="fa-solid fa-circle-xmark pe-2"></i>Rejected: <?php echo getcount('rejected') ?></div>
                                     </div>
                                 </div>
 
-
                                 <div class="col-4">
                                     <div class="card text-bg-warning text-white mb-3" style="max-width: 10rem;">
-                                        <div class="card-header"><i class="fa-solid fa-circle-half-stroke pe-2"></i>Pending: 5</div>
 
+                                        <div class="card-header"><i class="fa-solid fa-circle-half-stroke pe-2"></i>Pending: <?php echo getcount('initial') ?></div>
                                     </div>
                                 </div>
 
                                 <div class="col-4">
                                     <div class="card text-bg-secondary mb-3" style="max-width: 10rem;">
-                                        <div class="card-header"><i class="fa-solid fa-at pe-2"></i>Assigned: 5</div>
+
+                                        <div class="card-header"><i class="fa-solid fa-at pe-2"></i>Assigned: <?php echo getcount('assign') ?></div>
 
                                     </div>
                                 </div>
 
-
                             </div>
-
                         </div>
 
                         <h2 class="text-center mt-4">Manage Tickets</h2>
@@ -158,7 +181,8 @@ if (isset($_SESSION['leader'])) {
                                         <td>Team Member</td>
                                         <td>Service Details</td>
                                         <td>Status</td>
-                                        <td>Comments</td>
+                                        <td>User Comments</td>
+                                        <td>Admin Comments</td>
                                         <td>Tickets Date</td>
                                         <td>Update Date</td>
                                         <td>Created By</td>
@@ -190,6 +214,7 @@ if (isset($_SESSION['leader'])) {
                                         }
                                         echo "</td>\n";
                                         echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
+                                        echo "<td>" . $ticks["ADMIN_COMMENTS"] . "</td>\n";
                                         echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
                                         echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
                                         echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
@@ -197,27 +222,57 @@ if (isset($_SESSION['leader'])) {
                                         <div style='display: flex; justify-content: center; align-items: center;'>";
 
                                         if ($ticks["STATUS"] == 'initial') {
-                                            echo "<a style='margin-right: 5px;' href='?action=Assign&tickid=" . $ticks["ID"] . "' class='btn btn-warning' ><i class='fa-solid fa-at'></i></a>";
+                                            echo "<a style='margin-right: 5px;' href='?action=Assign&tickid=" . $ticks["ID"] . "' class='btn btn-warning'  data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket' ><i class='fa-solid fa-at'></i></a>";
                                         }
                                         if ($ticks["STATUS"] == 'initial') {
-                                            echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info startTicket' ><i class='fa-solid fa-play' ></i></button>";
+                                            echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info startTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket' ><i class='fa-solid fa-play' ></i></button>";
                                         }
                                         if ($ticks["STATUS"] == 'started') {
-                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-success solveTicket' ><i class='fa-solid fa-check'></i></button>";
+                                    ?>
+                                            <button class='btn btn-success' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#exampleModal" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'><i class='fa-solid fa-check'></i></button>
+
+                                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Any Comment For User</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form>
+                                                                <!-- <div class="mb-3">
+                                                            <label for="recipient-name" class="col-form-label">Recipient:</label>
+                                                            <input type="text" class="form-control" id="recipient-name">
+                                                                    </div> -->
+                                                                <div class="mb-3">
+                                                                    <label for="message-text" class="col-form-label">Message:</label>
+                                                                    <textarea class="form-control comment" id="message-text"></textarea>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                            <button type="button" value='<?php echo $ticks["ID"] ?>' class="btn btn-primary solveTicket">Send message</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                    <?php
+
                                         }
                                         if ($ticks["STATUS"] == 'initial') {
-                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-danger  rejectTicket'><i class='fa-solid fa-circle-xmark'></i></button>";
+                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-danger  rejectTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Reject Ticket' ><i class='fa-solid fa-circle-xmark'></i></button>";
                                         }
                                         echo "
-                                        <a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["ID"] . "' class='btn btn-primary text-white'><i class='fa-solid fa-eye '></i></a>";
+                                        <a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["ID"] . "' class='btn btn-primary text-white'  data-bs-toggle='tooltip' data-bs-placement='top' title='View Ticket' ><i class='fa-solid fa-eye '></i></a>";
                                         echo "</div>
                                         </td>\n";
-
                                         echo "</tr>\n";
                                     }
 
                                     oci_free_statement($all);
                                     ?>
+
 
                                 </table>
                             </div>
@@ -845,24 +900,11 @@ if (isset($_SESSION['leader'])) {
                             <input type="text" name="admin" class="form-control  admin" value="<?php echo $row['NAME'] ?>" hidden>
                             <!-- End Phone Number Field -->
 
-                            <!-- Start Department SelectBox -->
-                            <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Department</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select  department" name="department" id="">
-                                        <option value="0">Choes Department</option>
-                                        <option value="EBS">EBS</option>
-                                        <option value="IT">IT Services</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- End  Department  SelectBox -->
-
                             <!-- Start User Type SelectBox -->
                             <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">User Type</label>
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="usertype">User Type</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select usertype" name="usertype" id="">
+                                    <select class="form-select usertype" name="usertype" id="usertype">
                                         <option value="0">Choes User Type</option>
                                         <option value='employee'>Employee</option>
                                         <option value='team_member_assigned'>Team member assigned</option>
@@ -871,6 +913,19 @@ if (isset($_SESSION['leader'])) {
                                 </div>
                             </div>
                             <!-- End  User Type  SelectBox -->
+
+                            <!-- Start User Status SelectBox -->
+                            <div class="form-group form-group-lg">
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="userStatus">User Status</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select userStatus" name="userStatus" id="userStatus" required>
+                                        <option value="">Choes User Status</option>
+                                        <option value='Active'>Active</option>
+                                        <option value='Deactive'>Deactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End  User Status  SelectBox -->
 
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg mt-3 mb-1">
@@ -909,7 +964,7 @@ if (isset($_SESSION['leader'])) {
                     <h2 class="text-center">Edit User Information</h2>
                     <div class="container">
                         <form class="form-horizontal" action="" method="">
-                            <input type="hidden" name="id" value="<?php echo $row['ID'] ?>">
+                            <input type="hidden" class="id" name="id">
 
                             <!-- Start Username Field -->
                             <div class="form-group form-group-lg">
@@ -919,20 +974,6 @@ if (isset($_SESSION['leader'])) {
                                 </div>
                             </div>
                             <!-- End Username Field -->
-
-                            <!-- Start Password Field -->
-                            <div class="form-group form-group-lg">
-
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Password</label>
-
-                                <div class="col-sm-10">
-
-                                    <input type="hidden" name="oldpassword" value="<?php echo $row['PASSWORD'] ?>">
-
-                                    <input type="password" name="newpassword" class="form-control  newpassword" placeholder="Enter new password please... (optional)" autocomplete="new-password">
-                                </div>
-                            </div>
-                            <!-- End Password Field -->
 
                             <!-- Start Email Field -->
                             <div class="form-group form-group-lg">
@@ -952,45 +993,19 @@ if (isset($_SESSION['leader'])) {
                             </div>
                             <!-- End Phone Number Field -->
 
-                            <!-- Start Department SelectBox -->
-                            <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Department</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select" name="department" id="">
-                                        <?php
-                                        $userDept = "SELECT department FROM users WHERE ID = :t_id";
-                                        $dept = oci_parse($conn, $userDept);
-                                        oci_bind_by_name($dept, ':t_id', $row['ID']);
-                                        oci_execute($dept);
-
-                                        ?>
-                                        <option value='<?php echo $row['DEPARTMENT'] ?>' selected><?php echo $row['DEPARTMENT'] ?></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- End  Department  SelectBox -->
-
-                            <!-- Start User Type SelectBox -->
-                            <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">User Type</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select" name="usertype" id="">
-                                        <option value="0">Choes User Type</option>
-                                        <option value='admin'></option>
-                                        <option value='member'></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <!-- End User Type  SelectBox -->
-
                             <!-- Start User Status SelectBox -->
                             <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">User Status</label>
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="usertype">User Status</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select" name="usertype" id="">
-                                        <option value="0">Choes User Status</option>
-                                        <option value='Active'>Active</option>
-                                        <option value='Deactive'>Deactive</option>
+                                    <select class="form-select usertype" name="usertype" id="usertype">
+                                        <option value="">Choes User Status</option>
+                                        <option value='Active' <?php if ($row['STATUS'] == 'Active') {
+                                                                    echo "selected";
+                                                                } ?>>Active</option>
+
+                                        <option value='Deactive' <?php if ($row['STATUS'] == 'Deactive') {
+                                                                        echo "selected";
+                                                                    } ?>>Deactive</option>
                                     </select>
                                 </div>
                             </div>
@@ -999,7 +1014,7 @@ if (isset($_SESSION['leader'])) {
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg mt-3 mb-1">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <input type="submit" value="Update" class="btn btn-success btn-lg">
+                                    <button type="submit" value="<?php echo $row['ID'] ?>" class="btn btn-success btn-lg updateTicket">Update</button>
                                 </div>
                             </div>
                             <!-- End Submit Button  -->
@@ -1011,6 +1026,25 @@ if (isset($_SESSION['leader'])) {
         <!-- Manage Users Table End -->
     <?php
     } elseif ($action == 'Profile') {
+
+        $userid = isset($_GET['userid']) && is_numeric($_GET['userid']) ?   intval($_GET['userid']) : 0;
+
+        $ticketInfo = "SELECT
+                            users.*, service_type.type
+                        FROM 
+                            users
+                        INNER JOIN
+                            service_type
+                        ON
+                            users.department = service_type.type
+                        WHERE users.ID = :t_id";
+        $info = oci_parse($conn, $ticketInfo);
+
+        oci_bind_by_name($info, ':t_id', $userid);
+
+        oci_execute($info);
+
+        $infos = oci_fetch_assoc($info);
     ?>
         <!-- Content Profile Start -->
         <main class="content px-3 py-2">
@@ -1032,22 +1066,30 @@ if (isset($_SESSION['leader'])) {
 
                                                 <li>
                                                     <i class="fa-solid fa-user"></i>
-                                                    <span>User Name : </span>
+                                                    <span>User Name : <?php echo " " . $infos['NAME'] ?></span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-phone"></i>
-                                                    <span>Phone Number : </span>
+                                                    <span>Phone Number : <?php echo " " . $infos['PHONE_NUMBER'] ?></span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Department :</span>
+                                                    <span>Department : <?php echo " " . $infos['DEPARTMENT'] ?></span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-envelope"></i>
-                                                    <span>Email Address : </span>
+                                                    <span>Email Address : <?php echo " " . $infos['EMAIL'] ?> </span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    <span>Register Date : <?php echo " " . $infos['CREATED_DATE'] ?> </span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-battery-half"></i>
+                                                    <span>Status : <?php echo " " . $infos['STATUS'] ?> </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1106,6 +1148,34 @@ if (isset($_SESSION['leader'])) {
         </main> <!-- Content Profile End -->
     <?php
     } elseif ($action == 'View') {
+
+        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0;
+
+        $ticketInfo = "SELECT
+                            tickets.*, users.name AS Username, service_type.type, service_details.service_details 
+                        FROM 
+                            tickets
+                        INNER JOIN
+                            users 
+                        ON 
+                            tickets.user_id = users.id
+                        INNER JOIN
+                            service_type
+                        ON
+                            tickets.service_type = service_type.id
+                        INNER JOIN
+                            service_details
+                        ON
+                            tickets.service_details = service_details.id
+                        WHERE tickets.ID = :t_id";
+        $info = oci_parse($conn, $ticketInfo);
+
+        oci_bind_by_name($info, ':t_id', $ticketid);
+
+        oci_execute($info);
+
+        $infos = oci_fetch_assoc($info);
+
     ?>
         <!-- Ticket Information Table Start -->
         <main class="content px-3 py-2">
@@ -1123,22 +1193,42 @@ if (isset($_SESSION['leader'])) {
                                 <div class="container">
                                     <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
                                         <div class="panel-heading" style="background-color: #00205b; border: 0;">
-                                            <h2 class="text-white p-2">Issue Description:</h2>
-                                            <h3></h3>
+                                            <h2 class="text-white p-2">Ticket Information</h2>
                                         </div>
                                         <div class="panel-body">
-                                            <ul class="list-unstyled">
-                                                <li>
-                                                    <i class="fa-solid fa-clock"></i>
-                                                    <span>Send Date:</span>
-                                                </li>
+                                            <ul class="list-unstyled ">
+
                                                 <li>
                                                     <i class="fa-solid fa-user"></i>
-                                                    <span>Created By:</span>
+                                                    <span>Created By: <?php echo " " . $infos['USERNAME'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-clock"></i>
+                                                    <span>Send Date: <?php echo " " . $infos['CREATED_DATE'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Department:</span>
+                                                    <span>Service Type: <?php echo " " .  $infos['TYPE'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-circle-info"></i>
+                                                    <span>Service Details: <?php echo " " . $infos['SERVICE_DETAILS'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-box-tissue"></i>
+                                                    <span>Issue Description: <?php echo " " . $infos['DESCRIPTION'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-comment"></i>
+                                                    <span>Employee Comment: <?php echo " " . $infos['COMMENTS'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-comment"></i>
+                                                    <span>Admin Comment:</span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-battery-half"></i>
+                                                    <span>Ticket Status: <?php echo " " . $infos['STATUS'] ?></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1151,54 +1241,178 @@ if (isset($_SESSION['leader'])) {
                 </div>
             </div>
 
-            <div class="container"> <!-- Container Div Start  -->
-                <div class="review block"> <!-- Review Div Start  -->
-
-                    <div class="container"> <!-- Container Div Start  -->
-                        <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
-                            <div class="panel-heading" style="background-color: #00205b; border: 0;">
-                                <h3 class="text-white p-3">Tickets Evaluation</h3>
-                            </div>
-                            <div class="panel-body">
-
-                                <ul class="list-unstyled">
-                                    <li>
-                                        <i class="fa-solid fa-ticket"></i>
-                                        <span>Ticket No: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-clock"></i>
-                                        <span>Response Time: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-comment"></i>
-                                        <span>Admin Response: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-clock"></i>
-                                        <span>User Evaluation: </span>
-                                    </li>
-
-                                    <li>
-                                        <i class="fa-solid fa-reply"></i>
-                                        <span>User Evaluation: </span>
-                                    </li>
-
-                                </ul>
-                            </div>
-                        </div>
-                    </div> <!-- Container Div End  -->
-
-                </div> <!-- Review Div End  -->
-            </div> <!-- Container Div End  -->
-
             <hr class="custom-hr">
 
         </main>
         <!-- Ticket Information Table End -->
+    <?php
+    } elseif ($action == 'service') {
+
+        // Select Users Based On Department E
+
+        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
+
+        $leader = oci_parse($conn, $leaderMember);
+        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
+
+        // Execute the query
+        oci_execute($leader);
+
+        $user = oci_fetch_assoc($leader);
+
+        // Select Started Ticket
+
+        $users = "SELECT 
+                    service_details.*, service_type.type 
+                FROM 
+                    service_details
+                INNER JOIN
+                    service_type 
+                ON 
+                    service_details.SERVICE_TYPE_ID = service_type.ID
+                WHERE 
+                    service_type.type = :t_dep  
+                ORDER BY service_details.ID ";
+
+        $all = oci_parse($conn, $users);
+        oci_bind_by_name($all, ":t_dep", $user['DEPARTMENT']);
+
+        // Execute the query
+        oci_execute($all);
+    ?>
+
+        <!-- Manage Users Table Start -->
+        <main class="content px-3 py-2">
+            <div class="container-fluid">
+                <div class="mb-3">
+                    <h2 class="text-center mt-3">Manage Users</h2>
+                    <div class="container">
+                        <div class="table-responsive">
+                            <table class="main-table text-center table table-bordered mt-3">
+                                <tr>
+                                    <td>#ID</td>
+                                    <td>Service Name</td>
+                                    <td>Control</td>
+                                </tr>
+
+                                <?php
+                                while ($member = oci_fetch_assoc($all)) {
+
+                                    echo "<tr>\n";
+                                    echo "<td>" . $member["ID"] . "</td>\n";
+                                    echo "<td>" . $member["SERVICE_DETAILS"] . "</td>\n";
+                                    echo "<td > 
+                                        <div style='display: flex; justify-content: center; align-items: center;'>
+                                            <a style='margin-right: 5px;' href='?action=serviceEdit&serviceid=" . $member["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square'></i></a>
+                                            <button style='margin-right: 5px;' value='" . $member["ID"] . "' class='btn btn-danger  deleteService'><i class='fa-solid fa-trash-can'></i></button>";
+                                    echo "</div>
+                                        </td>\n";
+                                    echo "</tr>\n";
+                                }
+
+                                oci_free_statement($all);
+                                ?>
+
+                            </table>
+                        </div>
+
+                        <a class="btn btn-primary " href="?action=AddService" style="margin-top: 50px; margin-bottom: 30px;"><i class="fa-solid fa-plus"></i> Add New Mermber </a>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+        <!-- Manage Users Table End -->
+
+    <?php
+    } elseif ($action == 'AddService') {
+    ?>
+
+        <!-- Manage Users Table Start -->
+        <main class="content px-3 py-2">
+            <div class="container-fluid">
+                <div class="mb-3">
+                    <h2 class="text-center">Add New Service</h2>
+                    <div class="container">
+                        <!-- Add Users Form Start -->
+                        <form class="form-horizontal" action="" method="">
+
+                            <!-- Start Username Field -->
+                            <div class="form-group form-group-lg">
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Service Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="name" class="form-control  name" placeholder=" Enter Service Name please..." autocomplete="off" required="required">
+                                </div>
+                            </div>
+                            <!-- End Username Field -->
+
+                            <!-- Start Phone Number Field -->
+                            <input type="text" name="admin" class="form-control  admin" value="<?php echo $_SESSION['leader'] ?>" hidden>
+                            <!-- End Phone Number Field -->
+
+                            <!-- Start Submit Button -->
+                            <div class="form-group form-group-lg mt-3 mb-1">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary btn-lg addService">Add Service</button>
+                                </div>
+                            </div>
+                            <!-- End Submit Button  -->
+                        </form>
+                        <!-- Add Users Form End -->
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Manage Users Table End -->
+
+    <?php
+    } elseif ($action == 'serviceEdit') {
+
+        $serviceid = isset($_GET['serviceid']) && is_numeric($_GET['serviceid']) ?   intval($_GET['serviceid']) : 0;
+
+        $userInfo = "SELECT * FROM service_details  WHERE ID = :t_id";
+
+        $user = oci_parse($conn, $userInfo);
+        oci_bind_by_name($user, ":t_id", $serviceid);
+
+        // Execute the query
+        oci_execute($user);
+
+        $row = oci_fetch_assoc($user);
+    ?>
+
+        <!-- Manage Users Table Start -->
+        <main class="content px-3 py-2">
+            <div class="container-fluid">
+                <div class="mb-3">
+                    <h2 class="text-center">Edit Service Information</h2>
+                    <div class="container">
+                        <form class="form-horizontal" action="" method="">
+                            <input type="hidden" class="id" name="id">
+
+                            <!-- Start Username Field -->
+                            <div class="form-group form-group-lg">
+                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Service Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="serviceName" value="<?php echo $row['SERVICE_DETAILS'] ?>" class="form-control  serviceName" placeholder="Enter new username please..." autocomplete="off" required="required">
+                                </div>
+                            </div>
+                            <!-- End Username Field -->
+
+                            <!-- Start Submit Button -->
+                            <div class="form-group form-group-lg mt-3 mb-1">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" value="<?php echo $row['ID'] ?>" class="btn btn-success btn-lg updateService">Update</button>
+                                </div>
+                            </div>
+                            <!-- End Submit Button  -->
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <!-- Manage Users Table End -->
+
     <?php
     } elseif ($action == 'Assign') {  // Assigned Ticket Page 
 

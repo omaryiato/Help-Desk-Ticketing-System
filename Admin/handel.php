@@ -31,7 +31,7 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
     if ($action == 'start') {
 
         $ticketid       = $_POST['tickid'];
-        
+
         $statusUpdate = 'started';
 
         // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
@@ -55,21 +55,24 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
             oci_rollback($conn);
         }
-    }  elseif ($action == 'solve') {
+    } elseif ($action == 'solve') {
 
         $ticketid       = $_POST['tickid'];
-        
+        $comment       = $_POST['comment'];
+
+
         $statusUpdate = 'solved';
 
         // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
 
         $statusTicket = "UPDATE tickets SET 
-                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP
+                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP, admin_comments = :t_comments
                             WHERE ID = :t_id";
 
         $status = oci_parse($conn, $statusTicket);
 
         oci_bind_by_name($status, ':new_status', $statusUpdate);
+        oci_bind_by_name($status, ':t_comments', $comment);
         oci_bind_by_name($status, ':t_id', $ticketid);
 
         $run = oci_execute($status, OCI_NO_AUTO_COMMIT);

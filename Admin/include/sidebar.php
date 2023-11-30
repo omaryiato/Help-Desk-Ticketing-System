@@ -48,8 +48,15 @@
                         Auth
                     </a>
                     <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <?php
+                        $profileInfo = "SELECT ID FROM users WHERE NAME = :t_name ";
+                        $profile = oci_parse($conn, $profileInfo);
+                        oci_bind_by_name($profile, ':t_name', $_SESSION['member']);
+                        oci_execute($profile);
+                        $row = oci_fetch_array($profile)
+                        ?>
                         <li class="sidebar-item">
-                            <a href="?action=Profile" class="sidebar-link"><i class="fa-solid fa-address-card pe-2"></i>Profile</a>
+                            <a href="?action=Profile&userid=<?php echo $row['ID'] ?>" class="sidebar-link"><i class="fa-solid fa-address-card pe-2"></i>Profile</a>
                         </li>
                         <li class="sidebar-item">
                             <a href="logout.php" class="sidebar-link"><i class="fa-solid fa-power-off pe-2"></i>Logout</a>
