@@ -11,10 +11,9 @@ ob_start(); // Output Buffering Start
 
 session_start();
 
-if (isset($_SESSION['leader'])) {
+if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Home Page';
-
     // Oracle database connection settings
     $host = '192.168.15.245';
     $port = '1521';
@@ -35,8 +34,9 @@ if (isset($_SESSION['leader'])) {
         echo "Connectoin to Oracle Database Failed!<br>";
     }
 
-    include 'init.php';
+    include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function) File
 
+    // This action variable to redirect pages and move between them using GET
     $action = isset($_GET['action']) ? $_GET['action'] : 'Manage';
 
     if (isset($_GET['action'])) {
@@ -45,742 +45,224 @@ if (isset($_SESSION['leader'])) {
         $action = 'Manage';
     }
 
-    if ($action == 'Manage') {
+    if ($action == 'Manage') {              // Home page thats contain Ticket Transation based on user permission 
 
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        // Select All Users Except Admin 
-
-        $allTicket = "SELECT 
-                            tickets.*, users.name AS Username , service_type.type AS ServiceType , service_details.service_details
-                        FROM 
-                            tickets  
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id
-                        INNER JOIN
-                            service_type
-                        ON
-                        tickets.service_type = service_type.id
-                        JOIN
-                            service_details
-                        ON
-                            tickets.service_detailS = service_details.id
-                        WHERE service_type.type = :t_service
-                        ORDER BY 
-                            tickets.ID DESC";
-
+        InsertUserID(); // This Function To Insert user permission to table global_temp_table until you can see the tickets
+        // select all tickets based on user permission
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
-        oci_bind_by_name($all, ":t_service", $user['DEPARTMENT']);
-
         // Execute the query
         oci_execute($all);
 
-        // Fetch All Data From Tickets Table
-
-        if (!empty(oci_execute($all))) {
-
-?>
-            <!-- Main Table Start -->
-            <main class="content px-3 py-2">
-                <div class="container-fluid">
-                    <div class="mb-3">
-
-                        <div class="container mt-4 m-auto">
-
-                            <div class="row">
-
-                                <div class="col-4">
-                                    <div class="card text-bg-info text-white mb-3" style="max-width: 10rem;">
-                                        <?php
-                                        $allTickets = "SELECT 
-                                                            tickets.*, service_type.type  
-                                                        FROM 
-                                                            tickets
-                                                        INNER JOIN
-                                                            service_type
-                                                        ON
-                                                            tickets.service_type = service_type.id
-                                                        WHERE service_type.type = :t_service";
-                                        $alltick = oci_parse($conn, $allTickets);
-                                        oci_bind_by_name($alltick, ":t_service", $user['DEPARTMENT']);
-
-                                        // Execute the query
-                                        oci_execute($alltick);
-
-                                        while ($row = oci_fetch_assoc($alltick)) {
-                                            // Process each row
-                                        }
-
-                                        $allRows = oci_num_rows($alltick);
-                                        ?>
-
-                                        <div class="card-header"><i class="fa-solid fa-layer-group pe-2"></i>All Ticket: <?php echo $allRows ?></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-4">
-                                    <div class="card text-bg-primary mb-3" style="max-width: 10rem;">
-
-                                        <div class="card-header"><i class="fa-solid fa-unlock pe-2"></i>Opend: <?php echo getcount('started') ?></div>
-                                    </div>
-                                </div>
-
-
-                                <div class="col-4">
-                                    <div class="card text-bg-success mb-3" style="max-width: 10rem;">
-
-                                        <div class="card-header"><i class="fa-solid fa-circle-check pe-2"></i>Solved: <?php echo getcount('solved') ?></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-4">
-                                    <div class="card text-bg-danger mb-3" style="max-width: 10rem;">
-
-                                        <div class="card-header"><i class="fa-solid fa-circle-xmark pe-2"></i>Rejected: <?php echo getcount('rejected') ?></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-4">
-                                    <div class="card text-bg-warning text-white mb-3" style="max-width: 10rem;">
-
-                                        <div class="card-header"><i class="fa-solid fa-circle-half-stroke pe-2"></i>Pending: <?php echo getcount('initial') ?></div>
-                                    </div>
-                                </div>
-
-                                <div class="col-4">
-                                    <div class="card text-bg-secondary mb-3" style="max-width: 10rem;">
-
-                                        <div class="card-header"><i class="fa-solid fa-at pe-2"></i>Assigned: <?php echo getcount('assign') ?></div>
-
-                                    </div>
-                                </div>
-
-                            </div>
+        if (!empty(oci_execute($all))) { // If the table is not empty you can see the tickets else you will see else message 
+            include 'main-page.php'; // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
                         </div>
-
-                        <h2 class="text-center mt-4">Manage Tickets</h2>
-                        <div class="container">
-                            <div class="table-responsive">
-                                <table class="main-table text-center table table-bordered mt-3">
-                                    <tr>
-                                        <td>Ticket NO</td>
-                                        <td>User Name</td>
-                                        <td>Description</td>
-                                        <td>Team Member</td>
-                                        <td>Service Details</td>
-                                        <td>Status</td>
-                                        <td>User Comments</td>
-                                        <td>Admin Comments</td>
-                                        <td>Tickets Date</td>
-                                        <td>Update Date</td>
-                                        <td>Created By</td>
-                                        <td>Control</td>
-                                    </tr>
-
-                                    <?php
-                                    while ($ticks = oci_fetch_assoc($all)) {
-
-                                        echo "<tr>\n";
-                                        echo "<td>" . $ticks["ID"] . "</td>\n";
-                                        echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                        echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                        echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
-                                        echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
-                                        echo "<td>";
-                                        if ($ticks["STATUS"] == 'initial') {
-                                            echo '<span class="badge bg-primary ">' . $ticks["STATUS"] . '</span>';
-                                        } elseif ($ticks["STATUS"] == 'assign') {
-                                            echo '<span class="badge bg-warning">' . $ticks["STATUS"] . '</span>';
-                                        } elseif ($ticks["STATUS"] == 'started') {
-                                            echo '<span class="badge bg-info">' . $ticks["STATUS"] . '</span>';
-                                        } elseif ($ticks["STATUS"] == 'solved') {
-                                            echo '<span class="badge bg-success">' . $ticks["STATUS"] . '</span>';
-                                        } elseif ($ticks["STATUS"] == 'completed') {
-                                            echo '<span class="badge bg-success">' . $ticks["STATUS"] . '</span>';
-                                        } elseif ($ticks["STATUS"] == 'rejected') {
-                                            echo '<span class="badge bg-danger">' . $ticks["STATUS"] . '</span>';
-                                        }
-                                        echo "</td>\n";
-                                        echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
-                                        echo "<td>" . $ticks["ADMIN_COMMENTS"] . "</td>\n";
-                                        echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
-                                        echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
-                                        echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                        echo "<td > 
-                                        <div style='display: flex; justify-content: center; align-items: center;'>";
-
-                                        if ($ticks["STATUS"] == 'initial') {
-                                            echo "<a style='margin-right: 5px;' href='?action=Assign&tickid=" . $ticks["ID"] . "' class='btn btn-warning'  data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket' ><i class='fa-solid fa-at'></i></a>";
-                                        }
-                                        if ($ticks["STATUS"] == 'initial') {
-                                            echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["ID"] . "'  class='btn btn-info startTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket' ><i class='fa-solid fa-play' ></i></button>";
-                                        }
-                                        if ($ticks["STATUS"] == 'started') {
-                                    ?>
-                                            <button class='btn btn-success' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#exampleModal" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'><i class='fa-solid fa-check'></i></button>
-
-                                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Any Comment For User</h1>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <form>
-                                                                <!-- <div class="mb-3">
-                                                            <label for="recipient-name" class="col-form-label">Recipient:</label>
-                                                            <input type="text" class="form-control" id="recipient-name">
-                                                                    </div> -->
-                                                                <div class="mb-3">
-                                                                    <label for="message-text" class="col-form-label">Message:</label>
-                                                                    <textarea class="form-control comment" id="message-text"></textarea>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                            <button type="button" value='<?php echo $ticks["ID"] ?>' class="btn btn-primary solveTicket">Send message</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    <?php
-
-                                        }
-                                        if ($ticks["STATUS"] == 'initial') {
-                                            echo "<button style='margin-right: 5px;' value='" . $ticks["ID"] . "' class='btn btn-danger  rejectTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Reject Ticket' ><i class='fa-solid fa-circle-xmark'></i></button>";
-                                        }
-                                        echo "
-                                        <a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["ID"] . "' class='btn btn-primary text-white'  data-bs-toggle='tooltip' data-bs-placement='top' title='View Ticket' ><i class='fa-solid fa-eye '></i></a>";
-                                        echo "</div>
-                                        </td>\n";
-                                        echo "</tr>\n";
-                                    }
-
-                                    oci_free_statement($all);
-                                    ?>
-
-
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
-            <!-- Main Table End -->
-            <!-- Dashboard (Main)  Page End  -->
-
-        <?php
+                    </div>';
         }
-    } elseif ($action == 'Open') {
+    } elseif ($action == 'Open') {          // Open Ticket page thats contain Started Ticket based on user permission
 
-        // Select Users Based On Department E
+        InsertUserID(); // This Function To Insert user permission to table global_temp_table until you can see the tickets
 
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        $ticketStatus = 'started';
+        $ticketStatus = 30;
 
         // Select Started Ticket
-
-        $startedTicket = "SELECT 
-                            tickets.*, users.name AS Username, service_type.type, service_details.service_details
-                        FROM 
-                            tickets  
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id 
-                        INNER JOIN
-                            service_type
-                        ON
-                            tickets.service_type = service_type.id
-                        JOIN
-                            service_details
-                        ON
-                            tickets.service_details = service_details.id
-                        WHERE 
-                            tickets.STATUS = :t_status AND
-                            service_type.type = :dpt_name
-                        ORDER BY 
-                            tickets.ID DESC";
-
-        $start = oci_parse($conn, $startedTicket);
-        oci_bind_by_name($start, ":t_status", $ticketStatus);
-        oci_bind_by_name($start, ":dpt_name", $user['DEPARTMENT']);
-
-        // Execute the query
-        oci_execute($start);
-
-        ?>
-        <!-- Open Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Opened Tickets</h2>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="main-table text-center table table-bordered mt-3">
-                                <tr>
-                                    <td>Ticket NO</td>
-                                    <td>User Name</td>
-                                    <td>Description</td>
-                                    <td>Team Member</td>
-                                    <td>Service Details</td>
-                                    <td>Comments</td>
-                                    <td>Tickets Date</td>
-                                    <td>Updated Date</td>
-                                    <td>Created By</td>
-                                </tr>
-                                <?php
-                                while ($ticks = oci_fetch_assoc($start)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $ticks["ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                    echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
-                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($start);
-                                ?>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-        <!-- Open Table End -->
-    <?php
-    } elseif ($action == 'Solved') {
-
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        $ticketStatus = 'solved';
-
-        // Select Started Ticket
-
-        $solvedTicket = "SELECT 
-                            tickets.*, users.name AS Username, service_type.type, service_details.service_details
-                        FROM 
-                            tickets  
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id 
-                        INNER JOIN
-                            service_type
-                        ON
-                            tickets.service_type = service_type.id
-                        JOIN
-                            service_details
-                        ON
-                            tickets.service_details = service_details.id
-                        WHERE 
-                            tickets.STATUS = :t_status AND
-                            service_type.type = :dpt_name
-                        ORDER BY 
-                            tickets.ID DESC";
-
-        $solved = oci_parse($conn, $solvedTicket);
-        oci_bind_by_name($solved, ":t_status", $ticketStatus);
-        oci_bind_by_name($solved, ":dpt_name", $user['DEPARTMENT']);
-
-        // Execute the query
-        oci_execute($solved);
-    ?>
-        <!-- Solved Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Solved Tickets</h2>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="main-table text-center table table-bordered mt-3">
-                                <tr>
-                                    <td>Ticket NO</td>
-                                    <td>User Name</td>
-                                    <td>Description</td>
-                                    <td>Team Member</td>
-                                    <td>Service Details</td>
-                                    <td>Comments</td>
-                                    <td>Tickets Date</td>
-                                    <td>Updated Date</td>
-                                    <td>Created By</td>
-                                </tr>
-                                <?php
-                                while ($ticks = oci_fetch_assoc($solved)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $ticks["ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                    echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
-                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($solved);
-                                ?>
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-        <!-- Solved Table End -->
-    <?php
-    } elseif ($action == 'Rejected') {
-
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        $ticketStatus = 'rejected';
-
-        // Select Started Ticket
-
-        $rejectedTicket = "SELECT 
-                                tickets.*, users.name AS Username, service_type.type, service_details.service_details
-                            FROM 
-                                tickets  
-                            INNER JOIN
-                                users 
-                            ON 
-                                tickets.user_id = users.id 
-                            INNER JOIN
-                                service_type
-                            ON
-                                tickets.service_type = service_type.id
-                            JOIN
-                                service_details
-                            ON
-                                tickets.service_details = service_details.id
-                            WHERE 
-                                tickets.STATUS = :t_status AND
-                                service_type.type = :dpt_name
-                            ORDER BY 
-                                tickets.ID DESC";
-
-        $rejected = oci_parse($conn, $rejectedTicket);
-        oci_bind_by_name($rejected, ":t_status", $ticketStatus);
-        oci_bind_by_name($rejected, ":dpt_name", $user['DEPARTMENT']);
-
-        // Execute the query
-        oci_execute($rejected);
-    ?>
-        <!-- Rejected Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Rejected Tickets</h2>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="main-table text-center table table-bordered mt-3">
-                                <tr>
-                                    <td>Ticket NO</td>
-                                    <td>User Name</td>
-                                    <td>Description</td>
-                                    <td>Team Member</td>
-                                    <td>Service Details</td>
-                                    <td>Comments</td>
-                                    <td>Tickets Date</td>
-                                    <td>Updated Date</td>
-                                    <td>Created By</td>
-                                </tr>
-                                <?php
-                                while ($ticks = oci_fetch_assoc($rejected)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $ticks["ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                    echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
-                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($rejected);
-                                ?>
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-        <!-- Rejected Table End -->
-    <?php
-    } elseif ($action == 'Pending') {
-
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        $ticketStatus = 'initial';
-
-        // Select Started Ticket
-
-        $pendingTicket = "SELECT 
-                                tickets.*, users.name AS Username, service_type.type, service_details.service_details
-                            FROM 
-                                tickets  
-                            INNER JOIN
-                                users 
-                            ON 
-                                tickets.user_id = users.id 
-                            INNER JOIN
-                                service_type
-                            ON
-                                tickets.service_type = service_type.id
-                            JOIN
-                                service_details
-                            ON
-                                tickets.service_details = service_details.id
-                            WHERE 
-                                tickets.STATUS = :t_status AND
-                                service_type.type = :dpt_name
-                            ORDER BY 
-                                tickets.ID DESC";
-
-        $pending = oci_parse($conn, $pendingTicket);
-        oci_bind_by_name($pending, ":t_status", $ticketStatus);
-        oci_bind_by_name($pending, ":dpt_name", $user['DEPARTMENT']);
-
-        // Execute the query
-        oci_execute($pending);
-    ?>
-        <!-- Pending Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Pending Tickets</h2>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="main-table text-center table table-bordered mt-3">
-                                <tr>
-                                    <td>Ticket NO</td>
-                                    <td>User Name</td>
-                                    <td>Description</td>
-                                    <td>Team Member</td>
-                                    <td>Service Details</td>
-                                    <td>Comments</td>
-                                    <td>Tickets Date</td>
-                                    <td>Updated Date</td>
-                                    <td>Created By</td>
-
-                                </tr>
-                                <?php
-                                while ($ticks = oci_fetch_assoc($pending)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $ticks["ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                    echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
-                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($pending);
-                                ?>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-        <!-- Pending Table End -->
-    <?php
-    } elseif ($action == 'Assigned') {
-
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        $ticketStatus = 'assign';
-
-        // Select Started Ticket
-
-        $assignedTicket =  "SELECT 
-                                tickets.*, users.name AS Username, service_type.type, service_details.service_details
-                            FROM 
-                                tickets  
-                            INNER JOIN
-                                users 
-                            ON 
-                                tickets.user_id = users.id 
-                            INNER JOIN
-                                service_type
-                            ON
-                                tickets.service_type = service_type.id
-                            JOIN
-                                service_details
-                            ON
-                                tickets.service_details = service_details.id
-                            WHERE 
-                                tickets.STATUS = :t_status AND
-                                service_type.type = :dpt_name
-                            ORDER BY 
-                                tickets.ID DESC";
-
-        $assigned = oci_parse($conn, $assignedTicket);
-        oci_bind_by_name($assigned, ":t_status", $ticketStatus);
-        oci_bind_by_name($assigned, ":dpt_name", $user['DEPARTMENT']);
-
-        // Execute the query
-        oci_execute($assigned);
-    ?>
-        <!-- Assign Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Assigned Tickets</h2>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="main-table text-center table table-bordered mt-3">
-                                <tr>
-                                    <td>Ticket NO</td>
-                                    <td>User Name</td>
-                                    <td>Description</td>
-                                    <td>Team Member</td>
-                                    <td>Service Details</td>
-                                    <td>Comments</td>
-                                    <td>Tickets Date</td>
-                                    <td>Updated Date</td>
-                                    <td>Created By</td>
-                                </tr>
-                                <?php
-                                while ($ticks = oci_fetch_assoc($assigned)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $ticks["ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["USERNAME"] . "</td>\n";
-                                    echo "<td>" . $ticks["DESCRIPTION"] . "</td>\n";
-                                    echo "<td>" . $ticks["TEAM_MEMBER_ASSIGNED_ID"] . "</td>\n";
-                                    echo "<td>" . $ticks["SERVICE_DETAILS"] . "</td>\n";
-                                    echo "<td>" . $ticks["COMMENTS"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["UPDATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $ticks["CREATED_BY"] . "</td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($assigned);
-                                ?>
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </main> <!-- Assign Table End -->
-    <?php
-    } elseif ($action == 'User') {
-
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        $admin = 'team_leader';
-        // Select Started Ticket
-
-        $users = "SELECT * FROM users WHERE DEPARTMENT = :t_dep AND TYPE != :t_type  ORDER BY ID DESC";
-
-        $all = oci_parse($conn, $users);
-        oci_bind_by_name($all, ":t_dep", $user['DEPARTMENT']);
-        oci_bind_by_name($all, ":t_type", $admin);
-
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
         oci_execute($all);
-    ?>
+
+        if (!empty(oci_execute($all))) {  // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';  // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Solved') {        // Solve Ticket page thats contain Solved Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 60;
+
+        // Select Solved Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {   // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';   // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Rejected') {      // Reject Ticket page thats contain Rejected Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 50;
+
+        // Select Rejected Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {  // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';  // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Pending') {       // New Ticket page thats contain New Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 10;
+
+        // Select New Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {  // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';  // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Assigned') {      // Assign Ticket page thats contain Assigned Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 20;
+
+        // Select Assigned Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {   // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';   // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Sent') {          // Sent Out Ticket page thats contain Sent Out Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 110;
+
+        // Select Sent Out Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {   // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';  // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Confirmed') {     // Confirme Ticket page thats contain Confirmed Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 40;
+
+        // Select Confirmed Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {  // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';  // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Canceled') {      // Cancel Ticket page thats contain Canceled Ticket based on user permission
+
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 70;
+
+        // Select Canceled Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {   // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';  // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'Received') {      // Receive Ticket page thats contain Received Ticket based on user permission
+
+        InsertUserID();   // This Function To Insert user permission to table global_temp_table until you can see the tickets
+
+        $ticketStatus = 120;
+
+        // Select Received Ticket
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $all = oci_parse($conn, $allTicket);
+        oci_bind_by_name($all, ":t_status", $ticketStatus);
+        // Execute the query
+        oci_execute($all);
+
+        if (!empty(oci_execute($all))) {   // If the table is not empty you can see the tickets else you will see else message
+            include 'main-page.php';    // this file include the main table thats contain tickets information
+        } else {
+            echo    '<div class="container">
+                        <div class="alert alert-primary" role="alert" style="margin-top: 20px;">
+                            There is no ticket to display yet!
+                        </div>
+                    </div>';
+        }
+    } elseif ($action == 'User') {
+?>
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
             <div class="container-fluid">
@@ -800,29 +282,6 @@ if (isset($_SESSION['leader'])) {
                                     <td>Control</td>
                                 </tr>
 
-                                <?php
-                                while ($member = oci_fetch_assoc($all)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $member["ID"] . "</td>\n";
-                                    echo "<td>" . $member["NAME"] . "</td>\n";
-                                    echo "<td>" . $member["TYPE"] . "</td>\n";
-                                    echo "<td>" . $member["EMAIL"] . "</td>\n";
-                                    echo "<td>" . $member["PHONE_NUMBER"] . "</td>\n";
-                                    echo "<td>" . $member["CREATED_DATE"] . "</td>\n";
-                                    echo "<td>" . $member["CREATED_BY"] . "</td>\n";
-                                    echo "<td > 
-                                        <div style='display: flex; justify-content: center; align-items: center;'>
-                                            <a style='margin-right: 5px;' href='?action=Edit&userid=" . $member["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square'></i></a>
-                                            <button style='margin-right: 5px;' value='" . $member["ID"] . "' class='btn btn-danger  deleteUser'><i class='fa-solid fa-trash-can'></i></button>";
-                                    echo "</div>
-                                        </td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($all);
-                                ?>
-
                             </table>
                         </div>
 
@@ -836,20 +295,7 @@ if (isset($_SESSION['leader'])) {
     <?php
     } elseif ($action == 'Add') {
 
-        $userName = $_SESSION['leader'];
-
-        $leader = "SELECT NAME FROM users  WHERE NAME = :t_name";
-
-        $admin = oci_parse($conn, $leader);
-        oci_bind_by_name($admin, ":t_name", $userName);
-
-        // Execute the query
-        oci_execute($admin);
-
-        $row = oci_fetch_assoc($admin);
-
     ?>
-
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
             <div class="container-fluid">
@@ -897,7 +343,7 @@ if (isset($_SESSION['leader'])) {
                             <!-- End Phone Number Field -->
 
                             <!-- Start Phone Number Field -->
-                            <input type="text" name="admin" class="form-control  admin" value="<?php echo $row['NAME'] ?>" hidden>
+                            <input type="text" name="admin" class="form-control  admin" hidden>
                             <!-- End Phone Number Field -->
 
                             <!-- Start User Type SelectBox -->
@@ -941,21 +387,8 @@ if (isset($_SESSION['leader'])) {
             </div>
         </main>
         <!-- Manage Users Table End -->
-
     <?php
     } elseif ($action == 'Edit') {
-
-        $userid = isset($_GET['userid']) && is_numeric($_GET['userid']) ?   intval($_GET['userid']) : 0;
-
-        $userInfo = "SELECT * FROM users  WHERE ID = :t_id";
-
-        $user = oci_parse($conn, $userInfo);
-        oci_bind_by_name($user, ":t_id", $userid);
-
-        // Execute the query
-        oci_execute($user);
-
-        $row = oci_fetch_assoc($user);
     ?>
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
@@ -970,7 +403,7 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Username</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="username" value="<?php echo $row['NAME'] ?>" class="form-control  username" placeholder="Enter new username please..." autocomplete="off" required="required">
+                                    <input type="text" name="username" class="form-control  username" placeholder="Enter new username please..." autocomplete="off" required="required">
                                 </div>
                             </div>
                             <!-- End Username Field -->
@@ -979,7 +412,7 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Email</label>
                                 <div class="col-sm-10">
-                                    <input type="email" name="email" value="<?php echo $row['EMAIL'] ?>" class="form-control   email" placeholder="Enter new email please..." autocomplete="off">
+                                    <input type="email" name="email" class="form-control   email" placeholder="Enter new email please..." autocomplete="off">
                                 </div>
                             </div>
                             <!-- End Email Field -->
@@ -988,7 +421,7 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Phone Number</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="phone" value="<?php echo $row['PHONE_NUMBER'] ?>" oninput="restrictInput(event)" class="form-control   phone" placeholder="Enter new email please..." autocomplete="off">
+                                    <input type="text" name="phone" oninput="restrictInput(event)" class="form-control   phone" placeholder="Enter new email please..." autocomplete="off">
                                 </div>
                             </div>
                             <!-- End Phone Number Field -->
@@ -999,13 +432,9 @@ if (isset($_SESSION['leader'])) {
                                 <div class="col-sm-10">
                                     <select class="form-select usertype" name="usertype" id="usertype">
                                         <option value="">Choes User Status</option>
-                                        <option value='Active' <?php if ($row['STATUS'] == 'Active') {
-                                                                    echo "selected";
-                                                                } ?>>Active</option>
+                                        <option value='Active'>Active</option>
 
-                                        <option value='Deactive' <?php if ($row['STATUS'] == 'Deactive') {
-                                                                        echo "selected";
-                                                                    } ?>>Deactive</option>
+                                        <option value='Deactive'>Deactive</option>
                                     </select>
                                 </div>
                             </div>
@@ -1014,7 +443,7 @@ if (isset($_SESSION['leader'])) {
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg mt-3 mb-1">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" value="<?php echo $row['ID'] ?>" class="btn btn-success btn-lg updateTicket">Update</button>
+                                    <button type="submit" class="btn btn-success btn-lg updateTicket">Update</button>
                                 </div>
                             </div>
                             <!-- End Submit Button  -->
@@ -1026,25 +455,6 @@ if (isset($_SESSION['leader'])) {
         <!-- Manage Users Table End -->
     <?php
     } elseif ($action == 'Profile') {
-
-        $userid = isset($_GET['userid']) && is_numeric($_GET['userid']) ?   intval($_GET['userid']) : 0;
-
-        $ticketInfo = "SELECT
-                            users.*, service_type.type
-                        FROM 
-                            users
-                        INNER JOIN
-                            service_type
-                        ON
-                            users.department = service_type.type
-                        WHERE users.ID = :t_id";
-        $info = oci_parse($conn, $ticketInfo);
-
-        oci_bind_by_name($info, ':t_id', $userid);
-
-        oci_execute($info);
-
-        $infos = oci_fetch_assoc($info);
     ?>
         <!-- Content Profile Start -->
         <main class="content px-3 py-2">
@@ -1071,25 +481,25 @@ if (isset($_SESSION['leader'])) {
 
                                                 <li>
                                                     <i class="fa-solid fa-phone"></i>
-                                                    <span>Phone Number : <?php echo " " . $infos['PHONE_NUMBER'] ?></span>
+                                                    <span>Phone Number : </span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Department : <?php echo " " . $infos['DEPARTMENT'] ?></span>
+                                                    <span>Department : </span>
                                                 </li>
 
                                                 <li>
                                                     <i class="fa-solid fa-envelope"></i>
-                                                    <span>Email Address : <?php echo " " . $infos['EMAIL'] ?> </span>
+                                                    <span>Email Address : </span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-clock"></i>
-                                                    <span>Register Date : <?php echo " " . $infos['CREATED_DATE'] ?> </span>
+                                                    <span>Register Date :</span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-battery-half"></i>
-                                                    <span>Status : <?php echo " " . $infos['STATUS'] ?> </span>
+                                                    <span>Status : </span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1102,7 +512,8 @@ if (isset($_SESSION['leader'])) {
 
                 </div>
             </div>
-        </main> <!-- Content Profile End -->
+        </main>
+        <!-- Content Profile End -->
     <?php
     } elseif ($action == 'EditInfo') {
     ?>
@@ -1145,50 +556,28 @@ if (isset($_SESSION['leader'])) {
                     </div>
                 </div>
             </div>
-        </main> <!-- Content Profile End -->
+        </main>
+        <!-- Content Profile End -->
     <?php
-    } elseif ($action == 'View') {
-
-        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0;
-
-        $ticketInfo = "SELECT
-                            tickets.*, users.name AS Username, service_type.type, service_details.service_details 
-                        FROM 
-                            tickets
-                        INNER JOIN
-                            users 
-                        ON 
-                            tickets.user_id = users.id
-                        INNER JOIN
-                            service_type
-                        ON
-                            tickets.service_type = service_type.id
-                        INNER JOIN
-                            service_details
-                        ON
-                            tickets.service_details = service_details.id
-                        WHERE tickets.ID = :t_id";
+    } elseif ($action == 'View') {          // View Ticket page thats contain Ticket Details Information
+        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
+        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0;  // GET Ticket Number
+        // Select Ticket Information Based On Ticket Number
+        $ticketInfo = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE TICKET_NO = :t_id";
         $info = oci_parse($conn, $ticketInfo);
-
         oci_bind_by_name($info, ':t_id', $ticketid);
-
         oci_execute($info);
-
         $infos = oci_fetch_assoc($info);
-
     ?>
         <!-- Ticket Information Table Start -->
         <main class="content px-3 py-2">
             <div class="container-fluid">
                 <div class="mb-3">
-
-                    <h2 class="text-center mt-3">View Tickets</h2>
-
+                    <h2 class="text-center mt-3">Ticket Information</h2>
                     <div class="container"> <!-- Container Div Start  -->
                         <!-- Display Ticket Information Form Start -->
                         <form class="form-horizontal" action="" method="">
-                            <input type="hidden" name="tickid" value="">
-
+                            <input type="hidden" name="tickid" value="<?php echo $infos['TICKET_NO'] ?>">
                             <div class="information block">
                                 <div class="container">
                                     <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
@@ -1197,38 +586,71 @@ if (isset($_SESSION['leader'])) {
                                         </div>
                                         <div class="panel-body">
                                             <ul class="list-unstyled ">
-
                                                 <li>
                                                     <i class="fa-solid fa-user"></i>
-                                                    <span>Created By: <?php echo " " . $infos['USERNAME'] ?></span>
+                                                    <span>Created By: <?php echo $infos['USER_EN_NAME'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-clock"></i>
-                                                    <span>Send Date: <?php echo " " . $infos['CREATED_DATE'] ?></span>
+                                                    <span>Service Type: <?php echo " " . $infos['SERVICE_TYPE'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Service Type: <?php echo " " .  $infos['TYPE'] ?></span>
+                                                    <span>Service Details: <?php echo " " .  $infos['SERVICE_DETAIL'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-circle-info"></i>
-                                                    <span>Service Details: <?php echo " " . $infos['SERVICE_DETAILS'] ?></span>
+                                                    <span>Ticket Periority: <?php echo " " . $infos['TICKET_PERIORITY'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-box-tissue"></i>
-                                                    <span>Issue Description: <?php echo " " . $infos['DESCRIPTION'] ?></span>
+                                                    <span>Issue Description: <?php echo " " . $infos['ISSUE_DESCRIPTION'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-box-tissue"></i>
+                                                    <span>Department Name: <?php echo " " . $infos['DEPARTMENT_NAME'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-comment"></i>
-                                                    <span>Employee Comment: <?php echo " " . $infos['COMMENTS'] ?></span>
+                                                    <span>Technical Issue Description: <?php echo " " . $infos['TECHNICAL_ISSUE_DESCRIPTION'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-comment"></i>
-                                                    <span>Admin Comment:</span>
+                                                    <span>Technical Issue Resolution: <?php echo " " . $infos['TECHNICAL_ISSUE_RESOLUTION'] ?></span>
+                                                </li>
+                                                <li>
+                                                    <i class="fa-solid fa-comment"></i>
+                                                    <span>Created Date: <?php echo " " . $infos['TICKET_START_DATE'] ?></span>
                                                 </li>
                                                 <li>
                                                     <i class="fa-solid fa-battery-half"></i>
-                                                    <span>Ticket Status: <?php echo " " . $infos['STATUS'] ?></span>
+                                                    <span>Ticket Status: <?php if ($infos["TICKET_STATUS"] == '10') {
+                                                                                echo '<span class="badge bg-primary "> New</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '20') {
+                                                                                echo '<span class="badge bg-warning"> Assign</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '30') {
+                                                                                echo '<span class="badge bg-info"> Started</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '60') {
+                                                                                echo '<span class="badge bg-success"> Solved</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '40') {
+                                                                                echo '<span class="badge bg-success"> Confirm</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '50') {
+                                                                                echo '<span class="badge bg-danger"> Rejected</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '70') {
+                                                                                echo '<span class="badge bg-danger"> Canceled</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '100') {
+                                                                                echo '<span class="badge bg-danger"> Included</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '90') {
+                                                                                echo '<span class="badge bg-danger"> Excluded</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '110') {
+                                                                                echo '<span class="badge bg-danger"> Send Out</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '120') {
+                                                                                echo '<span class="badge bg-danger"> Received</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '130') {
+                                                                                echo '<span class="badge bg-danger"> Exclude All</span>';
+                                                                            } elseif ($infos["TICKET_STATUS"] == '140') {
+                                                                                echo '<span class="badge bg-danger"> Confirmed by system</span>';
+                                                                            } ?></span>
                                                 </li>
                                             </ul>
                                         </div>
@@ -1246,88 +668,8 @@ if (isset($_SESSION['leader'])) {
         </main>
         <!-- Ticket Information Table End -->
     <?php
-    } elseif ($action == 'service') {
-
-        // Select Users Based On Department E
-
-        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-        $leader = oci_parse($conn, $leaderMember);
-        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
-        // Execute the query
-        oci_execute($leader);
-
-        $user = oci_fetch_assoc($leader);
-
-        // Select Started Ticket
-
-        $users = "SELECT 
-                    service_details.*, service_type.type 
-                FROM 
-                    service_details
-                INNER JOIN
-                    service_type 
-                ON 
-                    service_details.SERVICE_TYPE_ID = service_type.ID
-                WHERE 
-                    service_type.type = :t_dep  
-                ORDER BY service_details.ID ";
-
-        $all = oci_parse($conn, $users);
-        oci_bind_by_name($all, ":t_dep", $user['DEPARTMENT']);
-
-        // Execute the query
-        oci_execute($all);
-    ?>
-
-        <!-- Manage Users Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Manage Users</h2>
-                    <div class="container">
-                        <div class="table-responsive">
-                            <table class="main-table text-center table table-bordered mt-3">
-                                <tr>
-                                    <td>#ID</td>
-                                    <td>Service Name</td>
-                                    <td>Control</td>
-                                </tr>
-
-                                <?php
-                                while ($member = oci_fetch_assoc($all)) {
-
-                                    echo "<tr>\n";
-                                    echo "<td>" . $member["ID"] . "</td>\n";
-                                    echo "<td>" . $member["SERVICE_DETAILS"] . "</td>\n";
-                                    echo "<td > 
-                                        <div style='display: flex; justify-content: center; align-items: center;'>
-                                            <a style='margin-right: 5px;' href='?action=serviceEdit&serviceid=" . $member["ID"] . "' class='btn btn-warning'><i class='fa-solid fa-pen-to-square'></i></a>
-                                            <button style='margin-right: 5px;' value='" . $member["ID"] . "' class='btn btn-danger  deleteService'><i class='fa-solid fa-trash-can'></i></button>";
-                                    echo "</div>
-                                        </td>\n";
-                                    echo "</tr>\n";
-                                }
-
-                                oci_free_statement($all);
-                                ?>
-
-                            </table>
-                        </div>
-
-                        <a class="btn btn-primary " href="?action=AddService" style="margin-top: 50px; margin-bottom: 30px;"><i class="fa-solid fa-plus"></i> Add New Mermber </a>
-                    </div>
-                </div>
-            </div>
-
-        </main>
-        <!-- Manage Users Table End -->
-
-    <?php
     } elseif ($action == 'AddService') {
     ?>
-
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
             <div class="container-fluid">
@@ -1347,7 +689,7 @@ if (isset($_SESSION['leader'])) {
                             <!-- End Username Field -->
 
                             <!-- Start Phone Number Field -->
-                            <input type="text" name="admin" class="form-control  admin" value="<?php echo $_SESSION['leader'] ?>" hidden>
+                            <input type="text" name="admin" class="form-control  admin" value="<?php echo $_SESSION['user'] ?>" hidden>
                             <!-- End Phone Number Field -->
 
                             <!-- Start Submit Button -->
@@ -1364,23 +706,9 @@ if (isset($_SESSION['leader'])) {
             </div>
         </main>
         <!-- Manage Users Table End -->
-
     <?php
     } elseif ($action == 'serviceEdit') {
-
-        $serviceid = isset($_GET['serviceid']) && is_numeric($_GET['serviceid']) ?   intval($_GET['serviceid']) : 0;
-
-        $userInfo = "SELECT * FROM service_details  WHERE ID = :t_id";
-
-        $user = oci_parse($conn, $userInfo);
-        oci_bind_by_name($user, ":t_id", $serviceid);
-
-        // Execute the query
-        oci_execute($user);
-
-        $row = oci_fetch_assoc($user);
     ?>
-
         <!-- Manage Users Table Start -->
         <main class="content px-3 py-2">
             <div class="container-fluid">
@@ -1394,7 +722,7 @@ if (isset($_SESSION['leader'])) {
                             <div class="form-group form-group-lg">
                                 <label class="col-sm-2 control-lable mt-3 mb-1" for="">Service Name</label>
                                 <div class="col-sm-10">
-                                    <input type="text" name="serviceName" value="<?php echo $row['SERVICE_DETAILS'] ?>" class="form-control  serviceName" placeholder="Enter new username please..." autocomplete="off" required="required">
+                                    <input type="text" name="serviceName" class="form-control  serviceName" placeholder="Enter new username please..." autocomplete="off" required="required">
                                 </div>
                             </div>
                             <!-- End Username Field -->
@@ -1402,7 +730,7 @@ if (isset($_SESSION['leader'])) {
                             <!-- Start Submit Button -->
                             <div class="form-group form-group-lg mt-3 mb-1">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" value="<?php echo $row['ID'] ?>" class="btn btn-success btn-lg updateService">Update</button>
+                                    <button type="submit" class="btn btn-success btn-lg updateService">Update</button>
                                 </div>
                             </div>
                             <!-- End Submit Button  -->
@@ -1412,79 +740,296 @@ if (isset($_SESSION['leader'])) {
             </div>
         </main>
         <!-- Manage Users Table End -->
-
     <?php
-    } elseif ($action == 'Assign') {  // Assigned Ticket Page 
+    } elseif ($action == 'Assign') {        // Assigned Ticket Page 
+        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0; // GET Ticket Number  
 
-        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0;
+        if (isset($_POST['Number'])) {   // Choose Team Member Debends On Team Number
+            $ticketNumber = $_POST['Number'];  // Service Number
+
+            // InsertUserID();
+
+            // Query to fetch Team Member based on the selected Team Number
+            $ticketNo = "SELECT TICKET_NO, REQUETS_TYPE_NO, SERVICE_DETAIL_NO FROM TICKETING.TICKETS WHERE TICKET_NO = :t_ticket";
+            $ticket = oci_parse($conn, $ticketNo);
+            // Bind the variables
+            oci_bind_by_name($ticket, ":t_ticket", $ticketNumber);
+            // Execute the query
+            oci_execute($ticket);
+
+            $result = oci_fetch_assoc($ticket);
+            echo json_encode($result);
+        }
     ?>
         <!-- Assign Ticket  Start -->
         <main class="content px-3 py-2"> <!-- Main Start -->
             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                 <div class="mb-3">
+                    <h2 class="text-center mt-3 mb-5">Assign Tickets</h2>
+                    <div class="container mb-4 mt-4">
+                        <h3 class="text-start mt-3 mb-4 text-dark">Ticket Information</h3>
+                        <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class="col-sm-4">
+                                <label class="" for="autoSizingSelect">Ticket #</label>
+                                <input type="text" class="form-control" id="ticketNumber" aria-label="City" readonly>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="" for="autoSizingSelect">Requested By</label>
+                                <input type="text" class="form-control" aria-label="State">
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="" for="autoSizingSelect">Ticket Weight</label>
+                                <select class="form-select" id="autoSizingSelect">
+                                    <option selected>Choose...</option>
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="" for="autoSizingSelect">Service Name</label>
+                                <input type="text" class="form-control" id="serviceType" aria-label="City" readonly>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="" for="autoSizingSelect">Service For</label>
+                                <input type="text" class="form-control" id="serviceDetail" aria-label="State" readonly>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="" for="autoSizingSelect">Ticket Periority</label>
+                                <select class="form-select" id="autoSizingSelect">
+                                    <option selected>Choose...</option>
+                                    <option value="U">U</option>
+                                    <option value="H">H</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-                    <h2 class="text-center mt-3">Assign Tickets</h2>
+                    <div class="container mt-4 mb-4">
+                        <div class="mb-3 row">
+                            <label for="select" class="col-sm-2 col-form-label">Setect Team</label>
+                            <div class="col-sm-6 mb-3">
+                                <select class="form-select" id="assign">
+                                    <option>Choose Team...</option>
+                                    <?php
+                                    $firstTeam = 1;
+                                    $secTeam = 6;
+                                    // // Query to retrieve a list of tables
+                                    $teamName = "SELECT TEAM_NO, TEAM_NAME  FROM TICKETING.TEAMS WHERE TEAM_NO = :t_no OR TEAM_NO = :t_id";
+                                    $teams = oci_parse($conn, $teamName);
+                                    oci_bind_by_name($teams, ":t_no", $firstTeam);
+                                    oci_bind_by_name($teams, ":t_id", $secTeam);
+                                    // Execute the query
+                                    oci_execute($teams);
+                                    while ($team = oci_fetch_assoc($teams)) {
+                                        echo "<option value='" . $team['TEAM_NO'] . "'>" . $team['TEAM_NAME'] . "</option>";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="container">
+                        <div class="omar" style="display: flex; justify-content:space-around; max-width: 1200px;"> <!-- Container Div Start  -->
+                            <div style="width: 500px; margin-right: 15px">
+                                <h3 class="text-start mt-3 text-dark">Team Member</h3>
+                                <table class="main-table text-center table table-bordered mt-3 ">
+
+                                    <thead>
+                                        <tr>
+                                            <td>User Name</td>
+                                            <td>Name</td>
+                                            <td>Status</td>
+                                            <td>Control</td>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="teamMember">
+
+                                    </tbody>
+
+                                </table>
+                            </div>
+
+                            <div style="width: 500px; margin-right: 15px">
+                                <h3 class="text-start mt-3 text-dark">Selected Team Member for Ticket</h3>
+                                <table class="main-table text-center table table-bordered mt-3  ">
+
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>Description</td>
+                                        <td>Team Leader</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </div> <!-- Container Div End  -->
+                    </div>
+
+                </div>
+            </div><!-- Container-fluid Div End  -->
+        </main> <!-- Main End -->
+        <!-- Assign Ticket Info End -->
+    <?php
+    } elseif ($action == 'new') {           // Create New Ticket Page  
+    ?>
+        <!-- New Ticket Form Start -->
+        <main class="content px-3 py-2"> <!-- Main Start  -->
+            <div class="container-fluid"> <!-- Container-fluid Div Start  -->
+                <div class="mb-3">
+                    <h2 class="text-center mt-3">Create New Ticket</h2>
                     <div class="container"> <!-- Container Div Start  -->
-
+                        <!-- Edit Ticket Information Form Start -->
                         <form class="form-horizontal" action="" method="POST" style="margin: auto;">
-
                             <!-- Start Name SelectBox -->
                             <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="user">User Name</label>
+                                <label class="col-sm-2 form-label mt-3" for="">User Name</label>
                                 <div class="col-sm-10">
-                                    <select class="form-select user" name="user" id="user" required>
-                                        <option value="">Choes Member Name</option>
+                                    <input type="text" name="name" value="<?php echo $_SESSION['user'] ?>" class=" form-control name" disabled>
+                                </div>
+                            </div>
+                            <!-- End Name  SelectBox -->
+                            <!-- Start Service Type Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select service" name="service" id="service" required>
+                                        <option value="">Choes Service</option>
                                         <?php
-                                        // Select Users Based On Department E
-
-                                        $leaderMember = "SELECT DEPARTMENT FROM users  WHERE NAME = :u_name";
-
-                                        $leader = oci_parse($conn, $leaderMember);
-                                        oci_bind_by_name($leader, ":u_name", $_SESSION["leader"]);
-
+                                        // // Query to retrieve a list of tables
+                                        $department = "SELECT  * FROM TICKETING.SERVICE";
+                                        $dep = oci_parse($conn, $department);
                                         // Execute the query
-                                        oci_execute($leader);
-
-                                        $user = oci_fetch_assoc($leader);
-
-                                        // Select All Users Except Admin 
-
-                                        $addigned = 'team_member_assigned';
-
-                                        $allTicket = "SELECT 
-                                                            ID, NAME
-                                                        FROM 
-                                                            users  
-                                                        WHERE DEPARTMENT = :t_service AND
-                                                                TYPE = :t_type";
-
-                                        $all = oci_parse($conn, $allTicket);
-                                        oci_bind_by_name($all, ":t_service", $user['DEPARTMENT']);
-                                        oci_bind_by_name($all, ":t_type", $addigned);
-
-                                        // Execute the query
-                                        oci_execute($all);
-
-                                        while ($dept = oci_fetch_assoc($all)) {
-                                            echo "<option value='" . $dept['ID'] . "'>" . $dept['NAME'] . "</option>";
+                                        oci_execute($dep);
+                                        while ($dept = oci_fetch_assoc($dep)) {
+                                            echo "<option value='" . $dept['SERVICE_NO'] . "'>" . $dept['SERVICE_NAME'] . "</option>";
                                         }
-
                                         ?>
                                     </select>
                                 </div>
                             </div>
+                            <!-- End TService Type Field End -->
+                            <!-- Start Service Details Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="details">Service Details</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select details" name="details" id="details" required>
+                                        <option value="">Choose Service Detail</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End Service Details Field End -->
+                            <!-- Start Device Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="details">Device</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select details" name="details" id="details">
+                                        <option value="">Choose Service Detail</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End Device End -->
+                            <!-- Start Issue Description Field -->
+                            <div class="form-group">
+                                <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
+                                <div class="col-sm-10">
+                                    <textarea name="description" id="" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
+                                </div>
+                            </div>
+                            <!-- End Issue Description Field -->
+                            <!-- Start Submit Button -->
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" name="addTicket">Create Ticket</button>
+                                </div>
+                            </div>
+                            <!-- End Submit Button  -->
+                        </form>
+                        <!-- Edit Ticket Information Form End -->
+                    </div> <!-- Container Div End  -->
+                </div>
+            </div> <!-- Container-fluid Div End  -->
+        </main> <!-- Main End  -->
+        <!-- New Ticket Form End -->
+    <?php
+    } elseif ($action == 'edit') {
+    ?>
+        <!-- Edit Ticket Info Start -->
+        <main class="content px-3 py-2"> <!-- Main Start -->
+            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                <div class="mb-3">
+
+                    <h2 class="text-center mt-3">Edit Tickets</h2>
+
+                    <div class="container"> <!-- Container Div Start  -->
+
+                        <form class="form-horizontal" action="" method="" style="margin: auto;">
+
+                            <!-- Start Name SelectBox -->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="">User Name</label>
+                                <div class="col-sm-10">
+                                    <input type="text" name="name" value="<?php echo $_SESSION['user'] ?>" class=" form-control name" disabled>
+                                </div>
+                            </div>
                             <!-- End Name  SelectBox -->
 
+                            <!-- Start Service Type Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select service" name="service" id="service" required>
+                                        <option value="">Choes Service</option>
+                                        <?php
+                                        // // Query to retrieve a list of tables
+                                        $department = "SELECT  * FROM service_type";
+                                        $dep = oci_parse($conn, $department);
+
+                                        // Execute the query
+                                        oci_execute($dep);
+
+                                        while ($dept = oci_fetch_assoc($dep)) {
+                                            echo "<option value='" . $dept['ID'] . "'>" . $dept['TYPE'] . "</option>";
+                                        }
+                                        ?>
+
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End TService Type Field End -->
+
+                            <!-- Start Service Details Field Start-->
+                            <div class="form-group">
+                                <label class="col-sm-2 form-label mt-3" for="details">Service Details</label>
+                                <div class="col-sm-10">
+                                    <select class="form-select details" name="details" id="details" required>
+                                        <option value="">Choose Service Detail</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- End Service Details Field End -->
 
                             <!-- Start Issue Description Field -->
-                            <!-- <input type="text" name="id" value="" class=" form-control  description" hidden> -->
+                            <div class="form-group">
+                                <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
+                                <div class="col-sm-10">
+                                    <textarea name="description" id="" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
+                                </div>
+                            </div>
                             <!-- End Issue Description Field -->
 
                             <!-- Start Submit Button -->
                             <div class="form-group">
                                 <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" value="<?php echo $ticketid ?>" class="btn btn-primary btn-lg mt-3  assignTicket" name="assignTicket">Assign</button>
+                                    <input type="submit" value="Update" class="btn btn-success btn-lg mt-3">
                                 </div>
                             </div>
                             <!-- End Submit Button  -->
@@ -1493,8 +1038,290 @@ if (isset($_SESSION['leader'])) {
                 </div>
             </div><!-- Container-fluid Div End  -->
         </main> <!-- Main End -->
-        <!-- Assign Ticket Info End -->
+        <!-- Edit Ticket Info End -->
+    <?php
+    } elseif ($action == 'team') {          // Team Member Page Thats contain Teams Information   
+    ?>
+        <!-- Team Member Information Start -->
+        <main class="content px-3 py-2"> <!-- Main Start -->
+            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                <div class="mb-3">
 
+                    <h2 class="text-center mt-3 mb-5">Team Members</h2>
+
+                    <div class="scro container-fluid mb-4 mt-4">
+                        <div class="row d-flex justify-content-around">
+
+                            <div class="col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Team</h3>
+                                </div>
+                                <div class="row">
+                                    <div class='col-sm-4'>
+                                        <label class="" for="autoSizingSelect">Team No</label>
+                                        <select class="form-select teamno" name="teamno" id="teamno" required>
+                                            <option value="">Choose Team No</option>
+                                            <?php
+                                            // // Query to retrieve a list of tables
+                                            $teamNo = "SELECT  * FROM TICKETING.TEAMS";
+                                            $team = oci_parse($conn, $teamNo);
+
+                                            // Execute the query
+                                            oci_execute($team);
+
+                                            while ($teams = oci_fetch_assoc($team)) {
+                                                echo "<option value='" . $teams['TEAM_NO'] . "'>" . $teams['TEAM_NO'] . "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label class="" for="autoSizingSelect">Name</label>
+                                        <input type="text" class="form-control" id="name" aria-label="State" readonly>
+                                    </div>
+
+                                    <div class='check  col-sm-4' style='display: flex; justify-content: center; align-items: center;'>
+                                        <label class="pe-2" for="autoSizingSelect">Status</label>
+
+                                        <input type='checkbox' name='status' id='status'>
+                                    </div>
+                                    <div class="col-sm-10 my-2">
+                                        <label class="" for="autoSizingSelect">Description</label>
+                                        <textarea type="text" class="form-control" aria-label="City"></textarea>
+                                    </div>
+                                    <div class="col-sm-6 my-2">
+                                        <label class="" for="autoSizingSelect">Department</label>
+                                        <input type="text" class="form-control" id="dept" aria-label="State" readonly>
+                                        <!-- <select class="form-select dept" name="dept" id="dept" required>
+                                            <option value="">Choose Department</option>
+                                        </select> -->
+                                    </div>
+                                    <div class='col-sm-6 my-2'>
+                                        <label class="" for="autoSizingSelect">Branch</label>
+                                        <input type="text" class="form-control" id="branch" aria-label="State" readonly>
+                                        <!-- <select class="form-select branch" name="branch" id="branch" required>
+                                            <option value="">Choose Branch</option>
+                                        </select> -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class=" col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Delegate Supervisors</h3>
+                                </div>
+
+                                <div class="scroll">
+                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                        <thead>
+                                            <tr>
+                                                <td>Name</td>
+                                                <td>Start Date</td>
+                                                <td>End Date</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="tableBody">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="scro container-fluid mb-4 mt-4">
+                        <div class="row d-flex justify-content-around">
+
+                            <div class="col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Team Members</h3>
+                                </div>
+                                <div class="scroll">
+                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                        <thead>
+                                            <tr>
+                                                <td>User Name</td>
+                                                <td>Name</td>
+                                                <td>Description</td>
+                                                <td>Active</td>
+                                                <td>Supervisor</td>
+                                                <td>Manager</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-body">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div><!-- Container-fluid Div End  -->
+        </main> <!-- Main End -->
+        <!-- Team Member Information Start -->
+    <?php
+    } elseif ($action == 'service') {       // Service Page Thats contain Service Information  
+    ?>
+        <!-- Service Page  Start -->
+        <main class="content px-3 py-2"> <!-- Main Start -->
+            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                <div class="mb-3">
+
+                    <h2 class="text-center mt-3 mb-5">Services</h2>
+
+                    <div class="scro container-fluid mb-4 mt-4">
+                        <div class="row d-flex justify-content-around">
+
+                            <div class="col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Services</h3>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <label class="" for="autoSizingSelect">Service #</label>
+                                        <select class="form-select serviceno" name="serviceno" id="serviceno" required>
+                                            <option value="">Choose Service No</option>
+                                            <?php
+                                            // // Query to retrieve a list of tables
+                                            $serviceNo = "SELECT * FROM TICKETING.SERVICE";
+                                            $service = oci_parse($conn, $serviceNo);
+
+                                            // Execute the query
+                                            oci_execute($service);
+
+                                            while ($services = oci_fetch_assoc($service)) {
+                                                echo "<option value='" . $services['SERVICE_NO'] . "'>" . $services['SERVICE_NO'] . "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <label class="" for="autoSizingSelect">Name</label>
+                                        <input type="text" class="form-control" id="name" aria-label="State" readonly>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="scro container-fluid mb-4 mt-4">
+                        <div class="row d-flex justify-content-around">
+                            <div class=" col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Service Details</h3>
+                                </div>
+                                <div class="scroll">
+                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                        <thead>
+                                            <tr>
+                                                <td>Service Details Name</td>
+                                                <td>Description</td>
+                                                <td>Custody</td>
+                                                <td>Private</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="serviceDetails">
+
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                            <div class=" col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
+                                </div>
+                                <div class="scroll">
+                                    <table class="main-table text-center table table-bordered mt-3 ">
+
+                                        <thead>
+                                            <tr>
+                                                <td>Team Name</td>
+                                                <td>Enabled</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="serviceTeam">
+
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Container-fluid Div End  -->
+        </main> <!-- Main End -->
+        <!-- Service Page End -->
+    <?php
+    } elseif ($action == 'delegate') {      // Delegate Page Thats contain Delegated Information 
+    ?>
+        <!-- Delegate Page  Start -->
+        <main class="content px-3 py-2"> <!-- Main Start -->
+            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                <div class="mb-3">
+
+                    <h2 class="text-center mt-3 mb-5">Delegate Supervisor</h2>
+
+                    <div class="scro container-fluid mb-4 mt-4">
+                        <div class="row d-flex justify-content-around">
+
+                            <div class=" col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Delegate Supervisor</h3>
+                                </div>
+
+                                <div class='col-sm-4'>
+                                    <label class="" for="autoSizingSelect">Team No</label>
+                                    <select class="form-select delegate" name="delegate" id="delegate" required>
+                                        <option value="">Choose Team No</option>
+                                        <?php
+                                        // // Query to retrieve a list of tables
+                                        $teamNo = "SELECT  * FROM TICKETING.TEAMS";
+                                        $team = oci_parse($conn, $teamNo);
+
+                                        // Execute the query
+                                        oci_execute($team);
+
+                                        while ($teams = oci_fetch_assoc($team)) {
+                                            echo "<option value='" . $teams['TEAM_NO'] . "'>" . $teams['TEAM_NO'] . "</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+
+                                <div class="scroll">
+                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                        <thead>
+                                            <tr>
+
+                                                <td>Name</td>
+                                                <td>Start Date</td>
+                                                <td>End Date</td>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody id="delegateBody">
+
+                                        </tbody>
+
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div><!-- Container-fluid Div End  -->
+        </main> <!-- Main End -->
+        <!-- Delegate Page  End -->
 <?php
     }
     include $inc . 'footer.php';

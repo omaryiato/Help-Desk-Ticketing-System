@@ -25,7 +25,7 @@ if (!$conn) {
     echo "Connectoin to Oracle Database Failed!<br>";
 }
 
-if (isset($_SESSION['leader'])) {
+if (isset($_SESSION['user'])) {
     header('Location: dashboard.php');  // Redirect To Home Page
 }
 
@@ -34,16 +34,16 @@ include 'init.php';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $username = $_POST['user'];
-    $password = $_POST['pass'];
+    // $password = $_POST['pass'];
     // $hashedPass = sha1($password);
 
     // // Query to retrieve a list of tables
-    $loginInfo = "SELECT ID, NAME, PASSWORD FROM users WHERE NAME = :name AND PASSWORD = :pass";
+    $loginInfo = "SELECT USERNAME FROM ACT_USERS_VW WHERE USERNAME = :name";
     $login = oci_parse($conn, $loginInfo);
 
     // Bind the variables
     oci_bind_by_name($login, ":name", $username);
-    oci_bind_by_name($login, ":pass", $password);
+    // oci_bind_by_name($login, ":pass", $password);
     // Execute the query
     oci_execute($login);
 
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // If Count > 0 This Mean The Database Contain Record About This Username 
 
     if ($numRows > 0) {
-        $_SESSION['leader'] = $username; // Register Session Name
+        $_SESSION['user'] = $username; // Register Session Name
         $_SESSION['ID'] = $row['ID'];  // Register Session ID
         header('Location: dashboard.php'); // Redirect To Dashboard Page
         exit();
