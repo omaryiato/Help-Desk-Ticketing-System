@@ -5,7 +5,8 @@
     ** Has The Variable $pageTitle And Echo Default Title For Other Pages
 */
 
-function getTitle() {
+function getTitle()
+{
     global $pageTitle;
 
     if (isset($pageTitle)) {
@@ -20,7 +21,8 @@ function getTitle() {
     ** Has The Parmeter $url that reference to the next page 
 */
 
-function redirect($url) {
+function redirect($url)
+{
     header('Location:' . $url);
     exit();
 }
@@ -30,7 +32,8 @@ function redirect($url) {
     ** Has one Paramter $status to display number of rows for each status
 */
 
-function getcount($status) {
+function getcount($status)
+{
 
     // Oracle database connection settings
     $host = '192.168.15.245';
@@ -77,7 +80,8 @@ function getcount($status) {
     Permissions To Ticket Transation Table **
 */
 
-function InsertUserID() {
+function InsertUserID()
+{
 
     // Oracle database connection settings
     $host = '192.168.15.245';

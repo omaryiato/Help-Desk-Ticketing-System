@@ -753,7 +753,6 @@ $(function () {
                 $('#serviceDetails').empty();
                 $('#serviceDetails').text("Waiting Data");
                 $('#serviceDetailsTeam').empty();
-                $('#serviceDetailsTeam').text("Waiting Data");
                 $.ajax({
                     type: 'POST',
                     url: 'handel.php', // Handel Page For All ajax Function

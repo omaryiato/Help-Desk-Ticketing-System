@@ -561,154 +561,6 @@ if (isset($_SESSION['user'])) {
         </main>
         <!-- Content Profile End -->
     <?php
-    } elseif ($action == 'View') {          // View Ticket page thats contain Ticket Details Information
-        InsertUserID();  // This Function To Insert user permission to table global_temp_table until you can see the tickets
-        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0;  // GET Ticket Number
-        // Select Ticket Information Based On Ticket Number
-        $ticketInfo = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE TICKET_NO = :t_id";
-        $info = oci_parse($conn, $ticketInfo);
-        oci_bind_by_name($info, ':t_id', $ticketid);
-        oci_execute($info);
-        $infos = oci_fetch_assoc($info);
-    ?>
-        <!-- Ticket Information Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Ticket Information</h2>
-                    <div class="container"> <!-- Container Div Start  -->
-                        <!-- Display Ticket Information Form Start -->
-                        <form class="form-horizontal" action="" method="">
-                            <input type="hidden" name="tickid" value="<?php echo $infos['TICKET_NO'] ?>">
-                            <div class="information block">
-                                <div class="container">
-                                    <div class="panel panel-primary" style=" border-color: white; box-shadow: 0px 10px 20px 0px rgb(0 0 0 / 20%)">
-                                        <div class="panel-heading" style="background-color: #00205b; border: 0;">
-                                            <h2 class="text-white p-2">Ticket Information</h2>
-                                        </div>
-                                        <div class="panel-body">
-                                            <ul class="list-unstyled ">
-                                                <li>
-                                                    <i class="fa-solid fa-user"></i>
-                                                    <span>Created By: <?php echo $infos['USER_EN_NAME'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-clock"></i>
-                                                    <span>Service Type: <?php echo " " . $infos['SERVICE_TYPE'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-briefcase"></i>
-                                                    <span>Service Details: <?php echo " " .  $infos['SERVICE_DETAIL'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-circle-info"></i>
-                                                    <span>Ticket Periority: <?php echo " " . $infos['TICKET_PERIORITY'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-box-tissue"></i>
-                                                    <span>Issue Description: <?php echo " " . $infos['ISSUE_DESCRIPTION'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-box-tissue"></i>
-                                                    <span>Department Name: <?php echo " " . $infos['DEPARTMENT_NAME'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-comment"></i>
-                                                    <span>Technical Issue Description: <?php echo " " . $infos['TECHNICAL_ISSUE_DESCRIPTION'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-comment"></i>
-                                                    <span>Technical Issue Resolution: <?php echo " " . $infos['TECHNICAL_ISSUE_RESOLUTION'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-comment"></i>
-                                                    <span>Created Date: <?php echo " " . $infos['TICKET_START_DATE'] ?></span>
-                                                </li>
-                                                <li>
-                                                    <i class="fa-solid fa-battery-half"></i>
-                                                    <span>Ticket Status: <?php if ($infos["TICKET_STATUS"] == '10') {
-                                                                                echo '<span class="badge bg-primary "> New</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '20') {
-                                                                                echo '<span class="badge bg-warning"> Assign</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '30') {
-                                                                                echo '<span class="badge bg-info"> Started</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '60') {
-                                                                                echo '<span class="badge bg-success"> Solved</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '40') {
-                                                                                echo '<span class="badge bg-success"> Confirm</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '50') {
-                                                                                echo '<span class="badge bg-danger"> Rejected</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '70') {
-                                                                                echo '<span class="badge bg-danger"> Canceled</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '100') {
-                                                                                echo '<span class="badge bg-danger"> Included</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '90') {
-                                                                                echo '<span class="badge bg-danger"> Excluded</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '110') {
-                                                                                echo '<span class="badge bg-danger"> Send Out</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '120') {
-                                                                                echo '<span class="badge bg-danger"> Received</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '130') {
-                                                                                echo '<span class="badge bg-danger"> Exclude All</span>';
-                                                                            } elseif ($infos["TICKET_STATUS"] == '140') {
-                                                                                echo '<span class="badge bg-danger"> Confirmed by system</span>';
-                                                                            } ?></span>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                        <!-- Display Ticket Information Form End -->
-                    </div> <!-- Container Div Start  -->
-                </div>
-            </div>
-
-            <hr class="custom-hr">
-
-        </main>
-        <!-- Ticket Information Table End -->
-    <?php
-    } elseif ($action == 'AddService') {
-    ?>
-        <!-- Manage Users Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center">Add New Service</h2>
-                    <div class="container">
-                        <!-- Add Users Form Start -->
-                        <form class="form-horizontal" action="" method="">
-
-                            <!-- Start Username Field -->
-                            <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Service Name</label>
-                                <div class="col-sm-10">
-                                    <input type="text" name="name" class="form-control  name" placeholder=" Enter Service Name please..." autocomplete="off" required="required">
-                                </div>
-                            </div>
-                            <!-- End Username Field -->
-
-                            <!-- Start Phone Number Field -->
-                            <input type="text" name="admin" class="form-control  admin" value="<?php echo $_SESSION['user'] ?>" hidden>
-                            <!-- End Phone Number Field -->
-
-                            <!-- Start Submit Button -->
-                            <div class="form-group form-group-lg mt-3 mb-1">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-primary btn-lg addService">Add Service</button>
-                                </div>
-                            </div>
-                            <!-- End Submit Button  -->
-                        </form>
-                        <!-- Add Users Form End -->
-                    </div>
-                </div>
-            </div>
-        </main>
-        <!-- Manage Users Table End -->
-    <?php
     } elseif ($action == 'serviceEdit') {
     ?>
         <!-- Manage Users Table Start -->
@@ -1097,7 +949,7 @@ if (isset($_SESSION['user'])) {
 
                             <div class=" col-sm-7 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
-                                    <h3 class=" mt-3 mb-4 text-dark" >Delegate Supervisors</h3>
+                                    <h3 class=" mt-3 mb-4 text-dark">Delegate Supervisors</h3>
                                 </div>
                                 <div class="scroll">
                                     <table class="main-table text-center table table-bordered mt-3 ">
@@ -1150,8 +1002,9 @@ if (isset($_SESSION['user'])) {
         </main> <!-- Main End -->
         <!-- Team Member Information Start -->
     <?php
-    } elseif ($action == 'service') {       // Service Page Thats contain Service Information  
+    } elseif ($action == 'service') {       // Service Page Thats contain Add Service, Add Section, Show Service Information
     ?>
+
         <!-- Service Page  Start -->
         <main class="content px-3 py-2"> <!-- Main Start -->
             <div class="container-fluid"> <!-- Container-fluid Div Start -->
@@ -1160,8 +1013,16 @@ if (isset($_SESSION['user'])) {
                     <div class="scro container-fluid mb-2 mt-2">
                         <div class="row d-flex justify-content-center">
                             <div class="col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                <div class="div">
-                                    <h3 class=" mt-3 mb-4 text-dark">Services</h3>
+                                <div class="d-flex justify-content-between">
+                                    <div class="div">
+                                        <h3 class=" mt-3 mb-4 text-dark d-inline">Services</h3>
+                                    </div>
+                                    <div class="mx-2 my-2">
+                                        <button class="btn btn-primary button" data-bs-toggle='modal' data-bs-target="#NewSection" data-bs-whatever="NewSection" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Section'>
+                                            <i class="fa-solid fa-plus"></i>
+                                            <span>Add New Section</span>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-2">
@@ -1169,9 +1030,9 @@ if (isset($_SESSION['user'])) {
                                         <input type="text" class="form-control" id="ServiceID" aria-label="State" readonly>
                                     </div>
                                     <div class="col-sm-10">
-                                        <label class="" for="autoSizingSelect">Name</label>
+                                        <label class="" for="autoSizingSelect">Service Name</label>
                                         <select class="form-select serviceLOV" name="serviceLOV" id="serviceLOV" required>
-                                            <option value="">Choose Service No</option>
+                                            <option value="">Choose Service Name</option>
                                             <?php
                                             // // Query to retrieve a list of tables
                                             $serviceNo = "SELECT SERVICE_NO, SERVICE_NAME FROM TICKETING.SERVICE";
@@ -1191,10 +1052,19 @@ if (isset($_SESSION['user'])) {
 
                     <div class=" container-fluid mb-4 mt-2">
                         <div class="row d-flex justify-content-center">
-                            <div class=" col-sm-5 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                <div class="div">
-                                    <h3 class=" mt-3 mb-4 text-dark">Service Details</h3>
+                            <div class=" col-sm-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class=" d-flex justify-content-between">
+                                    <div class="">
+                                        <h3 class=" mt-3 mb-4 text-dark d-inline">Service Details</h3>
+                                    </div>
+                                    <div class="mx-2 my-2">
+                                        <button class="btn btn-primary button ms-auto " data-bs-toggle='modal' data-bs-target="#NewService" data-bs-whatever="NewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service'>
+                                            <i class="fa-solid fa-plus"></i>
+                                            <span>Add New Service</span>
+                                        </button>
+                                    </div>
                                 </div>
+
                                 <div class="scroll">
                                     <table class="main-table text-center table table-bordered mt-3 " id="ServiceDetailsID">
                                         <thead>
@@ -1206,14 +1076,13 @@ if (isset($_SESSION['user'])) {
                                                 <th>Private</th>
                                             </tr>
                                         </thead>
-
                                         <tbody id="serviceDetails" style="cursor: pointer;">
 
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
-                            <div class=" col-sm-5 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class=" col-sm-5 mx-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
                                 </div>
@@ -1232,11 +1101,111 @@ if (isset($_SESSION['user'])) {
                                 </div>
                             </div>
                         </div>
+                        <div class="mx-2 my-4 d-flex justify-content-end" style="max-width: 200px; ">
+                            <button class="btn btn-success button" data-bs-toggle='tooltip' data-bs-placement='top' title='Update Information'>
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Update</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div><!-- Container-fluid Div End  -->
         </main> <!-- Main End -->
         <!-- Service Page End -->
+
+        <!-- New Section Pop Up Form Start -->
+        <div class="modal fade" id="NewSection" tabindex="-1" aria-labelledby="NewSectionPopupLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- New Section  Start -->
+                        <main class="content px-3 py-2"> <!-- Main Start -->
+                            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                                <div class="mb-3">
+                                    <h2 class="text-center mt-3 mb-5" id="NewSectionPopupLabel">Add New Section</h2>
+                                    <div class="container mb-4 mt-4">
+                                        <div class="row d-flex justify-content-between">
+                                            <div class="col-sm-8">
+                                                <label class="" for="autoSizingSelect">Section Name</label>
+                                                <input type="text" class="form-control" id="ServiceID" aria-label="State">
+                                            </div>
+                                            <div class="col-sm-4 mt-4">
+                                                <button class="btn btn-success button" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Section'>
+                                                    <span>Create</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- Container-fluid Div End  -->
+                        </main> <!-- Main End -->
+                        <!-- New Section Info End -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- New Section Pop Up Form Start -->
+
+        <!-- New Service Pop Up Form Start -->
+        <div class="modal fade" id="NewService" tabindex="-1" aria-labelledby="NewServicePopupLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- New Service  Start -->
+                        <main class="content px-3 py-2"> <!-- Main Start -->
+                            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                                <div class="mb-3">
+                                    <h2 class="text-center mt-3 mb-5" id="NewServicePopupLabel">Add New Service</h2>
+                                    <div class="container mb-4 mt-4">
+                                        <div class="row">
+                                            <div class="col-sm-6 ">
+                                                <label class="" for="autoSizingSelect">Section Name</label>
+                                                <select class="form-select serviceLOV" name="serviceLOV" id="serviceLOV" required>
+                                                    <option value="">Choose Section Name</option>
+                                                    <?php
+                                                    // // Query to retrieve a list of tables
+                                                    $serviceNo = "SELECT SERVICE_NO, SERVICE_NAME FROM TICKETING.SERVICE";
+                                                    $service = oci_parse($conn, $serviceNo);
+                                                    // Execute the query
+                                                    oci_execute($service);
+                                                    while ($services = oci_fetch_assoc($service)) {
+                                                        echo "<option value='" . $services['SERVICE_NO'] . "'>" . $services['SERVICE_NAME'] . "</option>";
+                                                    }
+                                                    ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-6 ">
+                                                <label class="" for="autoSizingSelect">Service Name</label>
+                                                <input type="text" class="form-control" id="ServiceID" aria-label="State">
+                                            </div>
+                                            <div class="col-sm-12 mt-2">
+                                                <label class="" for="autoSizingSelect">Service Description</label>
+                                                <input type="text" class="form-control" id="ServiceID" aria-label="State">
+                                            </div>
+                                            <div class="col-sm-10  mt-4">
+                                                <button class="btn btn-success button width-75" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service'>
+                                                    <span>Create</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- Container-fluid Div End  -->
+                        </main> <!-- Main End -->
+                        <!-- New Service Info End -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- New Service Pop Up Form Start -->
+
+
     <?php
     } elseif ($action == 'delegate') {      // Delegate Page Thats contain Delegated Information 
     ?>

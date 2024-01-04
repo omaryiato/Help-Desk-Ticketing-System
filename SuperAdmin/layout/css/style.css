@@ -550,8 +550,19 @@ a.sidebar-link {
   max-height: 50px;
 }
 
-
-
-.main-table {
-  max-width: 400px;
+.scroll {
+  max-height: 300px;
+  overflow-y: scroll
 }
+
+.main-table th{
+  padding: 5px;
+  height: 30px;
+  position: sticky;
+  top: 0;
+  background: #068a9e;
+  color: white;
+  font-weight: normal;
+  z-index: 2;
+}
+

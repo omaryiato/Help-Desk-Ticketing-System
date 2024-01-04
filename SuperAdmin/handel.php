@@ -763,7 +763,7 @@ if (isset($_POST['details'])) {   // retrive Service Details based on Service Nu
 
 if (isset($_POST['ServiceDetailsID'])) {   // Choose Team Name Debends On Service Type
 
-    $ServiceDetailsID = $_POST['ServiceDetailsID'];  
+    $ServiceDetailsID = $_POST['ServiceDetailsID'];
 
     // Query to fetch Team Name based on the selected Service Type
     $serviceTeam = "SELECT 
