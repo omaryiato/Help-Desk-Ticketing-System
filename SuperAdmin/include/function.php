@@ -117,8 +117,6 @@ function InsertUserID() {
     $run = oci_execute($insertValue, OCI_NO_AUTO_COMMIT);
 }
 
-
-
 // function SelectTicket()
 // {
 

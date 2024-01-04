@@ -1,5 +1,7 @@
 <?php
 
+$startTime = microtime(true);
+
 /*
     ================================================
     == Manage Ticketing Page
@@ -741,25 +743,10 @@ if (isset($_SESSION['user'])) {
         </main>
         <!-- Manage Users Table End -->
     <?php
+
     } elseif ($action == 'Assign') {        // Assigned Ticket Page 
-        $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0; // GET Ticket Number  
 
-        if (isset($_POST['Number'])) {   // Choose Team Member Debends On Team Number
-            $ticketNumber = $_POST['Number'];  // Service Number
-
-            // InsertUserID();
-
-            // Query to fetch Team Member based on the selected Team Number
-            $ticketNo = "SELECT TICKET_NO, REQUETS_TYPE_NO, SERVICE_DETAIL_NO FROM TICKETING.TICKETS WHERE TICKET_NO = :t_ticket";
-            $ticket = oci_parse($conn, $ticketNo);
-            // Bind the variables
-            oci_bind_by_name($ticket, ":t_ticket", $ticketNumber);
-            // Execute the query
-            oci_execute($ticket);
-
-            $result = oci_fetch_assoc($ticket);
-            echo json_encode($result);
-        }
+        // $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0; // GET Ticket Number  
     ?>
         <!-- Assign Ticket  Start -->
         <main class="content px-3 py-2"> <!-- Main Start -->
@@ -792,12 +779,12 @@ if (isset($_SESSION['user'])) {
                                 </select>
                             </div>
                             <div class="col-sm-4">
-                                <label class="" for="autoSizingSelect">Service Name</label>
-                                <input type="text" class="form-control" id="serviceType" aria-label="City" readonly>
+                                <label class="" for="requestType">Service Name</label>
+                                <input type="text" class="form-control" id="requestType" aria-label="City" readonly>
                             </div>
                             <div class="col-sm-4">
-                                <label class="" for="autoSizingSelect">Service For</label>
-                                <input type="text" class="form-control" id="serviceDetail" aria-label="State" readonly>
+                                <label class="" for="serviceFor">Service For</label>
+                                <input type="text" class="form-control" id="serviceFor" aria-label="State" readonly>
                             </div>
                             <div class="col-sm-4">
                                 <label class="" for="autoSizingSelect">Ticket Periority</label>
@@ -816,7 +803,7 @@ if (isset($_SESSION['user'])) {
                         <div class="mb-3 row">
                             <label for="select" class="col-sm-2 col-form-label">Setect Team</label>
                             <div class="col-sm-6 mb-3">
-                                <select class="form-select" id="assign">
+                                <select class="form-select" id="assignTeam">
                                     <option>Choose Team...</option>
                                     <?php
                                     $firstTeam = 1;
@@ -888,70 +875,74 @@ if (isset($_SESSION['user'])) {
                     <h2 class="text-center mt-3">Create New Ticket</h2>
                     <div class="container"> <!-- Container Div Start  -->
                         <!-- Edit Ticket Information Form Start -->
-                        <form class="form-horizontal" action="" method="POST" style="margin: auto;">
-                            <!-- Start Name SelectBox -->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="">User Name</label>
-                                <div class="col-sm-10">
-                                    <input type="text" name="name" value="<?php echo $_SESSION['user'] ?>" class=" form-control name" disabled>
+                        <form class="form-horizontal  row" action="" method="POST">
+                            <div class="col-sm-5">
+                                <!-- Start Name SelectBox -->
+                                <div class="form-group">
+                                    <label class="col-sm-2 form-label mt-3" for="">User Name</label>
+                                    <div class="col-sm-10">
+                                        <input type="text" name="name" value="<?php echo $_SESSION['user'] ?>" class=" form-control name" disabled>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- End Name  SelectBox -->
-                            <!-- Start Service Type Field Start-->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select service" name="service" id="service" required>
-                                        <option value="">Choes Service</option>
-                                        <?php
-                                        // // Query to retrieve a list of tables
-                                        $department = "SELECT  * FROM TICKETING.SERVICE";
-                                        $dep = oci_parse($conn, $department);
-                                        // Execute the query
-                                        oci_execute($dep);
-                                        while ($dept = oci_fetch_assoc($dep)) {
-                                            echo "<option value='" . $dept['SERVICE_NO'] . "'>" . $dept['SERVICE_NAME'] . "</option>";
-                                        }
-                                        ?>
-                                    </select>
+                                <!-- End Name  SelectBox -->
+                                <!-- Start Service Type Field Start-->
+                                <div class="form-group">
+                                    <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select service" name="service" id="service" required>
+                                            <option value="">Choes Service</option>
+                                            <?php
+                                            // // Query to retrieve a list of tables
+                                            $department = "SELECT  * FROM TICKETING.SERVICE";
+                                            $dep = oci_parse($conn, $department);
+                                            // Execute the query
+                                            oci_execute($dep);
+                                            while ($dept = oci_fetch_assoc($dep)) {
+                                                echo "<option value='" . $dept['SERVICE_NO'] . "'>" . $dept['SERVICE_NAME'] . "</option>";
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- End TService Type Field End -->
-                            <!-- Start Service Details Field Start-->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="details">Service Details</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select details" name="details" id="details" required>
-                                        <option value="">Choose Service Detail</option>
-                                    </select>
+                                <!-- End TService Type Field End -->
+                                <!-- Start Service Details Field Start-->
+                                <div class="form-group">
+                                    <label class="col-sm-4 form-label mt-3" for="details">Service Details</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select details" name="details" id="details" required>
+                                            <option value="">Choose Service Detail</option>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- End Service Details Field End -->
-                            <!-- Start Device Field Start-->
-                            <div class="form-group">
-                                <label class="col-sm-2 form-label mt-3" for="details">Device</label>
-                                <div class="col-sm-10">
-                                    <select class="form-select details" name="details" id="details">
-                                        <option value="">Choose Service Detail</option>
-                                    </select>
+                                <!-- End Service Details Field End -->
+                                <!-- Start Device Field Start-->
+                                <div class="form-group">
+                                    <label class="col-sm-2 form-label mt-3" for="details">Device</label>
+                                    <div class="col-sm-10">
+                                        <select class="form-select device" name="device" id="device">
+                                            <option value="">Choose Device</option>
+                                        </select>
+                                    </div>
                                 </div>
+                                <!-- End Device End -->
                             </div>
-                            <!-- End Device End -->
-                            <!-- Start Issue Description Field -->
-                            <div class="form-group">
-                                <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
-                                <div class="col-sm-10">
-                                    <textarea name="description" id="" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
+                            <div class="col-sm-7">
+                                <!-- Start Issue Description Field -->
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
+                                    <div class="col-sm-8">
+                                        <textarea name="description" id="description" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
+                                    </div>
                                 </div>
-                            </div>
-                            <!-- End Issue Description Field -->
-                            <!-- Start Submit Button -->
-                            <div class="form-group">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" name="addTicket">Create Ticket</button>
+                                <!-- End Issue Description Field -->
+                                <!-- Start Submit Button -->
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-10">
+                                        <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" name="addTicket">Create Ticket</button>
+                                    </div>
                                 </div>
+                                <!-- End Submit Button  -->
                             </div>
-                            <!-- End Submit Button  -->
                         </form>
                         <!-- Edit Ticket Information Form End -->
                     </div> <!-- Container Div End  -->
@@ -1050,77 +1041,73 @@ if (isset($_SESSION['user'])) {
                     <h2 class="text-center mt-3 mb-5">Team Members</h2>
 
                     <div class="scro container-fluid mb-4 mt-4">
-                        <div class="row d-flex justify-content-around">
+                        <div class="row d-flex justify-content-center">
 
-                            <div class="col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class="col-sm-4 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Team</h3>
                                 </div>
                                 <div class="row">
-                                    <div class='col-sm-4'>
+                                    <div class='col-sm-3'>
                                         <label class="" for="autoSizingSelect">Team No</label>
-                                        <select class="form-select teamno" name="teamno" id="teamno" required>
-                                            <option value="">Choose Team No</option>
+                                        <input type="text" class="form-control" id="TeamNoID" aria-label="State" readonly>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <label class="" for="autoSizingSelect">Name</label>
+                                        <select class="form-select TeamName" name="TeamName" id="TeamName" required>
+                                            <option value="">Choose Team Name</option>
                                             <?php
                                             // // Query to retrieve a list of tables
-                                            $teamNo = "SELECT  * FROM TICKETING.TEAMS";
+                                            $teamNo = "SELECT  TEAM_NO, TEAM_NAME  FROM TICKETING.TEAMS";
                                             $team = oci_parse($conn, $teamNo);
-
                                             // Execute the query
                                             oci_execute($team);
-
                                             while ($teams = oci_fetch_assoc($team)) {
-                                                echo "<option value='" . $teams['TEAM_NO'] . "'>" . $teams['TEAM_NO'] . "</option>";
+                                                echo "<option value='" . $teams['TEAM_NO'] . "'>" . $teams['TEAM_NAME'] . "</option>";
                                             }
                                             ?>
                                         </select>
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label class="" for="autoSizingSelect">Name</label>
-                                        <input type="text" class="form-control" id="name" aria-label="State" readonly>
-                                    </div>
 
-                                    <div class='check  col-sm-4' style='display: flex; justify-content: center; align-items: center;'>
-                                        <label class="pe-2" for="autoSizingSelect">Status</label>
-
-                                        <input type='checkbox' name='status' id='status'>
-                                    </div>
-                                    <div class="col-sm-10 my-2">
+                                    <div class="col-sm-9 my-2">
                                         <label class="" for="autoSizingSelect">Description</label>
                                         <textarea type="text" class="form-control" aria-label="City"></textarea>
                                     </div>
-                                    <div class="col-sm-6 my-2">
+                                    <div class="col-sm-4 my-2">
                                         <label class="" for="autoSizingSelect">Department</label>
                                         <input type="text" class="form-control" id="dept" aria-label="State" readonly>
                                         <!-- <select class="form-select dept" name="dept" id="dept" required>
                                             <option value="">Choose Department</option>
                                         </select> -->
                                     </div>
-                                    <div class='col-sm-6 my-2'>
+                                    <div class='col-sm-4 my-2'>
                                         <label class="" for="autoSizingSelect">Branch</label>
                                         <input type="text" class="form-control" id="branch" aria-label="State" readonly>
                                         <!-- <select class="form-select branch" name="branch" id="branch" required>
                                             <option value="">Choose Branch</option>
                                         </select> -->
                                     </div>
+                                    <div class='check  col-sm-4' style='display: flex; justify-content: center; align-items: center;'>
+                                        <label class="pe-2" for="autoSizingSelect">Status</label>
+
+                                        <input type='checkbox' name='status' id='status'>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class=" col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class=" col-sm-7 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
-                                    <h3 class=" mt-3 mb-4 text-dark">Delegate Supervisors</h3>
+                                    <h3 class=" mt-3 mb-4 text-dark" >Delegate Supervisors</h3>
                                 </div>
-
                                 <div class="scroll">
                                     <table class="main-table text-center table table-bordered mt-3 ">
                                         <thead>
                                             <tr>
-                                                <td>Name</td>
-                                                <td>Start Date</td>
-                                                <td>End Date</td>
+                                                <th>Name</th>
+                                                <th>Start Date</th>
+                                                <th>End Date</th>
                                             </tr>
                                         </thead>
-
                                         <tbody id="tableBody">
 
                                         </tbody>
@@ -1129,10 +1116,10 @@ if (isset($_SESSION['user'])) {
                             </div>
                         </div>
                     </div>
-                    <div class="scro container-fluid mb-4 mt-4">
-                        <div class="row d-flex justify-content-around">
+                    <div class=" container-fluid mb-4 mt-4">
+                        <div class="row d-flex justify-content-center">
 
-                            <div class="col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class="col-sm-11 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Team Members</h3>
                                 </div>
@@ -1140,12 +1127,12 @@ if (isset($_SESSION['user'])) {
                                     <table class="main-table text-center table table-bordered mt-3 ">
                                         <thead>
                                             <tr>
-                                                <td>User Name</td>
-                                                <td>Name</td>
-                                                <td>Description</td>
-                                                <td>Active</td>
-                                                <td>Supervisor</td>
-                                                <td>Manager</td>
+                                                <th>User Name</th>
+                                                <th>Name</th>
+                                                <th>Description</th>
+                                                <th>Active</th>
+                                                <th>Supervisor</th>
+                                                <th style="min-width: 100px;">Manager</th>
                                             </tr>
                                         </thead>
                                         <tbody id="table-body">
@@ -1169,88 +1156,78 @@ if (isset($_SESSION['user'])) {
         <main class="content px-3 py-2"> <!-- Main Start -->
             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                 <div class="mb-3">
-
-                    <h2 class="text-center mt-3 mb-5">Services</h2>
-
-                    <div class="scro container-fluid mb-4 mt-4">
-                        <div class="row d-flex justify-content-around">
-
+                    <h2 class="text-center mt-3 ">Services</h2>
+                    <div class="scro container-fluid mb-2 mt-2">
+                        <div class="row d-flex justify-content-center">
                             <div class="col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Services</h3>
                                 </div>
                                 <div class="row">
-                                    <div class="col-sm-3">
+                                    <div class="col-sm-2">
                                         <label class="" for="autoSizingSelect">Service #</label>
-                                        <select class="form-select serviceno" name="serviceno" id="serviceno" required>
+                                        <input type="text" class="form-control" id="ServiceID" aria-label="State" readonly>
+                                    </div>
+                                    <div class="col-sm-10">
+                                        <label class="" for="autoSizingSelect">Name</label>
+                                        <select class="form-select serviceLOV" name="serviceLOV" id="serviceLOV" required>
                                             <option value="">Choose Service No</option>
                                             <?php
                                             // // Query to retrieve a list of tables
-                                            $serviceNo = "SELECT * FROM TICKETING.SERVICE";
+                                            $serviceNo = "SELECT SERVICE_NO, SERVICE_NAME FROM TICKETING.SERVICE";
                                             $service = oci_parse($conn, $serviceNo);
-
                                             // Execute the query
                                             oci_execute($service);
-
                                             while ($services = oci_fetch_assoc($service)) {
-                                                echo "<option value='" . $services['SERVICE_NO'] . "'>" . $services['SERVICE_NO'] . "</option>";
+                                                echo "<option value='" . $services['SERVICE_NO'] . "'>" . $services['SERVICE_NAME'] . "</option>";
                                             }
                                             ?>
                                         </select>
                                     </div>
-                                    <div class="col-sm-8">
-                                        <label class="" for="autoSizingSelect">Name</label>
-                                        <input type="text" class="form-control" id="name" aria-label="State" readonly>
-                                    </div>
-
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
-                    <div class="scro container-fluid mb-4 mt-4">
-                        <div class="row d-flex justify-content-around">
-                            <div class=" col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                    <div class=" container-fluid mb-4 mt-2">
+                        <div class="row d-flex justify-content-center">
+                            <div class=" col-sm-5 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Service Details</h3>
                                 </div>
                                 <div class="scroll">
-                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                    <table class="main-table text-center table table-bordered mt-3 " id="ServiceDetailsID">
                                         <thead>
                                             <tr>
-                                                <td>Service Details Name</td>
-                                                <td>Description</td>
-                                                <td>Custody</td>
-                                                <td>Private</td>
+                                                <th hidden>ID</th>
+                                                <th>Service Details Name</th>
+                                                <th>Description</th>
+                                                <th>Custody</th>
+                                                <th>Private</th>
                                             </tr>
                                         </thead>
 
-                                        <tbody id="serviceDetails">
+                                        <tbody id="serviceDetails" style="cursor: pointer;">
 
                                         </tbody>
-
                                     </table>
                                 </div>
                             </div>
-                            <div class=" col-sm-5 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class=" col-sm-5 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
                                 </div>
                                 <div class="scroll">
                                     <table class="main-table text-center table table-bordered mt-3 ">
-
                                         <thead>
                                             <tr>
-                                                <td>Team Name</td>
-                                                <td>Enabled</td>
+                                                <th>Team Name</th>
+                                                <th>Enabled</th>
                                             </tr>
                                         </thead>
-
-                                        <tbody id="serviceTeam">
+                                        <tbody id="serviceDetailsTeam">
 
                                         </tbody>
-
                                     </table>
                                 </div>
                             </div>
@@ -1329,5 +1306,12 @@ if (isset($_SESSION['user'])) {
     header('Location: index.php');
     exit();
 }
+$endTime = microtime(true); // CALCULAT page loaded time
+
+$timeTaken = $endTime - $startTime;
+
+// $timeTaken = round($timeTaken, 5);
+
+echo "<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>Page Loaded In: " . round($timeTaken, 2)  . " Seconds</h5>";
 ob_end_flush(); // Release The Output
 ?>
