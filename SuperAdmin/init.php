@@ -10,7 +10,7 @@ $inc = 'include/'; // Functions Directory
 $css = 'layout/css/';      // Css Directory 
 $js = 'layout/js/';       // Js Directory 
 
-include $inc . 'function.php'; // All Function You Need In This Project
+include 'function.php'; // All Function You Need In This Project
 include $inc . 'header.php'; // Header File For This Project 
 
 // IF This Variable Is Exist So Dont Include The SideBar In This Page (Like Login Page (index))

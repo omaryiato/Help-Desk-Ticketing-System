@@ -561,41 +561,6 @@ if (isset($_SESSION['user'])) {
         </main>
         <!-- Content Profile End -->
     <?php
-    } elseif ($action == 'serviceEdit') {
-    ?>
-        <!-- Manage Users Table Start -->
-        <main class="content px-3 py-2">
-            <div class="container-fluid">
-                <div class="mb-3">
-                    <h2 class="text-center">Edit Service Information</h2>
-                    <div class="container">
-                        <form class="form-horizontal" action="" method="">
-                            <input type="hidden" class="id" name="id">
-
-                            <!-- Start Username Field -->
-                            <div class="form-group form-group-lg">
-                                <label class="col-sm-2 control-lable mt-3 mb-1" for="">Service Name</label>
-                                <div class="col-sm-10">
-                                    <input type="text" name="serviceName" class="form-control  serviceName" placeholder="Enter new username please..." autocomplete="off" required="required">
-                                </div>
-                            </div>
-                            <!-- End Username Field -->
-
-                            <!-- Start Submit Button -->
-                            <div class="form-group form-group-lg mt-3 mb-1">
-                                <div class="col-sm-offset-2 col-sm-10">
-                                    <button type="submit" class="btn btn-success btn-lg updateService">Update</button>
-                                </div>
-                            </div>
-                            <!-- End Submit Button  -->
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </main>
-        <!-- Manage Users Table End -->
-    <?php
-
     } elseif ($action == 'Assign') {        // Assigned Ticket Page 
 
         // $ticketid = isset($_GET['tickid']) && is_numeric($_GET['tickid']) ?   intval($_GET['tickid']) : 0; // GET Ticket Number  
@@ -1003,6 +968,13 @@ if (isset($_SESSION['user'])) {
         <!-- Team Member Information Start -->
     <?php
     } elseif ($action == 'service') {       // Service Page Thats contain Add Service, Add Section, Show Service Information
+
+        // Query to fetch user ID based on User Name In Session
+        $userID   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = :t_name";
+        $id       = oci_parse($conn, $userID);
+        oci_bind_by_name($id, ":t_name", $_SESSION['user']);
+        oci_execute($id);
+        $row        = oci_fetch_assoc($id);
     ?>
 
         <!-- Service Page  Start -->
@@ -1018,9 +990,9 @@ if (isset($_SESSION['user'])) {
                                         <h3 class=" mt-3 mb-4 text-dark d-inline">Services</h3>
                                     </div>
                                     <div class="mx-2 my-2">
-                                        <button class="btn btn-primary button" data-bs-toggle='modal' data-bs-target="#NewSection" data-bs-whatever="NewSection" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Section'>
+                                        <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewService" data-bs-whatever="NewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service'>
                                             <i class="fa-solid fa-plus"></i>
-                                            <span>Add New Section</span>
+                                            <span>Add New Service</span>
                                         </button>
                                     </div>
                                 </div>
@@ -1029,7 +1001,7 @@ if (isset($_SESSION['user'])) {
                                         <label class="" for="autoSizingSelect">Service #</label>
                                         <input type="text" class="form-control" id="ServiceID" aria-label="State" readonly>
                                     </div>
-                                    <div class="col-sm-10">
+                                    <div class="col-sm-10" id="newservice">
                                         <label class="" for="autoSizingSelect">Service Name</label>
                                         <select class="form-select serviceLOV" name="serviceLOV" id="serviceLOV" required>
                                             <option value="">Choose Service Name</option>
@@ -1052,60 +1024,66 @@ if (isset($_SESSION['user'])) {
 
                     <div class=" container-fluid mb-4 mt-2">
                         <div class="row d-flex justify-content-center">
-                            <div class=" col-sm-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class=" col-sm-5 mx-1  " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                 <div class=" d-flex justify-content-between">
                                     <div class="">
                                         <h3 class=" mt-3 mb-4 text-dark d-inline">Service Details</h3>
                                     </div>
-                                    <div class="mx-2 my-2">
-                                        <button class="btn btn-primary button ms-auto " data-bs-toggle='modal' data-bs-target="#NewService" data-bs-whatever="NewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service'>
-                                            <i class="fa-solid fa-plus"></i>
-                                            <span>Add New Service</span>
-                                        </button>
+                                    <div class="mx-2 my-2" id="addNewServiceDetailsButton">
+
                                     </div>
                                 </div>
 
-                                <div class="scroll">
-                                    <table class="main-table text-center table table-bordered mt-3 " id="ServiceDetailsID">
-                                        <thead>
-                                            <tr>
-                                                <th hidden>ID</th>
-                                                <th>Service Details Name</th>
-                                                <th>Description</th>
-                                                <th>Custody</th>
-                                                <th>Private</th>
-                                            </tr>
+                                <div class=" text-center mt-5" id="waitingMessage">
+                                    <div class="alert alert-primary" role="alert">
+                                        There Is No Data You Can See It Yet.
+                                    </div>
+                                </div>
+
+                                <div class="details">
+                                    <table class=" details-table  text-center table table-bordered mt-3 " id="ServiceDetailsID">
+                                        <thead id="serviceDetailsHeadTable">
+
                                         </thead>
                                         <tbody id="serviceDetails" style="cursor: pointer;">
 
                                         </tbody>
                                     </table>
                                 </div>
+                                <div class="mx-2 my-4 d-flex justify-content-start" id="updateServiceDetailButton">
+                                    <!-- Update button will be appended here -->
+                                </div>
                             </div>
                             <div class=" col-sm-5 mx-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                <div class="div">
-                                    <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
+
+                                <div class="d-flex justify-content-between">
+                                    <div class="div">
+                                        <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
+                                    </div>
+                                    <div class="mx-2 my-2" id="addNewTeamDetailsButton">
+
+                                    </div>
                                 </div>
-                                <div class="scroll">
+
+                                <div class=" text-center mt-1" id="waitingMessages">
+                                    <div class="alert alert-primary change" role="alert">
+                                        There Is No Data You Can See It Yet.
+                                    </div>
+                                </div>
+
+                                <div class="scroll ">
                                     <table class="main-table text-center table table-bordered mt-3 ">
-                                        <thead>
-                                            <tr>
-                                                <th>Team Name</th>
-                                                <th>Enabled</th>
-                                            </tr>
+                                        <thead id="TeamDetailsHeadTable">
+
                                         </thead>
                                         <tbody id="serviceDetailsTeam">
-
                                         </tbody>
                                     </table>
                                 </div>
+                                <div class="mx-2 my-4 d-flex justify-content-start" id="updateDetailTeamButton">
+                                    <!-- Update button will be appended here -->
+                                </div>
                             </div>
-                        </div>
-                        <div class="mx-2 my-4 d-flex justify-content-end" style="max-width: 200px; ">
-                            <button class="btn btn-success button" data-bs-toggle='tooltip' data-bs-placement='top' title='Update Information'>
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Update</span>
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -1113,8 +1091,27 @@ if (isset($_SESSION['user'])) {
         </main> <!-- Main End -->
         <!-- Service Page End -->
 
-        <!-- New Section Pop Up Form Start -->
-        <div class="modal fade" id="NewSection" tabindex="-1" aria-labelledby="NewSectionPopupLabel" aria-hidden="true">
+        <div class="serviceList">
+            <div class="contentes">
+                <ul class="shortMenu">
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
+                            <i class="fa-solid fa-folder-open"></i>
+                            <span>New Ticket</span>
+                        </button>
+                    </li>
+                    <li>
+                        <a class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket'>
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Edit Ticket</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- New Service Pop Up Form Start -->
+        <div class="modal fade" id="NewService" tabindex="-1" aria-labelledby="NewServicePopupLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1125,16 +1122,17 @@ if (isset($_SESSION['user'])) {
                         <main class="content px-3 py-2"> <!-- Main Start -->
                             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                                 <div class="mb-3">
-                                    <h2 class="text-center mt-3 mb-5" id="NewSectionPopupLabel">Add New Section</h2>
+                                    <h2 class="text-center" id="NewServicePopupLabel">Add New Service</h2>
                                     <div class="container mb-4 mt-4">
                                         <div class="row d-flex justify-content-between">
                                             <div class="col-sm-8">
-                                                <label class="" for="autoSizingSelect">Section Name</label>
-                                                <input type="text" class="form-control" id="ServiceID" aria-label="State">
+                                                <label class="" for="autoSizingSelect">Service Name</label>
+                                                <input type="text" class="form-control" id="NewServiceName" aria-label="State" required>
+                                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                             </div>
                                             <div class="col-sm-4 mt-4">
-                                                <button class="btn btn-success button" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Section'>
-                                                    <span>Create</span>
+                                                <button class="btn btn-success button" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service'>
+                                                    <span>Save</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -1147,10 +1145,10 @@ if (isset($_SESSION['user'])) {
                 </div>
             </div>
         </div>
-        <!-- New Section Pop Up Form Start -->
-
         <!-- New Service Pop Up Form Start -->
-        <div class="modal fade" id="NewService" tabindex="-1" aria-labelledby="NewServicePopupLabel" aria-hidden="true">
+
+        <!-- New Service Details Pop Up Form Start -->
+        <div class="modal fade" id="NewServiceDetail" tabindex="-1" aria-labelledby="NewServiceDetailPopupLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -1161,36 +1159,26 @@ if (isset($_SESSION['user'])) {
                         <main class="content px-3 py-2"> <!-- Main Start -->
                             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                                 <div class="mb-3">
-                                    <h2 class="text-center mt-3 mb-5" id="NewServicePopupLabel">Add New Service</h2>
+                                    <h2 class="text-center" id="NewServiceDetailPopupLabel">Add New Service Detail</h2>
                                     <div class="container mb-4 mt-4">
                                         <div class="row">
                                             <div class="col-sm-6 ">
-                                                <label class="" for="autoSizingSelect">Section Name</label>
-                                                <select class="form-select serviceLOV" name="serviceLOV" id="serviceLOV" required>
-                                                    <option value="">Choose Section Name</option>
-                                                    <?php
-                                                    // // Query to retrieve a list of tables
-                                                    $serviceNo = "SELECT SERVICE_NO, SERVICE_NAME FROM TICKETING.SERVICE";
-                                                    $service = oci_parse($conn, $serviceNo);
-                                                    // Execute the query
-                                                    oci_execute($service);
-                                                    while ($services = oci_fetch_assoc($service)) {
-                                                        echo "<option value='" . $services['SERVICE_NO'] . "'>" . $services['SERVICE_NAME'] . "</option>";
-                                                    }
-                                                    ?>
-                                                </select>
+                                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+                                                <label class="" for="autoSizingSelect">Service Name</label>
+                                                <input type="text" class="form-control" id="GetServiceTypeName" aria-label="Name" readonly required>
+                                                <input type="hidden" class="form-control" id="GetServiceTypeID" aria-label="ID" readonly required>
                                             </div>
                                             <div class="col-sm-6 ">
-                                                <label class="" for="autoSizingSelect">Service Name</label>
-                                                <input type="text" class="form-control" id="ServiceID" aria-label="State">
+                                                <label class="" for="autoSizingSelect">Service Detail Name</label>
+                                                <input type="text" class="form-control" id="NewServiceDetailsName" aria-label="Name" required>
                                             </div>
                                             <div class="col-sm-12 mt-2">
-                                                <label class="" for="autoSizingSelect">Service Description</label>
-                                                <input type="text" class="form-control" id="ServiceID" aria-label="State">
+                                                <label class="" for="autoSizingSelect">Service Detail Description</label>
+                                                <input type="text" class="form-control" id="ServiceDetailsDescription" aria-label="Description" required>
                                             </div>
                                             <div class="col-sm-10  mt-4">
-                                                <button class="btn btn-success button width-75" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service'>
-                                                    <span>Create</span>
+                                                <button class="btn btn-success button width-75" id="AddNewServiceDetails" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
+                                                    <span>Save</span>
                                                 </button>
                                             </div>
                                         </div>
@@ -1203,9 +1191,53 @@ if (isset($_SESSION['user'])) {
                 </div>
             </div>
         </div>
-        <!-- New Service Pop Up Form Start -->
+        <!-- New Service Details Pop Up Form Start -->
 
+        <!-- New Service Details Team  Pop Up Form Start -->
+        <div class="modal fade" id="NewDetailTeam" tabindex="-1" aria-labelledby="NewDetailTeamPopupLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- New Service  Start -->
+                        <main class="content px-3 py-2"> <!-- Main Start -->
+                            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                                <div class="mb-3">
+                                    <h2 class="text-center" id="NewDetailTeamPopupLabel">Add New Team</h2>
+                                    <div class="container mb-4 mt-4">
+                                        <div class="row">
+                                            <div class="col-sm-6 ">
+                                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+                                                <label class="" for="autoSizingSelect">Service Details Name</label>
+                                                <input type="text" class="form-control" id="GetServiceDetailsName" aria-label="Name" readonly required>
+                                                <input type="hidden" class="form-control" id="GetServiceDetailsID" aria-label="ID" readonly required>
+                                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label class="" for="autoSizingSelect">Team Name</label>
+                                                <select class="form-select" name="ServiceTypeNumber" id="GetServiceDetailsTeamNumber" required>
+                                                    <option value="">Choose Service Details Team Name </option>
 
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-10  mt-4">
+                                                <button class="btn btn-success button width-75" id="AddNewServiceDetailsTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
+                                                    <span>Save</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- Container-fluid Div End  -->
+                        </main> <!-- Main End -->
+                        <!-- New Service Info End -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- New Service Details Teams Pop Up Form Start -->
     <?php
     } elseif ($action == 'delegate') {      // Delegate Page Thats contain Delegated Information 
     ?>

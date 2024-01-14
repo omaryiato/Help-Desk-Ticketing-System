@@ -329,8 +329,6 @@ a.sidebar-link {
   left: 30px;
 }
 
-
-
 /****************   Action List Start **************/
 
 .wrapper {
@@ -512,6 +510,11 @@ a.sidebar-link {
   background: #e0e0e0;
 }
 
+.content .details tr:hover td:not(:last-child):not(:nth-last-child(2)),
+.content .details tr.selected td:not(:last-child):not(:nth-last-child(2)) {
+  background-color: #e0e0e0;
+}
+
 .content .scro td:nth-child(5) {
   border-right: 1px solid #ccc;
 }
@@ -555,6 +558,11 @@ a.sidebar-link {
   overflow-y: scroll
 }
 
+.details {
+  max-height: 300px;
+  overflow-y: scroll
+}
+
 .main-table th{
   padding: 5px;
   height: 30px;
@@ -566,3 +574,58 @@ a.sidebar-link {
   z-index: 2;
 }
 
+.details-table th {
+  padding: 5px;
+  height: 30px;
+  position: sticky;
+  top: 0;
+  background: #068a9e;
+  color: white;
+  font-weight: normal;
+  z-index: 2;
+}
+
+/***************   Short List In Service Page  ****************************/
+
+/****************   Action List Start **************/
+
+.serviceList {
+  position: absolute;
+  visibility: hidden;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+}
+
+.serviceList .shortMenu {
+  padding: 10px 12px;
+}
+
+.contentes ul li {
+  list-style: none;
+}
+
+.contentes .item {
+  text-decoration: none;
+  font-size: 22px;
+  height: 50px;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  padding: 0 5px 0 0;
+  align-items: center;
+  border-radius: 5px;
+  margin-bottom: 2px;
+  color: black;
+  border: none;
+  background-color: white;
+}
+
+.contentes .item:hover {
+  background: #f2f2f2f2;
+}
+
+.contentes .item span {
+  font-size: 19px;
+  margin-left: 8px;
+}

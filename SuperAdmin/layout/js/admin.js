@@ -18,25 +18,6 @@ if (solvePopup) {
   })
 }
 
-// // Assign Ticket Popup Script
-// const assignPopup = document.getElementById('assignPopup')
-// if (assignPopup) {
-//     assignPopup.addEventListener('show.bs.modal', event => {
-//     // Button that triggered the modal
-//     const button = event.relatedTarget
-//     // Extract info from data-bs-* attributes
-//     const recipient = button.getAttribute('data-bs-whatever')
-//     // If necessary, you could initiate an Ajax request here
-//     // and then do the updating in a callback.
-
-//     // Update the modal's content.
-//     const modalTitle = assignPopup.querySelector('.modal-title')
-//     const modalBodyInput = assignPopup.querySelector('.modal-body main')
-
-//     modalTitle.textContent = `New message to ${recipient}`
-//     modalBodyInput.value = recipient
-//   })
-// }
 
 // Select Row on Click Function
 document.addEventListener('DOMContentLoaded', function() {
@@ -69,6 +50,37 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    var table = document.querySelector('.details .details-table');
+
+    table.addEventListener('click', function(event) {
+        var targetRow = event.target.closest('tr');
+        if (targetRow) {
+            // Remove the 'selected' class from all rows
+            var rows = table.querySelectorAll('tr');
+            rows.forEach(function(row) {
+                row.classList.remove('selected');
+            });
+
+            // Add the 'selected' class to the clicked row
+            targetRow.classList.add('selected');
+        }
+    });
+
+    // Add click event listener to the document body
+    document.body.addEventListener('click', function(event) {
+        // Check if the clicked element is outside the table
+        if (!table.contains(event.target)) {
+            // Remove the 'selected' class from all rows
+            var rows = table.querySelectorAll('tr');
+            rows.forEach(function(row) {
+                row.classList.remove('selected');
+            });
+        }
+    });
+});
+
+
 // List Ticket Action 
 const tableRows = document.querySelectorAll(".hiddenList tbody tr");
 const contextMenu = document.querySelector(".wrapper");
@@ -94,11 +106,73 @@ const contextMenu = document.querySelector(".wrapper");
             }
         });
 
+        const shortTableRows = document.querySelectorAll(".details-table #serviceDetails tr");
+        const shortlist = document.querySelector(".serviceList");
+        shortTableRows.forEach(row => {
+            row.addEventListener("contextmenu", function(event) {
+                event.preventDefault();
+
+                const ServiceDetailsNumber = row.querySelector("td").textContent;
+
+                // Show the context menu near the click position
+                shortlist.style.visibility = "visible";
+                shortlist.style.left = event.pageX + "px";
+                shortlist.style.top = event.pageY + "px";
+                var storedServiceDetailsNumber = ServiceDetailsNumber;
+            });
+        });
+
+        // Hide the context menu when clicking outside of it
+        document.addEventListener("click", function(event) {
+            if (!event.target.closest(".details .details-table #serviceDetails tr")) {
+                shortlist.style.visibility = "hidden";
+            }
+        });
+
 $(function () {
 
     'use strict';
 
     // Hide Placeholder On Form Focus
+
+     // Include button click event for moving rows from teamMember to memberAssigned
+    $('#teamMember').on('click', '.include', function() {
+        moveRow($(this), '#teamMember', '#memberAssigned');
+    });
+
+    // Exclude button click event for moving rows from memberAssigned back to teamMember
+    $('#memberAssigned').on('click', '.exclude', function() {
+        moveRow($(this), '#memberAssigned', '#teamMember');
+    });
+
+    function moveRow(clickedButton, sourceTable, destinationTable) {
+        // Get the entire row
+        var row = clickedButton.closest('tr');
+
+        // Create a new row for the destination table
+        var newRow = $('<tr>');
+
+        // Find the specific columns in the clicked row and clone them
+        var userNameColumn = row.find('.userName').clone();
+        var nameColumn = row.find('.name').clone();
+        var statusColumn = row.find('td:eq(2)').clone(); // Assuming the status is at index 2
+        var teamLeaderColumn = $('<td><div class="check"><input type="checkbox"></div></td>');
+
+        // Find the "Control" column and clone it
+        var controlColumn = clickedButton.clone();
+
+        // Toggle class and change text based on the action
+        controlColumn.toggleClass('include exclude').text(controlColumn.hasClass('include') ? 'Exclude' : 'Include');
+
+        // Append the cloned columns to the new row in the desired order
+        newRow.append(userNameColumn, nameColumn, statusColumn, teamLeaderColumn, controlColumn);
+
+        // Append the new row to the destination table
+        $(destinationTable).append(newRow);
+
+        // Remove the original row from the source table
+        row.remove();
+    }
 
     $('[placeholder]').focus(function () {
         $(this).attr('data-text', $(this).attr('placeholder'));
@@ -121,73 +195,105 @@ $(function () {
         return confirm('Are You Sure About Delete This Information !!!');
     });
 
+    $('.users').click(function() {
+
+        $('.userno').toggle(100);
+    });
+
+    $('.trans').click(function() {
+
+        $('.tran').toggle(100);
+    });
+
     // ***************** Ticket Actions Start  *************************
 
-    $(document).on('click', '.assignTicket', function(e) {  //  Assign Ticket To Team Member 
-
+    $(document).on('click', '.assign', function(e) {
         e.preventDefault();
+        $('#RequestedBy').val(" ");
+        $('#requestType').val(" ");
+        $('#serviceFor').val(" ");
+        $('#ticketNumber').val(" ");
+        $('#assignTeam').html(" ");
+        $('#teamMember').empty();
 
-        var tickid              = $(this).val(); // Ticket Number 
-        var department          =$(this).closest('.content').find('.department').val();
-        var user                =$(this).closest('tr').find('.user').text();
-        
-        // alert( tickid + user );
-
+        $('#ticketNumber').val(storedTicketNumber);
         $.ajax({
-            method: "POST",
-            url: "handel.php",
-            data: {
-                "user":         user,
-                "department":   department,
-                "tickid":       tickid,
-                "action" :      "assign"
-            },
-            success: function (response) {
-                if (response === 'done') {
-                    Swal.fire("Ticket Assigned Successfully ");
-                } else {
-                    Swal.fire("Ticket Assigned Successfully ");
-                //     Swal.fire({
-                //         icon: 'error',
-                //         title: 'Error',
-                //         text: 'Ticket assignment failed. ' + response
-                // })
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
+            type: 'POST',
+            url: 'function.php', // Replace with the correct URL
+            data: { ticketNumber: storedTicketNumber },
+            dataType: 'json',
+            success: function (data) {
+                // Fill the input fields based on the received data
+                $('#RequestedBy').val(data.USER_EN_NAME);
+                $('#requestType').val(data.SERVICE_NAME);
+                $('#serviceFor').val(data.SERVICE_DETAIL_NAME);
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php', // Function Page For All ajax Function
+                    data: { selectDetailsTeamMember: data.SERVICE_DETAIL_NAME },
+                    success: function (data) {
+                        $('#assignTeam').html(data);
+                    },
+                    error: function () {
+                        alert('Error fetching users');
+                    }
+                });
                 
-            }}
+            },
+            error: function () {
+                alert('Error fetching ticket information');
+            }
         });
     });
 
-    $(document).on('click', '.assign', function(e) {
-
-        e.preventDefault();
-
-        var TicketNumber = storedTicketNumber;  // Ticket Number
-
-        // alert( "Ticket unumber = " + TicketNumber);
-
-        $('#ticketNumber').val(TicketNumber);
-
-            //     // Navigate to the new URL after AJAX request completes
-            // const newUrl = `?action=Assign&tickid=${TicketNumber}`;
-            // window.location.href = newUrl;
-                
-    });
-
-    $('#assignTeam').on('change', function () {      //  Return Team Member To Based On Team Number Function
-        var selectedTeamMember = $(this).val(); // Team Number
-
+    $('#assignTeam').on('change', function () {             // Return Service Number  Based On Service Name Function
+        $('#teamMember').text(" Waiting Data ");
         $.ajax({
             type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
-            data: { teamMember: selectedTeamMember },
+            url: 'function.php', // Function Page For All ajax Function
+            data: { teamMembers: $(this).val() },
             success: function (data) {
+                // Call function to fill Service Deatails Table
+                //fillServiceTable(data);
+                ////////////////////////////////Parsing the data retrived and plot it in table view///////////////////////////////////////////////////
+                var tableDBody = $('#teamMember');
                 // Parse the returned JSON data
                 var jsonData = JSON.parse(data);
-                // Call function to fill the table
-                fillTeamMemberTable(jsonData);
+            
+                // Clear existing rows
+                tableDBody.empty();
+                jsonData.forEach(function (row) {
+                    var newDRow = $('<tr>');
+            
+                    // Populate each cell with data
+                    newDRow.html(`
+            
+                        <td>${row.name}</td>
+                        <td>${row.Ename}</td>`
+            
+                        // Check Custody and Private conditions
+                        + (row.active === 'Y' ? `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''} >
+                                </div>
+                            </td>` :  `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' >
+                                </div>
+                            </td>`)
+                            +
+                            `<td><button class='btn btn-warning include'>Include</button></td>`
+
+                            );
+            
+                    // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                    // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                    
+                });
+                ////////////////////////////////////////////////////////////////////////////////////////
             },
             error: function () {
                 alert('Error fetching users');
@@ -195,30 +301,14 @@ $(function () {
         });
     });
 
-    $('#department').on('change', function () { // Deleted Function
-        var selectedDepartment = $(this).val();
-
-        $.ajax({
-            type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
-            data: { department: selectedDepartment },
-            success: function (data) {
-                $('#user').html(data);
-            },
-            error: function () {
-                alert('Error fetching users');
-            }
-        });
-    });
-
-    $(document).on('click', '.startTicket', function(e) {  // Start Ticket Function
+    $(document).on('click', '.startTicket', function(e) {  // Update Ticket Status To Start Ticket Function
 
         e.preventDefault();
         var tickid = storedTicketNumber;  // Ticket Number
         
         $.ajax({
             method: "POST",
-            url: "handel.php",  // Handel Page For All ajax Function
+            url: "function.php",  // Function Page For All ajax Function
             data: {
                 "tickid":        tickid,
                 "action" :      "start"
@@ -241,7 +331,24 @@ $(function () {
         });
     });
 
-    $(document).on('click', '.solveTicket', function(e) {  // Solve Ticket Function
+    $(document).on('click', '#notAssignedTeam', function(e) {  // Update Ticket Status To Start Ticket Function
+
+        e.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Function Page For All ajax Function
+            data: { notassignedteam: $('#GetServiceDetailsID').val() },
+            success: function (data) {
+                $('#GetServiceDetailsTeamNumber').html(data);
+            },
+            error: function () {
+                alert('Error fetching Teams');
+            }
+        });
+    });
+
+    $(document).on('click', '.solveTicket', function(e) {  // Update Ticket Status To Solve Ticket Function
 
         e.preventDefault();
         var tickid              = storedTicketNumber; // Ticket Number
@@ -250,7 +357,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",  // Handel Page For All ajax Function
+            url: "function.php",  // Function Page For All ajax Function
             data: {
                 "tickid":           tickid,
                 "issue":            issue,
@@ -284,7 +391,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",
+            url: "function.php",
             data: {
                 "tickid":        tickid,
                 "action" :      "reject"
@@ -316,7 +423,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",
+            url: "function.php",
             data: {
                 "userid":        userid,
                 "action" :      "remove"
@@ -355,7 +462,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",
+            url: "function.php",
             data: {
                 "username":        username,
                 "password":        password,
@@ -398,7 +505,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",
+            url: "function.php",
             data: {
                 "userid":           userid,
                 "username":         username,
@@ -425,117 +532,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '.addService', function(e) {
-
-        e.preventDefault();
-
-        var name             =$(this).closest('.content').find('.name').val();
-        var admin             =$(this).closest('.content').find('.admin').val();
-        
-        // alert(name + admin)
-
-        $.ajax({
-            method: "POST",
-            url: "handel.php",
-            data: {
-                "name":        name,
-                "admin":        admin,
-                "action" :      "service"
-            },
-            success: function (response) {
-
-                if (response.trim() === 'exist') {
-                    Swal.fire("This Name already exist");
-                } else if (response.trim() === 'success') {
-                    Swal.fire("Service Added Successfully");
-                    } else {
-                        Swal.fire("Service Added Successfully");
-                    }
-                
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
-            }
-        });
-    });
-
-    $(document).on('click', '.updateService', function(e) {
-
-        e.preventDefault();
-
-        var serviceID              = $(this).val();
-        var serviceName            =$(this).closest('.content').find('.serviceName').val();
-        
-        $.ajax({
-            method: "POST",
-            url: "handel.php",
-            data: {
-                "serviceID":           serviceID,
-                "serviceName":         serviceName,
-                "action" :         "editservice"
-            },
-            success: function (response) {
-
-                if (response.trim() === 'done') {
-                    Swal.fire("Service Information Updated Successfully ");
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Something went wrong!",
-                    });
-                }
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
-            }
-        });
-    });
-
-    $(document).on('click', '.deleteService', function(e) {
-
-        e.preventDefault();
-
-        var serviceid = $(this).val();
-
-        // alert( tickid );
-        
-        $.ajax({
-            method: "POST",
-            url: "handel.php",
-            data: {
-                "serviceid":        serviceid,
-                "action" :      "deleservice"
-            },
-            success: function (response) {
-
-                if (response.trim() === 'done') {
-                    Swal.fire("Service Deleted Successfully");
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Something went wrong!",
-                    }); 
-                }
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
-            }
-        });
-    });
-
-    $('.users').click(function() {
-
-        $('.userno').toggle(100);
-    });
-
-    $('.trans').click(function() {
-
-        $('.tran').toggle(100);
-    });
-
-    $(document).on('click', '.addTicket', function(e) {   // Add New Ticket Function
+    $(document).on('click', '.addTicket', function(e) {         // Add New Ticket To Tickets Table Function
 
         e.preventDefault();
         var name            =$(this).closest('.content').find('.name').val();           // User Name who Create The Ticket
@@ -548,7 +545,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",  // Handel Page For All ajax Function
+            url: "function.php",  // Function Page For All ajax Function
             data: {
                 "name":             name,
                 "service":          service,
@@ -574,7 +571,7 @@ $(function () {
         });
     });
 
-    $(document).on('click', '.completTicket', function(e) {   // Confirme Ticket Function
+    $(document).on('click', '.completTicket', function(e) {     // Update Ticket Status To Confirme Ticket Function
 
         e.preventDefault();
         var tickid              = $(this).val(); // Ticket Number
@@ -582,7 +579,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",  // Handel Page For All ajax Function
+            url: "function.php",  // Function Page For All ajax Function
             data: {
                 "tickid":        tickid,
                 "comment":        comment,
@@ -615,7 +612,7 @@ $(function () {
         
         $.ajax({
             method: "POST",
-            url: "handel.php",  // Handel Page For All ajax Function
+            url: "function.php",  // Function Page For All ajax Function
             data: {
                 "tickid":        tickid,
                 "action" :      "delete"
@@ -638,12 +635,228 @@ $(function () {
         });
     });
 
+    $(document).on('click', '#AddNewService', function(e) {                 // Add New Service To Service Table Function
+
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                "serviceName":              $(this).closest('.content').find('#NewServiceName').val(),
+                "UserSessionID":            $(this).closest('.content').find('#UserSessionID').val(),
+                "action" :                  "NewService"
+            },
+            success: function (response) {
+                if (response.trim() === 'done') {
+                    $('#NewService').modal('hide');
+                    Swal.fire("Service Added Successfully ");
+                } 
+                if (response.trim() === 'wrong') {
+                    $('#NewService').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "This Service Name Is Already Exist!",
+                    });
+                }
+                setTimeout(function() {
+                    $('#newservice').load('dashboard.php?action=service #newservice');
+                }, 0);
+            }
+        });
+    });
+
+    $(document).on('click', '#AddNewServiceDetails', function(e) {          // Add New Service Details To Service Details Table Function
+
+        e.preventDefault();
+
+        
+
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                "NewServiceDetailsName":            $(this).closest('.content').find('#NewServiceDetailsName').val(),
+                "UserSessionID":                    $(this).closest('.content').find('#UserSessionID').val(),
+                "GetServiceTypeID":                 $(this).closest('.content').find('#GetServiceTypeID').val(),
+                "ServiceDetailsDescription":        $(this).closest('.content').find('#ServiceDetailsDescription').val(),
+                "action" :                          "NewServiceDetails"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    $('#NewServiceDetailsName').empty();
+                    $('#ServiceDetailsDescription').empty();
+                    $('#NewServiceDetail').modal('hide');
+                    Swal.fire("Service Details Added Successfully ");
+                    
+                } 
+
+                if (response.trim() === 'wrong') {
+                    $('#NewServiceDetailsName').empty();
+                    $('#ServiceDetailsDescription').empty();
+                    $('#NewServiceDetail').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "This Service Details Name Is Already Exist!",
+                    });
+                }
+                setTimeout(function() {
+                    $('#serviceDetails').load('dashboard.php?action=service #serviceDetails');
+                }, 0);
+            }
+        });
+    });
+
+    $(document).on('click', '#AddNewServiceDetailsTeam', function(e) {          // Add New Service Details Team To Service Details Team Table Function
+
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                "GetServiceDetailsName":                        $(this).closest('.content').find('#GetServiceDetailsName').val(),
+                "GetServiceDetailsTeamNumber":                  $(this).closest('.content').find('#GetServiceDetailsTeamNumber').val(),
+                "GetServiceDetailsID":                          $(this).closest('.content').find('#GetServiceDetailsID').val(),
+                "UserSessionID":                                $(this).closest('.content').find('#UserSessionID').val(),
+                "action" :                                      "NewServiceDetailsTeam"
+            },
+            success: function (response) {
+
+                if (response.trim() === 'done') {
+                    $('#NewDetailTeam').modal('hide');
+                    Swal.fire("Service Details Team Added Successfully ");
+                } 
+
+                if (response.trim() === 'wrong') {
+                    $('#NewDetailTeam').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "This Service Details Name Is Already Exist!",
+                    });
+                }
+                setTimeout(function() {
+                    $('#serviceDetailsTeam').load('dashboard.php?action=service #serviceDetailsTeam');
+                }, 0);
+            }
+        });
+    });
+
+    $(document).on('click', '#updateTeamEnabled', function(e) {             //  Update Enabled Column In Team Table Function
+
+        e.preventDefault();
+        var teamEnabled = [];
+
+        $(':input[type="checkbox"].teamTable').each(function(i){
+
+            var teamNo = $(this).val();
+            var newStatus = this.checked ? 'Y' : 'N';
+            var serviceDetailsID = $(this).attr('id');
+
+                // Assign data for each row to the object
+                teamEnabled.push({
+                    teamNo: teamNo,
+                    newStatus: newStatus,
+                    serviceDetailsID: serviceDetailsID
+                });
+        });
+        var teamEnabledJson = JSON.stringify(teamEnabled);
+        $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                dataType: 'json',
+                data: { 
+                    teamEnabled: teamEnabledJson,
+                    action:      "updateTeamTable"
+                },
+                success: function (response) {
+                    Swal.fire("Enabled updated successfully ");
+                    setTimeout(function() {
+                        $('#serviceDetailsTeam').load('dashboard.php?action=service #serviceDetailsTeam');
+                    }, 0);
+
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Error updating Enabled",
+                    });
+                    setTimeout(function() {
+                        $('#serviceDetailsTeam').load('dashboard.php?action=service #serviceDetailsTeam');
+                    }, 0);
+                }
+            });
+    });
+
+    $(document).on('click', '#updateServiceDetailsButton', function(e) {   //  Update Custody And Private Columns In Service Details Table Function
+
+        e.preventDefault();
+        var custodyColumn = [];
+        $(':input[type="checkbox"].serviceDetailsCustody').each(function(i){
+            var servaiceDetailsNo = $(this).val();
+            var newStatus = this.checked ? 'Y' : 'N';
+
+                // Assign data for each row to the object
+                custodyColumn.push({
+                    servaiceDetailsNo: servaiceDetailsNo,
+                    newStatus: newStatus
+                });
+        });
+        var custodyColumnJson = JSON.stringify(custodyColumn);
+        
+        var privateColumn = [];
+        $(':input[type="checkbox"].serviceDetailsPrivate').each(function(i){
+            var servaiceDetailsNo = $(this).val();
+            var newStatus = this.checked ? 'Y' : 'N';
+
+                // Assign data for each row to the object
+                privateColumn.push({
+                    servaiceDetailsNo: servaiceDetailsNo,
+                    newStatus: newStatus
+                });
+        });
+        var privateColumnJson = JSON.stringify(privateColumn);
+
+        $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                dataType: 'json',
+                data: { 
+                    custodyColumnJson: custodyColumnJson,
+                    privateColumnJson: privateColumnJson,
+                    action:      "updateServiceDetailsTable"
+                },
+                success: function (response) {
+                    Swal.fire("Enabled updated successfully ");
+                    setTimeout(function() {
+                        $('#ServiceDetailsID').load('dashboard.php?action=service #ServiceDetailsID');
+                    }, 0);
+
+                },
+                error: function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Error updating Enabled",
+                    });
+                    setTimeout(function() {
+                        $('#ServiceDetailsID').load('dashboard.php?action=service #ServiceDetailsID');
+                    }, 0);
+                }
+            });
+    });
+
     $('#service').on('change', function () {    // Return Service Details Based On Service Type Function
         var selectedService = $(this).val(); // Service Type Number
 
         $.ajax({
             type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
+            url: 'function.php', // Function Page For All ajax Function
             data: { type: selectedService },
             success: function (data) {
                 $('#details').html(data);
@@ -660,7 +873,7 @@ $(function () {
                 if ($(this).val() === '14') {
                     $.ajax({
                         type: 'POST',
-                        url: 'handel.php', // Handle Page For All AJAX Function
+                        url: 'function.php', // Handle Page For All AJAX Function
                         data: { details: $(this).val(), username: $(this).closest('.content').find('.name').val() }, // Include both details and username
                         success: function (data) {
                             $('#device').html(data);
@@ -680,7 +893,7 @@ $(function () {
 
         $.ajax({
             type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
+            url: 'function.php', // Function Page For All ajax Function
             data: { team: $(this).val() },
             dataType: 'json',
             success: function (data) {
@@ -698,35 +911,95 @@ $(function () {
 
         $.ajax({
             type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
+            url: 'function.php', // Function Page For All ajax Function
             data: { member: $(this).val() },
             success: function (data) {
                 // Parse the returned JSON data
-                var jsonData = JSON.parse(data);
                 
-                // Call function to fill Team Member Table 
-                fillTable(jsonData);
-            },
-            error: function () {
-                alert('Error fetching users');
-            }
-        });
+                var tableBody = $('#table-body');
+
+                var jsonData = JSON.parse(data);
+
+                // Clear existing rows
+                tableBody.empty();
+
+                jsonData.forEach(function (row) {
+                    var newRow = $('<tr>');
+                    // Populate each cell with data
+                    newRow.html(`
+                        <td>${row.userName}</td>
+                        <td>${row.name}</td>
+                        <td>${row.description}</td>
+                        <td>
+                            <div class='check'>
+                                <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''}>
+                            </div>
+                        </td>`
+                        // Check supervisor and manager conditions
+                        + (row.supervisor == 3 ? `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' ${row.supervisor == 3 ? 'checked' : ''} disabled>
+                                </div>
+                            </td>` :  `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' disabled>
+                                </div>
+                            </td>`)
+
+                            + (row.manager == 1 ? `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' ${row.manager == 1 ? 'checked' : ''} disabled>
+                                </div>
+                            </td>` :  `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox'  disabled>
+                                </div>
+                            </td>` )
+                            
+                            );
+
+                    // Append the new row to the table body
+                    tableBody.append(newRow);
+                });
+                        },
+                        error: function () {
+                            alert('Error fetching users');
+                        }
+                    });
     });
 
     $('#TeamName').on('change', function () {     // Return Delegated Users Based On Team Number Function
         $.ajax({
             type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
+            url: 'function.php', // Function Page For All ajax Function
             data: { delegateMember: $(this).val() },
             success: function (data) {
                 // Parse the returned JSON data
-                var jsonData = JSON.parse(data);
-                // Call function to fill Delegate Table in Team Table 
-                fillDTable(jsonData);
-            },
-            error: function () {
-                alert('Error fetching users');
-            }
+                
+            var tableDBody = $('#tableBody');
+            var jsonData = JSON.parse(data);
+            // Clear existing rows
+            tableDBody.empty();
+
+            jsonData.forEach(function (row) {
+                var newDRow = $('<tr>');
+                // Populate each cell with data
+                newDRow.html(`
+                    <td>${row.name}</td>
+                    <td>${row.start}</td>
+                    <td>${row.end}</td>`
+                        );
+                // Append the new row to the table body
+                tableDBody.append(newDRow);
+            });
+                    },
+                    error: function () {
+                        alert('Error fetching users');
+                    }
         });
     });
 
@@ -734,7 +1007,7 @@ $(function () {
         var delegateUser = $(this).val();  // Team Number
         $.ajax({
             type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
+            url: 'function.php', // Function Page For All ajax Function
             data: { delegated: delegateUser },
             success: function (data) {
                 // Parse the returned JSON data
@@ -749,15 +1022,37 @@ $(function () {
     });
 
     $('#serviceLOV').on('change', function () {  // Return Service Number  Based On Service Name Function
+
                 $('#ServiceID').val($(this).val()); // to retrive the selected ID into ServiceID text Box
                 $('#serviceDetails').empty();
                 $('#serviceDetails').text("Waiting Data");
                 $('#serviceDetailsTeam').empty();
+                $('#GetServiceTypeID').val($(this).val());
+                $('#waitingMessage').empty().removeClass('mt-5');
+                // $('.change').text('There Is No Data You Can See It Yet.');
+
                 $.ajax({
                     type: 'POST',
-                    url: 'handel.php', // Handel Page For All ajax Function
+                    url: 'function.php', // Function Page For All ajax Function
                     data: { details: $(this).val() },
                     success: function (data) {
+
+                        $('#addNewServiceDetailsButton').html(`
+                            <button class="btn btn-primary ms-auto " data-bs-toggle='modal' data-bs-target="#NewServiceDetail" data-bs-whatever="NewServiceDetail" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service Detail'>
+                                <i class="fa-solid fa-plus"></i>
+                                <span>Add New Service Details</span>
+                            </button>
+                        `);
+                        $('#serviceDetailsHeadTable').html(`
+                            <tr>
+                                <th hidden>ID</th>
+                                <th>Service Details Name</th>
+                                <th>Description</th>
+                                <th>Custody</th>
+                                <th>Private</th>
+                            </tr>
+                        `);
+                        
                         // Call function to fill Service Deatails Table
                         //fillServiceTable(data);
                         ////////////////////////////////Parsing the data retrived and plot it in table view///////////////////////////////////////////////////
@@ -774,7 +1069,7 @@ $(function () {
                             // Populate each cell with data
                             newDRow.html(`
                     
-                                <td hidden>${row.id}</td>
+                                <td id='sdid' hidden>${row.id}</td>
                                 <td>${row.name}</td>
                                 <td>${row.desc}</td>`
                     
@@ -782,24 +1077,24 @@ $(function () {
                                 + (row.custody === 'Y' ? `
                                     <td>
                                         <div class='check'>
-                                            <input type='checkbox' ${row.custody === 'Y' ? 'checked' : ''} >
+                                            <input type='checkbox' ${row.custody === 'Y' ? 'checked' : ''}  value='${row.id}' class='serviceDetailsCustody' name='checkbox[]' >
                                         </div>
                                     </td>` :  `
                                     <td>
                                         <div class='check'>
-                                            <input type='checkbox' >
+                                            <input type='checkbox' value='${row.id}' class='serviceDetailsCustody' name='checkbox[]' >
                                         </div>
                                     </td>`)
                     
                                     + (row.private === 'Y' ? `
                                     <td>
                                         <div class='check'>
-                                            <input type='checkbox' ${row.private === 'Y' ? 'checked' : ''} >
+                                            <input type='checkbox' ${row.private === 'Y' ? 'checked' : ''} value='${row.id}' class='serviceDetailsPrivate'  name='checkbox[]' >
                                         </div>
                                     </td>` :  `
                                     <td>
                                         <div class='check'>
-                                            <input type='checkbox'  >
+                                            <input type='checkbox'  value='${row.id}' class='serviceDetailsPrivate' name='checkbox[]' >
                                         </div>
                                     </td>` )
                                     );
@@ -807,8 +1102,18 @@ $(function () {
                             // Append the new row to the table body
                             tableDBody.append(newDRow);
                             // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                            $('#GetServiceTypeName').val(row.serviceTypeName);
                             
                         });
+
+
+                        // Append the "Update" button after loading the data
+                        $('#updateServiceDetailButton').html(`
+                            <button type="button" name="btnUpdate" id="updateServiceDetailsButton" class="btn btn-success button" data-bs-toggle='tooltip' data-bs-placement='top' title='Update Information'>
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                <span>Update</span>
+                            </button>
+                        `);
                         ////////////////////////////////////////////////////////////////////////////////////////
                     },
                     error: function () {
@@ -817,68 +1122,112 @@ $(function () {
                 });
     });
 
-    $('#ServiceDetailsID tbody').on('click', 'tr', function () {      // Return Service Details Team Based On Service Details Number From DB
-        $('#serviceDetailsTeam').empty();
-        $('#serviceDetailsTeam').text("Waiting Data");
+    $('#ServiceDetailsID tbody').on('click', 'tr td', function (event) {      // Return Service Details Team Based On Service Details Number From DB
 
-        $.ajax({
-            
-            type: 'POST',
-            url: 'handel.php', // Handel Page For All ajax Function
-            data: { ServiceDetailsID: $(this).find('td:first').text() },
-            success: function (data) {
-                // Call function to fill Service Details Team Table
-                //fillServiceTeamTable(data);
-                ////////////////////////////////Parsing the data retrived and plot it in table view///////////////////////////////////////////////////
-                var tableDBody = $('#serviceDetailsTeam');
-                // Clear existing rows
-                tableDBody.empty();
+        if (!$(this).is(':last-child, :nth-child(4)')) {
+
+            $('#serviceDetailsTeam').empty();
+            $('#serviceDetailsTeam').text("Waiting Data");
+            $('#GetServiceDetailsID').empty();
+            $('#GetServiceDetailsName').empty();
+            $('#waitingMessages').empty();    
+                    
+            $.ajax({
                 
-                // Parse the returned JSON data
-                var jsonData = JSON.parse(data);
-            
-                jsonData.forEach(function (row) {
-                    var newDRow = $('<tr>');
-                    // Populate each cell with data
-                    newDRow.html(`
-                        <td>${row.name}</td>`
-                        // Check Custody and Private conditions
-                        + (row.enable === 'Y' ? `
-                            <td>
-                                <div class='check'>
-                                    <input type='checkbox' ${row.enable === 'Y' ? 'checked' : ''} >
-                                </div>
-                            </td>` :  `
-                            <td>
-                                <div class='check'>
-                                    <input type='checkbox' >
-                                </div>
-                            </td>`)
-                            );
-            
-                    // Append the new row to the table body
-                    tableDBody.append(newDRow);
-                });
-                /////////////////////////////////////////////////////////////////////////////////////
-            },
-            error: function () {
-                alert('Error fetching users');
-            }
-        });
+                type: 'POST',
+                url: 'function.php', // Function Page For All ajax Function
+                data: { ServiceDetailsID: $(this).closest('tr').find('td:nth-child(1)').text()},
+                success: function (data) {
+
+                    $('#addNewTeamDetailsButton').html(`
+                        <button class="btn btn-primary" id='notAssignedTeam' data-bs-toggle='modal' data-bs-target="#NewDetailTeam" data-bs-whatever="NewDetailTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add New Team</span>
+                        </button>
+                    `);
+
+                    $('#TeamDetailsHeadTable').html(`
+                        <tr>
+                            <th hidden>Team ID</th>
+                            <th hidden>Service Details ID</th>
+                            <th hidden>Service Details Name</th>
+                            <th>Team Name</th>
+                            <th>Enabled</th>
+                        </tr>
+                    `);
+                    
+                    // Call function to fill Service Details Team Table
+                    //fillServiceTeamTable(data);
+                    ////////////////////////////////Parsing the data retrived and plot it in table view///////////////////////////////////////////////////
+                    var tableDBody = $('#serviceDetailsTeam');
+                    // Clear existing rows
+                    tableDBody.empty();
+                    
+                    // Parse the returned JSON data
+                    var jsonData = JSON.parse(data);
+                
+                    jsonData.forEach(function (row) {
+                        var newDRow = $('<tr>');
+                        // Populate each cell with data
+                        newDRow.html(`
+                            <td hidden>${row.teamID}</td>
+                            <td hidden>${row.serviceDetailsID}</td>
+                            <td hidden>${row.serviceDetailName}</td>
+                            <td>${row.name}</td>`
+                            // Check Custody and Private conditions
+                            + (row.enable === 'Y' ? `
+                                <td>
+                                    <div class='check'>
+                                        <input type='checkbox' ${row.enable === 'Y' ? 'checked' : ''} value='${row.teamID}' name='checkbox[]' id='${row.serviceDetailsID}' class='teamTable'>
+                                    </div>
+                                </td>` :  `
+                                <td>
+                                    <div class='check'>
+                                        <input type='checkbox' value='${row.teamID}' name='checkbox[]' id='${row.serviceDetailsID}' class='teamTable' >
+                                    </div>
+                                </td>`)
+                                );
+                
+                        // Append the new row to the table body
+                        tableDBody.append(newDRow);
+                        $('#GetServiceDetailsID').val(row.serviceDetailsID);
+                        $('#GetServiceDetailsName').val(row.serviceDetailName);
+                    });
+
+                    // Append the "Update" button after loading the data
+                    $('#updateDetailTeamButton').html(`
+                        <button type="button" name="btnUpdate" id="updateTeamEnabled" class="btn btn-success button" data-bs-toggle='tooltip' data-bs-placement='top' title='Update Information'>
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Update</span>
+                        </button>
+                    `);
+                    /////////////////////////////////////////////////////////////////////////////////////
+
+                    
+                },
+                error: function () {
+                    alert('Error fetching users');
+                }
+            });
+        }
     });
+
+
 
     // ***************** Ticket Actions End  *************************
 
 });
 
 
-function fillTable(data) {              // Dispaly Team Member Information Based On Team Number Function
+function fillTable(data) {              // This function is not used now 10JAN2024-- Dispaly Team Member Information Based On Team Number Function
     var tableBody = $('#table-body');
+
+    var jsonData = JSON.parse(data);
 
     // Clear existing rows
     tableBody.empty();
 
-    data.forEach(function (row) {
+    jsonData.forEach(function (row) {
         var newRow = $('<tr>');
         // Populate each cell with data
         newRow.html(`
@@ -922,7 +1271,7 @@ function fillTable(data) {              // Dispaly Team Member Information Based
     });
 }
 
-function fillDTable(data) {             // Display Delegated Users Based On Team Number Function
+function fillDTable(data) {             //  This function is not used now 10JAN2024-- Display Delegated Users Based On Team Number Function
     var tableDBody = $('#tableBody');
 
     // Clear existing rows
@@ -1043,42 +1392,6 @@ function fillServiceTeamTable(data) {   //This function is not used now 4JAN2024
     });
 }
 
-function fillTeamMemberTable(data) {   // Display Service Team Information Based On Service Number Function
-    var tableDBody = $('#teamMember');
-
-    // Clear existing rows
-    tableDBody.empty();
-
-    data.forEach(function (row) {
-        var newDRow = $('<tr>');
-
-        // Populate each cell with data
-        newDRow.html(`
-            <td>${row.name}</td>
-            <td>${row.Ename}</td>`
-            // Check Active conditions
-            + (row.active === 'Y' ? `
-                <td>
-                    <div class='check'>
-                        <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''} disabled>
-                    </div>
-                </td>` :  `
-                <td>
-                    <div class='check'>
-                        <input type='checkbox' disabled>
-                    </div>
-                </td>`
-            )
-            // Add button to the last td
-            + `<td>
-                <button type='submit' class='btn btn-warning btn-lg mt-3 assignTicket' name='assignTicket'>Include</button>
-            </td>`
-        );
-
-        // Append the new row to the table body
-        tableDBody.append(newDRow);
-    });
-}
 
 
 

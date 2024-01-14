@@ -283,7 +283,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                         <li>
                             <button class="item assign" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
                                 <i class='fa-solid fa-at'></i>
-                                <span>Assign btn</span>
+                                <span>Assign</span>
                             </button>
                         </li>
                         <?php
@@ -409,7 +409,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                         <li>
                             <button class="item assign" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
                                 <i class='fa-solid fa-at'></i>
-                                <span>Assign btn</span>
+                                <span>Assign</span>
                             </button>
                         </li>
                         <?php
@@ -557,7 +557,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                             </div>
                                             <div class="col-sm-4">
                                                 <label class="" for="autoSizingSelect">Requested By</label>
-                                                <input type="text" class="form-control" aria-label="State">
+                                                <input type="text" class="form-control" id="RequestedBy" aria-label="State" readonly>
                                             </div>
                                             <div class="col-sm-4">
                                                 <label class="" for="autoSizingSelect">Ticket Weight</label>
@@ -600,20 +600,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                             <div class="col-sm-6 mb-3">
                                                 <select class="form-select" id="assignTeam">
                                                     <option>Choose Team...</option>
-                                                    <?php
-                                                    $firstTeam = 1;
-                                                    $secTeam = 6;
-                                                    // // Query to retrieve a list of tables
-                                                    $teamName = "SELECT TEAM_NO, TEAM_NAME  FROM TICKETING.TEAMS WHERE TEAM_NO = :t_no OR TEAM_NO = :t_id";
-                                                    $teams = oci_parse($conn, $teamName);
-                                                    oci_bind_by_name($teams, ":t_no", $firstTeam);
-                                                    oci_bind_by_name($teams, ":t_id", $secTeam);
-                                                    // Execute the query
-                                                    oci_execute($teams);
-                                                    while ($team = oci_fetch_assoc($teams)) {
-                                                        echo "<option value='" . $team['TEAM_NO'] . "'>" . $team['TEAM_NAME'] . "</option>";
-                                                    }
-                                                    ?>
+
                                                 </select>
                                             </div>
                                         </div>
@@ -621,35 +608,53 @@ $roles = oci_fetch_assoc($userRole); // User Roles
 
                                     <div class="container">
                                         <div class="omar" style="display: flex; justify-content:space-around; max-width: 1200px;"> <!-- Container Div Start  -->
-                                            <div style="width: 500px; margin-right: 15px">
+                                            <div class="scroll" style="width: 500px; margin-right: 15px;">
                                                 <h3 class="text-start mt-3 text-dark">Team Member</h3>
                                                 <table class="main-table text-center table table-bordered mt-3 ">
-
                                                     <thead>
                                                         <tr>
-                                                            <td>User Name</td>
-                                                            <td>Name</td>
-                                                            <td>Status</td>
-                                                            <td>Control</td>
+                                                            <th>User Name</th>
+                                                            <th>Name</th>
+                                                            <th>Status</th>
+                                                            <th>Control</th>
                                                         </tr>
                                                     </thead>
 
                                                     <tbody id="teamMember">
-
+                                                        <tr>
+                                                            <td class="userName" hidden>omar</td>
+                                                            <td class="name" hidden>omar alkhateeb</td>
+                                                            <td hidden>active</td>
+                                                            <td hidden><button class='btn btn-warning include'>Include</button></td>
+                                                        </tr>
                                                     </tbody>
 
                                                 </table>
                                             </div>
 
-                                            <div style="width: 500px; margin-right: 15px">
+                                            <div class="scroll" style="width: 500px; margin-right: 15px">
                                                 <h3 class="text-start mt-3 text-dark">Selected Team Member for Ticket</h3>
                                                 <table class="main-table text-center table table-bordered mt-3  ">
-
-                                                    <tr>
-                                                        <td>Name</td>
-                                                        <td>Description</td>
-                                                        <td>Team Leader</td>
-                                                    </tr>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>User Name</th>
+                                                            <th>Name</th>
+                                                            <th>Description</th>
+                                                            <th>Team Leader</th>
+                                                            <th>Control</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="memberAssigned">
+                                                        <tr>
+                                                            <td class="userName" hidden>omar</td>
+                                                            <td class="name" hidden>omar alkhateeb</td>
+                                                            <td hidden></td>
+                                                            <td hidden>
+                                                                <div class="check"><input type="checkbox"></div>
+                                                            </td>
+                                                            <td hidden><button class='btn btn-warning exclude'>Exclude</button></td>
+                                                        </tr>
+                                                    </tbody>
                                                 </table>
                                             </div>
 
