@@ -494,7 +494,16 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             $run = oci_execute($AddNewService);
 
             if ($run) {
-                echo 'done';
+                // Query to fetch Service Type 
+                $serviceType = "SELECT SERVICE_NO, SERVICE_NAME FROM TICKETING.SERVICE";
+                $service = oci_parse($conn, $serviceType);
+                oci_execute($service);
+                // Build HTML options for users
+                $options = '';
+                while ($row = oci_fetch_assoc($service)) {
+                    $options .= "<option value='{$row['SERVICE_NO']}'>{$row['SERVICE_NAME']}</option>";
+                }
+                echo $options;
             } else {
                 $e = oci_error($AddNewService);
                 echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
@@ -576,13 +585,16 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
     } elseif ($action == 'updateTeamTable') {                   // Update Team Enabled Function
 
         $teamEnabled = json_decode($_POST['teamEnabled'], true);
+        $userID = $_POST['userID'];
 
         foreach ($teamEnabled as $row) {
             $teamNo             = $row['teamNo'];
             $newStatus          = $row['newStatus'];
             $serviceDetailsID   = $row['serviceDetailsID'];
 
-            $ServiceDetailTeamID = "UPDATE TICKETING.SERVICE_DETAILS_TEAMS SET ENABLED ='" . $newStatus . "' WHERE TEAM_NO= " . $teamNo . " AND SERVICE_DETAIL_NO=" . $serviceDetailsID;
+            $ServiceDetailTeamID = "UPDATE TICKETING.SERVICE_DETAILS_TEAMS SET 
+                                    ENABLED ='" . $newStatus . "', LAST_UPDATED_BY = " . $userID . ",
+                                    LAST_UPDATE_DATE = CURRENT_TIMESTAMP  WHERE TEAM_NO= " . $teamNo . " AND SERVICE_DETAIL_NO=" . $serviceDetailsID;
             $TeamID = oci_parse($conn, $ServiceDetailTeamID);
             $run = oci_execute($TeamID);
 
@@ -600,12 +612,15 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
 
         $custodyColumnJson = json_decode($_POST['custodyColumnJson'], true);
         $privateColumnJson = json_decode($_POST['privateColumnJson'], true);
+        $userID = $_POST['userID'];
 
         foreach ($custodyColumnJson as $row) {
             $servaiceDetailsNo              = $row['servaiceDetailsNo'];
             $newStatus                      = $row['newStatus'];
 
-            $ServiceDetailID = "UPDATE TICKETING.SERVICE_DETAILS SET CUSTODY_LINK ='" . $newStatus . "' WHERE SERVICE_DETAIL_NO= " . $servaiceDetailsNo;
+            $ServiceDetailID = "UPDATE TICKETING.SERVICE_DETAILS SET 
+                                CUSTODY_LINK ='" . $newStatus . "', LAST_UPDATED_BY = " . $userID . ",
+                                LAST_UPDATE_DATE = CURRENT_TIMESTAMP WHERE SERVICE_DETAIL_NO= " . $servaiceDetailsNo;
             $custodyStatus = oci_parse($conn, $ServiceDetailID);
             $run = oci_execute($custodyStatus);
 
@@ -620,7 +635,9 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             $servaiceDetailsNo              = $row['servaiceDetailsNo'];
             $newStatus                      = $row['newStatus'];
 
-            $ServiceDetailID = "UPDATE TICKETING.SERVICE_DETAILS SET PRIVATE_FLAG ='" . $newStatus . "' WHERE SERVICE_DETAIL_NO= " . $servaiceDetailsNo;
+            $ServiceDetailID = "UPDATE TICKETING.SERVICE_DETAILS SET 
+                                PRIVATE_FLAG ='" . $newStatus . "', LAST_UPDATED_BY = " . $userID . ",
+                                LAST_UPDATE_DATE = CURRENT_TIMESTAMP WHERE SERVICE_DETAIL_NO= " . $servaiceDetailsNo;
             $privateStatus = oci_parse($conn, $ServiceDetailID);
             $run = oci_execute($privateStatus);
 
@@ -949,11 +966,39 @@ if (isset($_POST['ServiceDetailsID'])) {   // Choose Service Details Team Name D
 
 ////////////////////////////////****************************************** Team Member Page Request Functions Start  ***********************************************///////////////////////////////
 
-if (isset($_POST['team'])) {   // Choose Team Information Debends On Team Number
-    $selectedTeamID = $_POST['team'];  // Team Number
+if (isset($_POST['teamInfo'])) {   // Choose Team Information Debends On Team Number
+    $selectedTeamID = $_POST['teamInfo'];  // Team Number
 
     // Query to fetch Team Information based on the selected Team Number
-    $teamInfo = "SELECT  ACTIVE, BRANCH_CODE, DEPT_ID FROM TICKETING.TEAMS WHERE TEAM_NO =" . $selectedTeamID;
+    $teamInfo = "SELECT TICKETING.TEAMS.ACTIVE AS TEAM_ACTIVE,
+                        TICKETING.TEAMS.BRANCH_CODE,
+                        TICKETING.TEAMS.DEPT_ID,
+                        TICKETING.TEAMS.DESCRIPTION AS TEAM_DESCRIPTION,
+                        TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID,
+                        TICKETING.TEAM_MEMBERS.ACTIVE AS MEMBER_ACTIVE,
+                        TICKETING.TEAM_MEMBERS.DESCRIPTION AS MEMBER_DESCRIPTION,
+                        TICKETING.xxajmi_ticket_user_info.USERNAME,USER_EN_NAME,
+                        TICKETING.TKT_REL_ROLE_USERS.ROLE_ID,
+                        TICKETING.DELEGATED_TEM_SUPER.END_DATE, START_DATE
+                    FROM    
+                        TICKETING.TEAMS
+                    JOIN
+                        TICKETING.TEAM_MEMBERS
+                    ON
+                        TICKETING.TEAM_MEMBERS.TEAM_NO = TICKETING.TEAMS.TEAM_NO
+                    JOIN
+                        TICKETING.xxajmi_ticket_user_info
+                    ON
+                        TICKETING.xxajmi_ticket_user_info.USER_ID =  TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
+                    JOIN 
+                        TICKETING.TKT_REL_ROLE_USERS
+                    ON
+                        TICKETING.TKT_REL_ROLE_USERS.USER_ID = TICKETING.xxajmi_ticket_user_info.USER_ID
+                    JOIN
+                        TICKETING.DELEGATED_TEM_SUPER
+                    ON
+                        TICKETING.DELEGATED_TEM_SUPER.TEAM_NO = TICKETING.TEAMS.TEAM_NO
+                    WHERE   TICKETING.TEAMS.TEAM_NO =" . $selectedTeamID;
     $team = oci_parse($conn, $teamInfo);
     oci_execute($team);
     // Build HTML options for users
@@ -961,68 +1006,68 @@ if (isset($_POST['team'])) {   // Choose Team Information Debends On Team Number
     echo json_encode($result);
 }
 
-if (isset($_POST['member'])) {   // Choose Team Member Debends On Team Number
-    $selectedMember = $_POST['member']; // Team Number
+// if (isset($_POST['member'])) {   // Choose Team Member Debends On Team Number
+//     $selectedMember = $_POST['member']; // Team Number
 
-    // Query to fetch Team Member based on the selected Team Number
-    $teamMember = "SELECT
-                        TICKETING.TEAM_MEMBERS.* , 
-                        DOCARCH.ACT_USERS_VW.USERNAME,USER_EN_NAME, 
-                        TICKETING.TKT_REL_ROLE_USERS.ROLE_ID
-                    FROM 
-                        TICKETING.TEAM_MEMBERS
-                    JOIN
-                        DOCARCH.ACT_USERS_VW
-                    ON 
-                        DOCARCH.ACT_USERS_VW.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
-                    JOIN 
-                        TICKETING.TKT_REL_ROLE_USERS
-                    ON
-                        TICKETING.TKT_REL_ROLE_USERS.USER_ID = DOCARCH.ACT_USERS_VW.USER_ID
-                    WHERE
-                        TICKETING.TEAM_MEMBERS.TEAM_NO =" . $selectedMember;
-    $team = oci_parse($conn, $teamMember);
-    oci_execute($team);
-    $data = array();
-    while ($row = oci_fetch_assoc($team)) {
-        $data[] = array(
-            'userName'      => $row['USERNAME'],
-            'name'          => $row['USER_EN_NAME'],
-            'description'   => $row['DESCRIPTION'],
-            'active'        => $row['ACTIVE'],
-            'supervisor'    => $row['ROLE_ID'],
-            'manager'       => $row['ROLE_ID']
-        );
-    }
-    echo json_encode($data);
-}
+//     // Query to fetch Team Member based on the selected Team Number
+//     $teamMember = "SELECT
+//                         TICKETING.TEAM_MEMBERS.* , 
+//                         DOCARCH.ACT_USERS_VW.USERNAME,USER_EN_NAME, 
+//                         TICKETING.TKT_REL_ROLE_USERS.ROLE_ID
+//                     FROM 
+//                         TICKETING.TEAM_MEMBERS
+//                     JOIN
+//                         DOCARCH.ACT_USERS_VW
+//                     ON 
+//                         DOCARCH.ACT_USERS_VW.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
+//                     JOIN 
+//                         TICKETING.TKT_REL_ROLE_USERS
+//                     ON
+//                         TICKETING.TKT_REL_ROLE_USERS.USER_ID = DOCARCH.ACT_USERS_VW.USER_ID
+//                     WHERE
+//                         TICKETING.TEAM_MEMBERS.TEAM_NO =" . $selectedMember;
+//     $team = oci_parse($conn, $teamMember);
+//     oci_execute($team);
+//     $data = array();
+//     while ($row = oci_fetch_assoc($team)) {
+//         $data[] = array(
+//             'userName'      => $row['USERNAME'],
+//             'name'          => $row['USER_EN_NAME'],
+//             'description'   => $row['DESCRIPTION'],
+//             'active'        => $row['ACTIVE'],
+//             'supervisor'    => $row['ROLE_ID'],
+//             'manager'       => $row['ROLE_ID']
+//         );
+//     }
+//     echo json_encode($data);
+// }
 
-if (isset($_POST['delegateMember'])) {   // Display Delegated User Debends On Team Number In Team Member Section
-    $delegateUser = $_POST['delegateMember']; // Team Number
-    // Query to fetch Delagated Users based on the selected Team Number
-    $memberDelegated = "SELECT
-                            TICKETING.DELEGATED_TEM_SUPER.* , 
-                            DOCARCH.ACT_USERS_VW.USERNAME,USER_EN_NAME
-                        FROM 
-                            TICKETING.DELEGATED_TEM_SUPER
-                        JOIN
-                            DOCARCH.ACT_USERS_VW
-                        ON 
-                            DOCARCH.ACT_USERS_VW.USER_ID = TICKETING.DELEGATED_TEM_SUPER.DELEGATE_USER_ID
-                        WHERE
-                            TICKETING.DELEGATED_TEM_SUPER.TEAM_NO =" . $delegateUser;
-    $delegate = oci_parse($conn, $memberDelegated);
-    oci_execute($delegate);
-    $data = array();
-    while ($row = oci_fetch_assoc($delegate)) {
-        $data[] = array(
-            'name'  => $row['USER_EN_NAME'],
-            'start' => $row['START_DATE'],
-            'end'   => $row['END_DATE']
-        );
-    }
-    echo json_encode($data);
-}
+// if (isset($_POST['delegateMember'])) {   // Display Delegated User Debends On Team Number In Team Member Section
+//     $delegateUser = $_POST['delegateMember']; // Team Number
+//     // Query to fetch Delagated Users based on the selected Team Number
+//     $memberDelegated = "SELECT
+//                             TICKETING.DELEGATED_TEM_SUPER.* , 
+//                             DOCARCH.ACT_USERS_VW.USERNAME,USER_EN_NAME
+//                         FROM 
+//                             TICKETING.DELEGATED_TEM_SUPER
+//                         JOIN
+//                             DOCARCH.ACT_USERS_VW
+//                         ON 
+//                             DOCARCH.ACT_USERS_VW.USER_ID = TICKETING.DELEGATED_TEM_SUPER.DELEGATE_USER_ID
+//                         WHERE
+//                             TICKETING.DELEGATED_TEM_SUPER.TEAM_NO =" . $delegateUser;
+//     $delegate = oci_parse($conn, $memberDelegated);
+//     oci_execute($delegate);
+//     $data = array();
+//     while ($row = oci_fetch_assoc($delegate)) {
+//         $data[] = array(
+//             'name'  => $row['USER_EN_NAME'],
+//             'start' => $row['START_DATE'],
+//             'end'   => $row['END_DATE']
+//         );
+//     }
+//     echo json_encode($data);
+// }
 
 ///////////////////////////////////**************************************** Team Member Page Request Functions End  ************************************************///////////////////////////////
 

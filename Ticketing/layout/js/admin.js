@@ -178,10 +178,33 @@ $(function () {
         return confirm('Are You Sure About Delete This Information !!!');
     });
 
-    $('.users').click(function() {
+    // $('.users').click(function() {
+    //     $('.userno').toggle(100);
+    // });
+
+
+    $(document).on('click', function(event) {
+        // Check if the clicked element is not part of .users or .userno
+        if (!$(event.target).closest('.users, .userno').length) {
+            // Hide the .userno element
+            $('.userno').hide(100);
+        }
+        
+    });
+    $('.users').click(function(event) {
+        // Prevent the event from bubbling up to the document
+        event.stopPropagation();
+        // Toggle the .userno element
         $('.userno').toggle(100);
     });
-
+    
+    $(document).on('click', function(event) {
+        // Check if the clicked element is not part of .users or .userno
+        if (!$(event.target).closest('.trans, .tran').length) {
+            // Hide the .userno element
+            $('.tran').hide(100);
+        }
+    });
     $('.trans').click(function() {
         $('.tran').toggle(100);
     });
@@ -210,21 +233,18 @@ $(function () {
                 "action" :                  "NewService"
             },
             success: function (response) {
-                if (response.trim() === 'done') {
                     $('#NewService').modal('hide');
                     Swal.fire("Service Added Successfully ");
-                } 
-                if (response.trim() === 'wrong') {
+                    $('#serviceLOV').html(response);
+            },
+            error: function () {
                     $('#NewService').modal('hide');
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
                         text: "This Service Name Is Already Exist!",
                     });
-                }
-                setTimeout(function() {
-                    $('#newservice').load('service.php #newservice');
-                }, 0);
+                    $('#serviceLOV').html(response);
             }
         });
     });
@@ -264,7 +284,7 @@ $(function () {
                     });
                 }
                 setTimeout(function() {
-                    $('#serviceDetails').load('service.php #serviceDetails');
+                    fillServiceDetailsTable();
                 }, 0);
             }
         });
@@ -289,6 +309,7 @@ $(function () {
                 if (response.trim() === 'done') {
                     $('#NewDetailTeam').modal('hide');
                     Swal.fire("Service Details Team Added Successfully ");
+                    
                 } 
 
                 if (response.trim() === 'wrong') {
@@ -300,13 +321,13 @@ $(function () {
                     });
                 }
                 setTimeout(function() {
-                    $('#serviceDetailsTeam').load('dashboard.php?action=service #serviceDetailsTeam');
+                    fillServiceDetailsTeamTable();
                 }, 0);
             }
         });
     });
 
-    $(document).on('click', '#UpdateServiceDetailsInfoButton', function(e) {    // Add New Service Details To Service Details Table Function
+    $(document).on('click', '#UpdateServiceDetailsInfoButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
 
         e.preventDefault();
 
@@ -375,9 +396,10 @@ $(function () {
                 url: 'function.php',
                 dataType: 'json',
                 data: { 
-                    custodyColumnJson: custodyColumnJson,
-                    privateColumnJson: privateColumnJson,
-                    action:      "updateServiceDetailsTable"
+                    custodyColumnJson:  custodyColumnJson,
+                    privateColumnJson:  privateColumnJson,
+                    userID:             $('#UserSessionID').val(),
+                    action:             "updateServiceDetailsTable"
                 },
                 success: function (response) {
                     // Replace this Popup To normal popup 
@@ -424,8 +446,9 @@ $(function () {
                 url: 'function.php',
                 dataType: 'json',
                 data: { 
-                    teamEnabled: teamEnabledJson,
-                    action:      "updateTeamTable"
+                    teamEnabled:    teamEnabledJson,
+                    userID:         $('#UserSessionID').val(),
+                    action:         "updateTeamTable"
                 },
                 success: function (response) {
                     Swal.fire("Enabled updated successfully ");
@@ -521,16 +544,6 @@ $(function () {
         fillServiceDetailsTable();
     });
 
-    var currentServiceDetailsID;
-    $('#ServiceDetailsID tbody').on('click', 'tr td', function () {     // Call fillServiceDetailsTeamTable() Function
-
-        currentServiceDetailsID = $(this).closest('tr').find('td:first').text();
-
-        if (!$(this).is(':last-child, :nth-child(4)')) {
-            fillServiceDetailsTeamTable();
-        }
-    });
-
     function fillServiceDetailsTable()                                  // Display Service Details Information Based On Service Type Number Function 
     {       // This function is not used now 4JAN2024-- Display Service Details Information Based On Service Number Function
         $('#ServiceID').val($('#serviceLOV').val()); // to retrive the selected ID into ServiceID text Box
@@ -538,6 +551,7 @@ $(function () {
         $('#serviceDetails').text("Waiting Data");
         $('#serviceDetailsTeam').empty();
         $('#GetServiceTypeID').val($('#serviceLOV').val());
+        $('#GetServiceTypeName').val($('#serviceLOV').find('option:selected').text());
         $('#waitingMessage').empty().removeClass('mt-5');
         // $('.change').text('There Is No Data You Can See It Yet.');
     
@@ -612,9 +626,6 @@ $(function () {
                     // Append the new row to the table body
                     tableDBody.append(newDRow);
                     // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
-                    $('#GetServiceTypeName').val(row.serviceTypeName);
-                    
-                    
                 });
     
     
@@ -632,7 +643,22 @@ $(function () {
             }
         });
     }
-    
+
+    var currentServiceDetailsID;
+    var currentServiceDetailsName;
+    $('#ServiceDetailsID tbody').on('click', 'tr td', function () {     // Call fillServiceDetailsTeamTable() Function
+
+        currentServiceDetailsID = $(this).closest('tr').find('td:first').text();
+        currentServiceDetailsName = $(this).closest('tr').find('td:nth-child(2)').text();
+
+        $('#GetServiceDetailsID').val(currentServiceDetailsID);
+        $('#GetServiceDetailsName').val(currentServiceDetailsName);
+
+        if (!$(this).is(':last-child, :nth-child(4)')) {
+            fillServiceDetailsTeamTable();
+        }
+    });
+
     function fillServiceDetailsTeamTable() {                            //  Display Service Team Information Based On Service Details Number Function
     
             $('#serviceDetailsTeam').empty();
@@ -651,7 +677,7 @@ $(function () {
                     $('#addNewTeamDetailsButton').html(`
                         <button class="btn btn-primary" id='notAssignedTeam' data-bs-toggle='modal' data-bs-target="#NewDetailTeam" data-bs-whatever="NewDetailTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
                             <i class="fa-solid fa-plus"></i>
-                            <span>Add New Team</span>
+                            <span>Assign New Team</span>
                         </button>
                     `);
     
@@ -699,9 +725,7 @@ $(function () {
                 
                         // Append the new row to the table body
                         tableDBody.append(newDRow);
-                        $('#GetServiceDetailsID').val(row.serviceDetailsID);
-                        $('#GetServiceDetailsName').val(row.serviceDetailName);
-                        $('#GetServiceDetailsDescription').val(row.description);
+                        
                         
                     });
     
@@ -742,15 +766,16 @@ $(function () {
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { team: $(this).val() },
+            data: { teamInfo: $(this).val() },
             dataType: 'json',
             success: function (data) {
                 $('#status').prop('checked', data.ACTIVE === 'Y');
                 $('#dept').val(data.DEPT_ID);
                 $('#branch').val(data.BRANCH_CODE);
+                $('#description').val(data.DESCRIPTION);
             },
             error: function () {
-                alert('Error fetching users');
+                alert('Error fetching Team Information!!!');
             }
         });
     });

@@ -34,23 +34,41 @@ if (isset($_SESSION['user'])) {
         echo "Connectoin to Oracle Database Failed!<br>";
     }
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
+
+    $userSession = $_SESSION['user'];
+    // Query to fetch users Information based on User Name
+    $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
+    $info       = oci_parse($conn, $userInfo);
+    oci_execute($info);
+    $row        = oci_fetch_assoc($info);
 ?>
 
     <!-- Team Member Information Start -->
     <main class="content px-3 py-2"> <!-- Main Start -->
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
             <div class="mb-3">
-
-                <h2 class="text-center mt-3 mb-5">Team Members</h2>
-
-                <div class="scro container-fluid mb-4 mt-4">
+                <h2 class="text-center mt-3 ">Team Members</h2>
+                <div class=" container-fluid mb-4 mt-2">
                     <div class="row d-flex justify-content-center">
-
-                        <div class="col-sm-4 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                            <div class="div">
-                                <h3 class=" mt-3 mb-4 text-dark">Team</h3>
+                        <div class=" col-sm-4 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class="d-flex justify-content-between">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark d-inline">Team</h3>
+                                </div>
+                                <div class="mx-2 my-2">
+                                    <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeam" data-bs-whatever="NewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Add New Team</span>
+                                    </button>
+                                    <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeam" data-bs-whatever="EditTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team'>
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Update</span>
+                                    </button>
+                                </div>
                             </div>
+
                             <div class="row">
+                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                 <div class='col-sm-3'>
                                     <label class="" for="autoSizingSelect">Team No</label>
                                     <input type="text" class="form-control" id="TeamNoID" aria-label="State" readonly>
@@ -71,10 +89,9 @@ if (isset($_SESSION['user'])) {
                                         ?>
                                     </select>
                                 </div>
-
                                 <div class="col-sm-9 my-2">
                                     <label class="" for="autoSizingSelect">Description</label>
-                                    <textarea type="text" class="form-control" aria-label="City"></textarea>
+                                    <textarea type="text" class="form-control" id="description" aria-label="City"></textarea>
                                 </div>
                                 <div class="col-sm-4 my-2">
                                     <label class="" for="autoSizingSelect">Department</label>
@@ -97,11 +114,29 @@ if (isset($_SESSION['user'])) {
                                 </div>
                             </div>
                         </div>
-
-                        <div class=" col-sm-7 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                            <div class="div">
-                                <h3 class=" mt-3 mb-4 text-dark">Delegate Supervisors</h3>
+                        <div class=" col-sm-7 mx-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class="d-flex justify-content-between">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark">Delegate Supervisors</h3>
+                                </div>
+                                <div class="mx-2 my-2">
+                                    <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeam" data-bs-whatever="NewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Add New Team</span>
+                                    </button>
+                                    <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeam" data-bs-whatever="EditTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team'>
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Update</span>
+                                    </button>
+                                </div>
                             </div>
+
+                            <div class=" text-center mt-1" id="waitingMessages">
+                                <div class="alert alert-primary change" role="alert">
+                                    There Is No Data You Can See It Yet.
+                                </div>
+                            </div>
+
                             <div class="scroll">
                                 <table class="main-table text-center table table-bordered mt-3 ">
                                     <thead>
@@ -115,19 +150,37 @@ if (isset($_SESSION['user'])) {
 
                                     </tbody>
                                 </table>
+                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class=" container-fluid mb-4 mt-4">
+                <div class="scro container-fluid mb-2 mt-2">
                     <div class="row d-flex justify-content-center">
-
                         <div class="col-sm-11 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                            <div class="div">
-                                <h3 class=" mt-3 mb-4 text-dark">Team Members</h3>
+                            <div class="d-flex justify-content-between">
+                                <div class="div">
+                                    <h3 class=" mt-3 mb-4 text-dark d-inline">Team Members</h3>
+                                </div>
+                                <div class="mx-2 my-2">
+                                    <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeam" data-bs-whatever="NewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                        <i class="fa-solid fa-plus"></i>
+                                        <span>Add New Team</span>
+                                    </button>
+                                    <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeam" data-bs-whatever="EditTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team'>
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                        <span>Update</span>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="scroll">
-                                <table class="main-table text-center table table-bordered mt-3 ">
+
+                            <div class=" text-center mt-1" id="waitingMessages">
+                                <div class="alert alert-primary change" role="alert">
+                                    There Is No Data You Can See It Yet.
+                                </div>
+                            </div>
+                            <div class="scroll mx-2">
+                                <table class="main-table text-center table table-bordered mt-3  ">
                                     <thead>
                                         <tr>
                                             <th>User Name</th>
@@ -135,23 +188,22 @@ if (isset($_SESSION['user'])) {
                                             <th>Description</th>
                                             <th>Active</th>
                                             <th>Supervisor</th>
-                                            <th style="min-width: 100px;">Manager</th>
+                                            <th style="max-width: 100px;">Manager</th>
                                         </tr>
                                     </thead>
                                     <tbody id="table-body">
 
                                     </tbody>
                                 </table>
+                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                             </div>
                         </div>
-
                     </div>
                 </div>
-
             </div>
         </div><!-- Container-fluid Div End  -->
     </main> <!-- Main End -->
-    <!-- Team Member Information Start -->
+    <!-- Team Member Information End -->
 
 <?php
 

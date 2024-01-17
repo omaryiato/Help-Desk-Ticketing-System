@@ -36,6 +36,13 @@ if (isset($_SESSION['user'])) {
 
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 
+    $userSession = $_SESSION['user'];
+    // Query to fetch users Information based on User Name
+    $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
+    $info       = oci_parse($conn, $userInfo);
+    oci_execute($info);
+    $row        = oci_fetch_assoc($info);
+
 ?>
 
     <!-- Service Page  Start -->
@@ -85,7 +92,7 @@ if (isset($_SESSION['user'])) {
 
                 <div class=" container-fluid mb-4 mt-2">
                     <div class="row d-flex justify-content-center">
-                        <div class=" col-sm-5 mx-1  test" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                        <div class=" col-sm-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                             <div class=" d-flex justify-content-between">
                                 <div class="">
                                     <h3 class=" mt-3 mb-4 text-dark d-inline">Service Details</h3>
@@ -94,29 +101,26 @@ if (isset($_SESSION['user'])) {
 
                                 </div>
                             </div>
-
                             <div class=" text-center mt-5" id="waitingMessage">
                                 <div class="alert alert-primary" role="alert">
                                     There Is No Data You Can See It Yet.
                                 </div>
                             </div>
-
                             <div class="details">
                                 <table class=" detailsTable  text-center table table-bordered mt-3 " id="ServiceDetailsID">
                                     <thead id="serviceDetailsHeadTable">
-
                                     </thead>
                                     <tbody id="serviceDetails" style="cursor: pointer;">
 
                                     </tbody>
                                 </table>
+                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                             </div>
                             <div class="mx-2 my-4 d-flex justify-content-start" id="updateServiceDetailButton">
                                 <!-- Update button will be appended here -->
                             </div>
                         </div>
                         <div class=" col-sm-5 mx-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-
                             <div class="d-flex justify-content-between">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
@@ -140,6 +144,7 @@ if (isset($_SESSION['user'])) {
                                     <tbody id="serviceDetailsTeam">
                                     </tbody>
                                 </table>
+                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                             </div>
                             <div class="mx-2 my-4 d-flex justify-content-start" id="updateDetailTeamButton">
                                 <!-- Update button will be appended here -->
@@ -301,7 +306,7 @@ if (isset($_SESSION['user'])) {
     </div>
     <!-- New Service Details Pop Up Form Start -->
 
-    <!-- New Service Details Team  Pop Up Form Start -->
+    <!-- Assign New Service Details Team  Pop Up Form Start -->
     <div class="modal fade" id="NewDetailTeam" tabindex="-1" aria-labelledby="NewDetailTeamPopupLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -313,11 +318,10 @@ if (isset($_SESSION['user'])) {
                     <main class="content px-3 py-2"> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-3">
-                                <h2 class="text-center" id="NewDetailTeamPopupLabel">Add New Team</h2>
+                                <h2 class="text-center" id="NewDetailTeamPopupLabel">Assign New Team</h2>
                                 <div class="container mb-4 mt-4">
                                     <div class="row">
                                         <div class="col-sm-6 ">
-                                            <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                             <label class="" for="autoSizingSelect">Service Details Name</label>
                                             <input type="text" class="form-control" id="GetServiceDetailsName" aria-label="Name" readonly required>
                                             <input type="hidden" class="form-control" id="GetServiceDetailsID" aria-label="ID" readonly required>
@@ -345,7 +349,7 @@ if (isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
-    <!-- New Service Details Teams Pop Up Form Start -->
+    <!-- Assign New Service Details Teams Pop Up Form Start -->
 
 <?php
 
