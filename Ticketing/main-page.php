@@ -2,7 +2,7 @@
 
 
 // Select UserID bsed on Username To return User Roles
-$userNamePre = "SELECT USER_ID FROM ACT_USERS_VW WHERE USERNAME = '" . $_SESSION["user"] . "'";
+$userNamePre = "SELECT USER_ID FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $_SESSION["user"] . "'";
 $prevlag = oci_parse($conn, $userNamePre);
 oci_execute($prevlag);
 $prevlegs = oci_fetch_assoc($prevlag);
@@ -45,7 +45,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                 <th>Total Time</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="mainTableTicketTransation">
                             <?php
                             while ($ticks = oci_fetch_assoc($all)) {
                                 echo "<tr>\n";
@@ -247,7 +247,13 @@ $roles = oci_fetch_assoc($userRole); // User Roles
 
                     <?php
                     if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) {  // GM & Supervisor Permission 
+
+                        echo '<input type="hidden" id="UserSessionID" value="' . $userNamePreResault . '">';
                     ?>
+                        <li>
+                            <span>Ticket No#:</span>
+                            <span id="ticketreturnNumber"></span>
+                        </li>
                         <li>
                             <a href="?action=new" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
                                 <i class="fa-solid fa-folder-open"></i>
@@ -276,6 +282,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                             </a>
                         </li> -->
                         <li>
+
                             <button class="item assign" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
                                 <i class='fa-solid fa-at'></i>
                                 <span>Assign</span>
@@ -306,6 +313,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                             </button>
                         </li>
                         <li>
+                            <!-- <input type="text" id="UserSessionID" value="<?php echo $userNamePreResault ?>"> -->
                             <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
                                 <i class="fa-solid fa-play"></i>
                                 <span>Start</span>

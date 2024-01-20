@@ -221,7 +221,7 @@ if (isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
-    <!-- Edit Service Pop Up Form Start -->
+    <!-- Edit Service Pop Up Form End -->
 
     <!-- New Service Pop Up Form Start -->
     <div class="modal fade" id="NewService" tabindex="-1" aria-labelledby="NewServicePopupLabel" aria-hidden="true">
@@ -258,7 +258,7 @@ if (isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
-    <!-- New Service Pop Up Form Start -->
+    <!-- New Service Pop Up Form End -->
 
     <!-- New Service Details Pop Up Form Start -->
     <div class="modal fade" id="NewServiceDetail" tabindex="-1" aria-labelledby="NewServiceDetailPopupLabel" aria-hidden="true">
@@ -304,7 +304,7 @@ if (isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
-    <!-- New Service Details Pop Up Form Start -->
+    <!-- New Service Details Pop Up Form End -->
 
     <!-- Assign New Service Details Team  Pop Up Form Start -->
     <div class="modal fade" id="NewDetailTeam" tabindex="-1" aria-labelledby="NewDetailTeamPopupLabel" aria-hidden="true">
@@ -349,7 +349,7 @@ if (isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
-    <!-- Assign New Service Details Teams Pop Up Form Start -->
+    <!-- Assign New Service Details Teams Pop Up Form End -->
 
 <?php
 

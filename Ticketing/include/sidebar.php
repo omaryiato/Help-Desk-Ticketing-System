@@ -6,7 +6,14 @@
         </button>
         <div class="collapse navbar-collapse text-light" id="navbarNavDropdown">
             <ul class="navbar-nav  d-flex w-100 justify-content-endtext-light">
-
+                <?php
+                $userSession = $_SESSION['user'];
+                // Query to fetch users Information based on User Name
+                $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
+                $info       = oci_parse($conn, $userInfo);
+                oci_execute($info);
+                $row        = oci_fetch_assoc($info);
+                ?>
                 <li class="nav-item">
                     <a class="nav-link trans" href="#">Transactions<i class="fa-solid fa-caret-down ps-2"></i></a>
                     <ul class="tran">
@@ -15,7 +22,8 @@
                         <li><a href="?action=new" aria-label="Logout From User Account"><i class="fa-solid fa-plus pe-2"></i>New Tickets</a></li>
                         <li><a href="service.php" aria-label="Logout From User Account"><i class="fa-solid fa-headphones pe-2"></i>Services</a></li>
                         <li><a href="delegate.php" aria-label="Logout From User Account"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</a></li>
-                        <li><a href="##" aria-label="Logout From User Account"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</a></li>
+                        <li><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm" ><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</a></li>
+                        <input type="hidden" id="UserSessionName" value="<?php echo $row['USER_ID'] ?>">
                     </ul>
                 </li>
                 <li class="nav-item">

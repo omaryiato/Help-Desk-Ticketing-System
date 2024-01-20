@@ -80,41 +80,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// List Ticket Action 
-document.addEventListener("DOMContentLoaded", function() {
-    // Check if the current page URL contains a specific string
-    if (window.location.href.includes("dashboard.php")) {
-        // Your code for the specific page
-        const tableRows = document.querySelectorAll(".hiddenList tbody tr");
-        const contextMenu = document.querySelector(".wrapper");
-
-        tableRows.forEach(row => {
-            row.addEventListener("contextmenu", function(event) {
-                event.preventDefault();
-
-                const ticketNumber = row.querySelector("td").textContent;
-
-                // Show the context menu near the click position
-                contextMenu.style.visibility = "visible";
-                contextMenu.style.left = event.pageX + "px";
-                contextMenu.style.top = event.pageY + "px";
-                storedTicketNumber = ticketNumber;
-            });
-        });
-
-        // Hide the context menu when clicking outside of it
-        document.addEventListener("click", function(event) {
-            if (!event.target.closest(".hiddenList tbody tr")) {
-                contextMenu.style.visibility = "hidden";
-            }
-        });
-    }
-});
-
-
 $(function () {
 
     'use strict';
+
+    // List Ticket Action 
+
+// Handle right-click on table rows
+
+$('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
+    e.preventDefault();
+    // Show context menu at the mouse position
+    $('.wrapper').css({
+        visibility: 'visible',
+        left: e.pageX,
+        top: e.pageY
+    });
+    $('#ticketreturnNumber').text($(this).find('td:first').text());
+});
+
+// Hide context menu on click outside
+$(document).on('click', function () {
+    $('.wrapper').css('visibility', 'hidden');
+});
 
     // Hide Placeholder On Form Focus
 
@@ -178,10 +166,6 @@ $(function () {
         return confirm('Are You Sure About Delete This Information !!!');
     });
 
-    // $('.users').click(function() {
-    //     $('.userno').toggle(100);
-    // });
-
 
     $(document).on('click', function(event) {
         // Check if the clicked element is not part of .users or .userno
@@ -191,6 +175,7 @@ $(function () {
         }
         
     });
+
     $('.users').click(function(event) {
         // Prevent the event from bubbling up to the document
         event.stopPropagation();
@@ -205,6 +190,7 @@ $(function () {
             $('.tran').hide(100);
         }
     });
+
     $('.trans').click(function() {
         $('.tran').toggle(100);
     });
@@ -761,35 +747,103 @@ $(function () {
     ///////////////////////////////////////////***************** Team Member Page Start  *************************/////////////////////////////////////////
 
     $('#TeamName').on('change', function () {     // Return Team Information  Based On Team Number Function
-        $('#TeamNoID').val($(this).val()); // Return  Team ID Based On Team Name From DB Using Select Option
+        fillTeamInfo();
+    });
+
+    function fillTeamInfo() {              //  Dispaly Team Information Based On Team Number Function
+        $('#TeamNoID').val($('#TeamName').val()); // Return  Team ID Based On Team Name From DB Using Select Option
+        $('#EditTeamID').val($('#TeamName').val());
+        $('#TeamMemberBodyTable').text("Waiting Data");
+        $('#DelegateMemberHeadTable').text("Waiting Data");
+        $('#waitingTeamMemberInfo').empty().removeClass('mt-5');
+        $('#waitingDelegateMember').empty().removeClass('mt-5');
+
+        $('#updateTeamInfoButton').html(`
+            <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeam" data-bs-whatever="NewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                <i class="fa-solid fa-plus"></i>
+                <span>Add New Team</span>
+            </button>
+            <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeamInformation" data-bs-whatever="EditTeamInformation" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team Information'>
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Update</span>
+            </button>
+        `);
+
+        $('#DelegateMemberButtons').html(`
+            <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeam" data-bs-whatever="NewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                <i class="fa-solid fa-plus"></i>
+                <span>Create New</span>
+            </button>
+            <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeam" data-bs-whatever="EditTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team'>
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Update</span>
+            </button>
+        `);
+
+        $('#TeamMemberButtons').html(`
+            <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeamMember" data-bs-whatever="NewTeamMember" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team Member'>
+                <i class="fa-solid fa-plus"></i>
+                <span>Add New Member</span>
+            </button>
+            <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeamMember" data-bs-whatever="EditTeamMember" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team Member Info'>
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Update</span>
+            </button>
+        `);
 
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { teamInfo: $(this).val() },
+            data: { teamInfo: $('#TeamName').val() },
             dataType: 'json',
             success: function (data) {
-                $('#status').prop('checked', data.ACTIVE === 'Y');
-                $('#dept').val(data.DEPT_ID);
+
+                $('#DelegateMemberHeadTable').html(`
+                    <tr>
+                        <th>Name</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                    </tr>
+                `);
+
+                $('#TeamMemberHeadTable').html(`
+                    <tr>
+                        <th>User Name</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Active</th>
+                        <th>Supervisor</th>
+                        <th>Manager</th>
+                    </tr>
+                `);
+
+
+                $('#status').prop('checked', data.TEAM_ACTIVE === 'Y');
+                $('#dept').val(data.EMP_DEPARTMENT);
                 $('#branch').val(data.BRANCH_CODE);
-                $('#description').val(data.DESCRIPTION);
+                $('#description').val(data.TEAM_DESCRIPTION);
+                $('#EditTeamStatus').prop('checked', data.TEAM_ACTIVE === 'Y');
+                $('#EditTeamDepartmentID').val(data.DEPT_ID);
+                $('#EditTeamBranchCode').val(data.BRANCH_CODE);
+                $('#EditTeamDescription').val(data.TEAM_DESCRIPTION);
+                $('#EditTeamName').val($('#TeamName').find('option:selected').text());
             },
             error: function () {
                 alert('Error fetching Team Information!!!');
             }
         });
-    });
+    }
 
     $('#TeamName').on('change', function () {     // Return Team Member Information  Based On Team Number Function
 
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { member: $(this).val() },
+            data: { teamMember: $(this).val() },
             success: function (data) {
                 // Parse the returned JSON data
                 
-                var tableBody = $('#table-body');
+                var tableBody = $('#TeamMemberBodyTable');
 
                 var jsonData = JSON.parse(data);
 
@@ -845,37 +899,6 @@ $(function () {
                     });
     });
 
-    $('#TeamName').on('change', function () {     // Return Delegated Users Based On Team Number Function
-        $.ajax({
-            type: 'POST',
-            url: 'function.php', // Function Page For All ajax Function
-            data: { delegateMember: $(this).val() },
-            success: function (data) {
-                // Parse the returned JSON data
-                
-            var tableDBody = $('#tableBody');
-            var jsonData = JSON.parse(data);
-            // Clear existing rows
-            tableDBody.empty();
-
-            jsonData.forEach(function (row) {
-                var newDRow = $('<tr>');
-                // Populate each cell with data
-                newDRow.html(`
-                    <td>${row.name}</td>
-                    <td>${row.start}</td>
-                    <td>${row.end}</td>`
-                        );
-                // Append the new row to the table body
-                tableDBody.append(newDRow);
-            });
-                    },
-                    error: function () {
-                        alert('Error fetching users');
-                    }
-        });
-    });
-
     function fillTable(data) {              // This function is not used now 10JAN2024-- Dispaly Team Member Information Based On Team Number Function
         var tableBody = $('#table-body');
     
@@ -927,7 +950,38 @@ $(function () {
             tableBody.append(newRow);
         });
     }
-    
+
+    $('#TeamName').on('change', function () {     // Return Delegated Users Based On Team Number Function
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Function Page For All ajax Function
+            data: { delegateTeamMember: $(this).val() },
+            success: function (data) {
+                // Parse the returned JSON data
+                
+            var tableDBody = $('#DelegateMemberBodyTable');
+            var jsonData = JSON.parse(data);
+            // Clear existing rows
+            tableDBody.empty();
+
+            jsonData.forEach(function (row) {
+                var newDRow = $('<tr>');
+                // Populate each cell with data
+                newDRow.html(`
+                    <td>${row.name}</td>
+                    <td>${row.start}</td>
+                    <td>${row.end}</td>`
+                        );
+                // Append the new row to the table body
+                tableDBody.append(newDRow);
+            });
+                    },
+                    error: function () {
+                        alert('Error fetching users');
+                    }
+        });
+    });
+
     function fillDTable(data) {             //  This function is not used now 10JAN2024-- Display Delegated Users Based On Team Number Function
         var tableDBody = $('#tableBody');
     
@@ -946,6 +1000,84 @@ $(function () {
             tableDBody.append(newDRow);
         });
     }
+
+    $(document).on('click', '#AddNewTeam', function(e) {                     // Add New Service To Service Table Function
+
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                "NewTeamName":              $(this).closest('.content').find('#NewTeamName').val(),
+                "branchCode":               $(this).closest('.content').find('#branchCode').val(),
+                "description":              $(this).closest('.content').find('#description').val(),
+                "departmentID":             $(this).closest('.content').find('#departmentID').val(),
+                "UserSessionID":            $(this).closest('.content').find('#UserSessionID').val(),
+                "action" :                  "NewTeam"
+            },
+            success: function (response) {
+                    $('#NewTeam').modal('hide');
+                    Swal.fire("Team Added Successfully ");
+                    $('#TeamName').html(response);
+                    $(this).closest('.content').find('#NewTeamName').empty();
+                    $(this).closest('.content').find('#branchCode').empty();
+                    $(this).closest('.content').find('#description').empty();
+                    $(this).closest('.content').find('#departmentID').empty();
+            },
+            error: function () {
+                    $('#NewTeam').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "This Team Name Is Already Exist!",
+                    });
+                    $('#TeamName').html(response);
+                    $(this).closest('.content').find('#NewTeamName').empty();
+                    $(this).closest('.content').find('#branchCode').empty();
+                    $(this).closest('.content').find('#description').empty();
+                    $(this).closest('.content').find('#departmentID').empty();
+            }
+        });
+    });
+
+    $(document).on('click', '#UpdateTeamInfoButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                "EditTeamID":                   $(this).closest('.content').find('#EditTeamID').val(),
+                "UserSessionID":                $(this).closest('.content').find('#UserSessionID').val(),
+                "EditTeamName":                 $(this).closest('.content').find('#EditTeamName').val(),
+                "EditTeamDescription":          $(this).closest('.content').find('#EditTeamDescription').val(),
+                "EditTeamBranchCode":           $(this).closest('.content').find('#EditTeamBranchCode').val(),
+                "EditTeamStatus":               $(this).closest('.content').find('#EditTeamStatus').prop('checked') ? 'Y' : 'N',
+                "EditTeamDepartmentID":         $(this).closest('.content').find('#EditTeamDepartmentID').val(),
+                "action" :                      "EditTeamInformation"
+            },
+            success: function (data) {
+                $('#EditTeamInformation').modal('hide');
+                Swal.fire("Team Information Updated Successfully ");
+                setTimeout(function() {
+                    fillTeamInfo();
+                }, 0);
+            },
+            error: function () {
+                $('#EditTeamInformation').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Error fetching Team Information",
+                    });
+                    setTimeout(function() {
+                        fillTeamInfo();
+                    }, 0);
+            }
+        });
+    });
 
     ///////////////////////////////////////////***************** Team Member Page Start  *************************/////////////////////////////////////////
 
@@ -1057,29 +1189,31 @@ $(function () {
     $(document).on('click', '.startTicket', function(e) {  // Update Ticket Status To Start Ticket Function
 
         e.preventDefault();
-        var tickid = storedTicketNumber;  // Ticket Number
-        
+
         $.ajax({
             method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
+            url: "function.php",  // Function Page For All ajax Function ///cleab =
             data: {
-                "tickid":        tickid,
-                "action" :      "start"
+                "tickid":               $('#ticketreturnNumber').text(),
+                "UserSessionID":        $('#UserSessionID').val(),
+                "action" :              "start"
             },
             success: function (response) {
 
                 if (response.trim() === 'done') {
                     Swal.fire("Ticket Started... ");
+                    $('.scroll-wrapper').load('dashboard.php .scroll-wrapper');
+                    $('#wrapper').load('dashboard.php #wrapper');
                 } else {
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
-                        text: "Something went wrong!",
+                        text: response,
                     });
+                    
+                    $('.scroll-wrapper').load('dashboard.php .scroll-wrapper');
+                    $('#wrapper').load('dashboard.php #wrapper');
                 }
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
             }
         });
     });
@@ -1087,7 +1221,6 @@ $(function () {
     $(document).on('click', '.solveTicket', function(e) {  // Update Ticket Status To Solve Ticket Function
 
         e.preventDefault();
-        var tickid              = storedTicketNumber; // Ticket Number
         var issue               =$(this).closest('.content').find('.issue').val(); // Technition issue description
         var resolution          =$(this).closest('.content').find('.resolution').val();  // Technition solve description
         
@@ -1095,24 +1228,28 @@ $(function () {
             method: "POST",
             url: "function.php",  // Function Page For All ajax Function
             data: {
-                "tickid":           tickid,
-                "issue":            issue,
-                "resolution":       resolution,
-                "action" :          "solve"
+                "tickid":               $('#ticketreturnNumber').text(),
+                "issue":                issue,
+                "resolution":           resolution,
+                "UserSessionID":        $('#UserSessionID').val(),
+                "action" :              "solve"
             },
             success: function (response) {
                 if (response.trim() === 'done') {
+                    $('#solvePopup').modal('hide');
                     Swal.fire("Ticket Solved Successfully");
+                    $('.scroll-wrapper').load('dashboard.php .scroll-wrapper');
+                    $('#wrapper').load('dashboard.php #wrapper');
                 } else {
+                    $('#solvePopup').modal('hide');
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
                         text: "Something went wrong!",
                     });
+                    $('.scroll-wrapper').load('dashboard.php .scroll-wrapper');
+                    $('#wrapper').load('dashboard.php #wrapper');
                 }
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
             }
         });
     });
@@ -1271,14 +1408,13 @@ $(function () {
     $(document).on('click', '.completTicket', function(e) {     // Update Ticket Status To Confirme Ticket Function
 
         e.preventDefault();
-        var tickid              = $(this).val(); // Ticket Number
         var comment             =$(this).closest('.content').find('.comment').val();  // User Evaluation
         
         $.ajax({
             method: "POST",
             url: "function.php",  // Function Page For All ajax Function
             data: {
-                "tickid":        tickid,
+                "tickid":        $('#ticketreturnNumber').text(),
                 "comment":        comment,
                 "action" :      "complete"
             },
@@ -1466,6 +1602,36 @@ $(function () {
     }
 
     ///////////////////////////////////////////***************** Delegate Page End  *************************/////////////////////////////////////////
+    
+
+
+    ///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button Start  *************************/////////////////////////////////////////
+
+
+    $('#UpdateAllSolveTicketToConfirm').on('click', function () {   // Change All Solved Ticket To Confirm
+
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Function Page For All ajax Function
+            data: { UserNameSession: $('#UserSessionName').val() },
+            success: function (data) {
+                $('.tran').hide(100);
+                Swal.fire(" Tickets Confirmed Successfully ");
+                $('.scroll-wrapper').load('dashboard.php .scroll-wrapper');
+            },
+            error: function () {
+                $('.tran').hide(100);
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Theres No Ticket To Confirmed It",
+                });
+                $('.scroll-wrapper').load('dashboard.php .scroll-wrapper');
+            }
+        });
+    });
+
+    ///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button End  *************************/////////////////////////////////////////
     
 
 });
