@@ -738,6 +738,66 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             $e = oci_error($UpdateTeamInfo);
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
         }
+    } elseif ($action == 'updateTeamMemberTable') {         // Update Manager And Supervisor And Active Columns In Team Member Table Function
+
+        $activeColumnJson       = json_decode($_POST['activeColumnJson'], true);
+        // $supervisorColumnJson   = json_decode($_POST['supervisorColumnJson'], true);
+        // $managerColumnJson      = json_decode($_POST['managerColumnJson'], true);
+        $userID                 = $_POST['userID'];
+
+        foreach ($activeColumnJson as $row) {
+            $TeamMemberNo                   = $row['TeamMemberNo'];
+            $newStatus                      = $row['newStatus'];
+
+            $TeamMemberActive = "UPDATE TICKETING.TEAM_MEMBERS SET 
+                                ACTIVE ='" . $newStatus . "', LAST_UPDATED_BY = " . $userID . ",
+                                LAST_UPDATE_DATE = CURRENT_TIMESTAMP WHERE TEAM_MEMBER_USER_ID = " . $TeamMemberNo;
+            $activeStatus = oci_parse($conn, $TeamMemberActive);
+            $run = oci_execute($activeStatus);
+
+            if (!$run) {
+                $e = oci_error($activeStatus);
+                echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
+            }
+        }
+
+        // foreach ($supervisorColumnJson as $row) {
+        //     $TeamMemberNo                   = $row['TeamMemberNo'];
+        //     $newStatus                      = $row['newStatus'];
+
+        //     $ServiceDetailID = "UPDATE TICKETING.TKT_REL_ROLE_USERS SET 
+        //                         ROLE_ID ='" . $newStatus . "', LAST_UPDATED_BY = " . $userID . ",
+        //                         LAST_UPDATE_DATE = CURRENT_TIMESTAMP WHERE USER_ID = " . $TeamMemberNo;
+        //     $privateStatus = oci_parse($conn, $ServiceDetailID);
+        //     $run = oci_execute($privateStatus);
+
+        //     if (!$run) {
+        //         http_response_code(500); // Internal Server Error
+        //         echo json_encode(['status' => 'error', 'message' => oci_error($privateStatus)['message']]);
+        //         exit;
+        //     }
+        // }
+
+        // foreach ($managerColumnJson as $row) {
+        //     $TeamMemberNo                   = $row['TeamMemberNo'];
+        //     $newStatus                      = $row['newStatus'];
+
+        //     $ServiceDetailID = "UPDATE TICKETING.TKT_REL_ROLE_USERS SET 
+        //                         PRIVATE_FLAG ='" . $newStatus . "', LAST_UPDATED_BY = " . $userID . ",
+        //                         LAST_UPDATE_DATE = CURRENT_TIMESTAMP WHERE SERVICE_DETAIL_NO= " . $servaiceDetailsNo;
+        //     $privateStatus = oci_parse($conn, $ServiceDetailID);
+        //     $run = oci_execute($privateStatus);
+
+        //     if (!$run) {
+        //         http_response_code(500); // Internal Server Error
+        //         echo json_encode(['status' => 'error', 'message' => oci_error($privateStatus)['message']]);
+        //         exit;
+        //     }
+        // }
+
+        // Send a success response with HTTP status 200
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
     }  ////////////////////////////////////////////////////////////   Team & Team Member Page Request Functions End
 
 }
@@ -1086,18 +1146,18 @@ if (isset($_POST['teamMember'])) {   // Choose Team Member Debends On Team Numbe
     // Query to fetch Team Member based on the selected Team Number
     $teamMember = "SELECT
                         TICKETING.TEAM_MEMBERS.* , 
-                        DOCARCH.ACT_USERS_VW.USERNAME,USER_EN_NAME, 
+                        TICKETING.xxajmi_ticket_user_info.USERNAME,USER_EN_NAME, 
                         TICKETING.TKT_REL_ROLE_USERS.ROLE_ID
                     FROM 
                         TICKETING.TEAM_MEMBERS
                     JOIN
-                        DOCARCH.ACT_USERS_VW
+                        TICKETING.xxajmi_ticket_user_info
                     ON 
-                        DOCARCH.ACT_USERS_VW.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
+                        TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
                     JOIN 
                         TICKETING.TKT_REL_ROLE_USERS
                     ON
-                        TICKETING.TKT_REL_ROLE_USERS.USER_ID = DOCARCH.ACT_USERS_VW.USER_ID
+                        TICKETING.TKT_REL_ROLE_USERS.USER_ID = TICKETING.xxajmi_ticket_user_info.USER_ID
                     WHERE
                         TICKETING.TEAM_MEMBERS.TEAM_NO =" . $selectedMember;
     $team = oci_parse($conn, $teamMember);
@@ -1105,6 +1165,7 @@ if (isset($_POST['teamMember'])) {   // Choose Team Member Debends On Team Numbe
     $data = array();
     while ($row = oci_fetch_assoc($team)) {
         $data[] = array(
+            'userID'        => $row['TEAM_MEMBER_USER_ID'],
             'userName'      => $row['USERNAME'],
             'name'          => $row['USER_EN_NAME'],
             'description'   => $row['DESCRIPTION'],

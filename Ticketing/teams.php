@@ -140,7 +140,7 @@ if (isset($_SESSION['user'])) {
                         </div>
                     </div>
                 </div>
-                <div class="scro container-fluid mt-2">
+                <div class=" teamMember container-fluid mt-2">
                     <div class="row d-flex justify-content-center">
                         <div class="col-sm-11 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                             <div class="d-flex justify-content-between">
@@ -157,7 +157,8 @@ if (isset($_SESSION['user'])) {
                                     There Is No Data You Can See It Yet.
                                 </div>
                             </div>
-                            <div class="scroll mx-2">
+
+                            <div class="teamMemberTable mx-2">
                                 <table class="main-table text-center table table-bordered mt-3  ">
                                     <thead id="TeamMemberHeadTable">
 
@@ -167,6 +168,7 @@ if (isset($_SESSION['user'])) {
                                     </tbody>
                                 </table>
                                 <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+
                             </div>
                         </div>
                     </div>

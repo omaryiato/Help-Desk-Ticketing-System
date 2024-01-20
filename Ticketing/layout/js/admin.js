@@ -742,8 +742,6 @@ $(document).on('click', function () {
 
 
 
-
-
     ///////////////////////////////////////////***************** Team Member Page Start  *************************/////////////////////////////////////////
 
     $('#TeamName').on('change', function () {     // Return Team Information  Based On Team Number Function
@@ -785,7 +783,7 @@ $(document).on('click', function () {
                 <i class="fa-solid fa-plus"></i>
                 <span>Add New Member</span>
             </button>
-            <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeamMember" data-bs-whatever="EditTeamMember" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team Member Info'>
+            <button class="btn btn-success" id='updateTeamMemberActivity' data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team Member Info'>
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Update</span>
             </button>
@@ -808,6 +806,7 @@ $(document).on('click', function () {
 
                 $('#TeamMemberHeadTable').html(`
                     <tr>
+                        <th hidden>User ID</th>
                         <th>User Name</th>
                         <th>Name</th>
                         <th>Description</th>
@@ -816,7 +815,6 @@ $(document).on('click', function () {
                         <th>Manager</th>
                     </tr>
                 `);
-
 
                 $('#status').prop('checked', data.TEAM_ACTIVE === 'Y');
                 $('#dept').val(data.EMP_DEPARTMENT);
@@ -834,120 +832,87 @@ $(document).on('click', function () {
         });
     }
 
+    // Event listener for the supervisor checkbox in each row
+    $(document).on('change', ':input[type="checkbox"].supervisor', function() {
+        // Find the manager checkbox in the same row and uncheck it
+        $(this).closest('tr').find(':input[type="checkbox"].manager').prop('checked', false);
+    });
+    
+    // Event listener for the manager checkbox in each row
+    $(document).on('change', ':input[type="checkbox"].manager', function() {
+        // Find the supervisor checkbox in the same row and uncheck it
+        $(this).closest('tr').find(':input[type="checkbox"].supervisor').prop('checked', false);
+    });
+
     $('#TeamName').on('change', function () {     // Return Team Member Information  Based On Team Number Function
 
+        fillTable();
+        
+    });
+
+    function fillTable() {              //  Dispaly Team Member Information Based On Team Number Function
+        $('#TeamMemberBodyTable').empty();
+        $('#TeamMemberBodyTable').text("Waiting Data");
+          // Parse the returned JSON data
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { teamMember: $(this).val() },
+            data: { teamMember: $('#TeamName').val() },
             success: function (data) {
-                // Parse the returned JSON data
-                
+
                 var tableBody = $('#TeamMemberBodyTable');
-
-                var jsonData = JSON.parse(data);
-
                 // Clear existing rows
                 tableBody.empty();
+
+                var jsonData = JSON.parse(data);
 
                 jsonData.forEach(function (row) {
                     var newRow = $('<tr>');
                     // Populate each cell with data
                     newRow.html(`
+                        <td hidden>${row.userID}</td>
                         <td>${row.userName}</td>
                         <td>${row.name}</td>
                         <td>${row.description}</td>
                         <td>
                             <div class='check'>
-                                <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''}>
+                                <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''} id='${row.userID}' class='active'>
                             </div>
                         </td>`
                         // Check supervisor and manager conditions
                         + (row.supervisor == 3 ? `
                             <td>
                                 <div class='check'>
-                                    <input type='checkbox' ${row.supervisor == 3 ? 'checked' : ''} disabled>
+                                    <input type='checkbox' ${row.supervisor == 3 ? 'checked' : ''} id='${row.userID}' class='supervisor'>
                                 </div>
                             </td>` :  `
                             <td>
                                 <div class='check'>
-                                    <input type='checkbox' disabled>
+                                    <input type='checkbox' id='${row.userID}' class='supervisor'>
                                 </div>
                             </td>`)
 
                             + (row.manager == 1 ? `
                             <td>
                                 <div class='check'>
-                                    <input type='checkbox' ${row.manager == 1 ? 'checked' : ''} disabled>
+                                    <input type='checkbox' ${row.manager == 1 ? 'checked' : ''} id='${row.userID}' class='manager'>
                                 </div>
                             </td>` :  `
                             <td>
                                 <div class='check'>
-                                    <input type='checkbox'  disabled>
+                                    <input type='checkbox'  id='${row.userID}' class='manager'>
                                 </div>
                             </td>` )
-                            
+
                             );
 
                     // Append the new row to the table body
                     tableBody.append(newRow);
                 });
-                        },
-                        error: function () {
-                            alert('Error fetching users');
-                        }
-                    });
-    });
-
-    function fillTable(data) {              // This function is not used now 10JAN2024-- Dispaly Team Member Information Based On Team Number Function
-        var tableBody = $('#table-body');
-    
-        var jsonData = JSON.parse(data);
-    
-        // Clear existing rows
-        tableBody.empty();
-    
-        jsonData.forEach(function (row) {
-            var newRow = $('<tr>');
-            // Populate each cell with data
-            newRow.html(`
-                <td>${row.userName}</td>
-                <td>${row.name}</td>
-                <td>${row.description}</td>
-                <td>
-                    <div class='check'>
-                        <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''}>
-                    </div>
-                </td>`
-                // Check supervisor and manager conditions
-                + (row.supervisor == 3 ? `
-                    <td>
-                        <div class='check'>
-                            <input type='checkbox' ${row.supervisor == 3 ? 'checked' : ''} disabled>
-                        </div>
-                    </td>` :  `
-                    <td>
-                        <div class='check'>
-                            <input type='checkbox' disabled>
-                        </div>
-                    </td>`)
-    
-                    + (row.manager == 1 ? `
-                    <td>
-                        <div class='check'>
-                            <input type='checkbox' ${row.manager == 1 ? 'checked' : ''} disabled>
-                        </div>
-                    </td>` :  `
-                    <td>
-                        <div class='check'>
-                            <input type='checkbox'  disabled>
-                        </div>
-                    </td>` )
-                    
-                    );
-    
-            // Append the new row to the table body
-            tableBody.append(newRow);
+                },
+                error: function () {
+                    alert('Error fetching users');
+                }
         });
     }
 
@@ -1041,6 +1006,56 @@ $(document).on('click', function () {
         });
     });
 
+
+    var activeColumn = [];
+    var activeColumnJson = [];
+    $(document).on('change', ':input[type="checkbox"].active', function() {
+        // Find the manager checkbox in the same row and uncheck it
+        
+            var TeamMemberNo = $(this).attr('id');
+            var newStatus = this.checked ? 'Y' : 'N';
+
+                // Assign data for each row to the object
+                activeColumn.push({
+                    TeamMemberNo: TeamMemberNo,
+                    newStatus: newStatus
+                });
+            activeColumnJson = JSON.stringify(activeColumn);
+    });
+
+    var supervisorColumn = [];
+    var supervisorColumnJson = [];
+    $(document).on('change', ':input[type="checkbox"].supervisor', function() {
+        // Find the manager checkbox in the same row and uncheck it
+        var TeamMemberNo = $(this).closest('tr').find('td:first').text();
+        var newStatus = this.checked ? 'Y' : 'N';
+
+        supervisorColumn.push({
+            TeamMemberNo: TeamMemberNo,
+            newStatus: newStatus
+        });
+
+        supervisorColumnJson = JSON.stringify(supervisorColumn);
+    });
+    
+    var managerColumn = [];    
+    var managerColumnJson = [];    
+    $(document).on('change', ':input[type="checkbox"].manager', function() {
+
+        var TeamMemberNo = $(this).attr('id');
+        var newStatus = this.checked ? 'Y' : 'N';
+
+                // Assign data for each row to the object
+        managerColumn.push({
+            TeamMemberNo: TeamMemberNo,
+            newStatus: newStatus
+        });
+
+        managerColumnJson = JSON.stringify(managerColumn);
+    });
+
+    
+
     $(document).on('click', '#UpdateTeamInfoButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
 
         e.preventDefault();
@@ -1078,6 +1093,43 @@ $(document).on('click', function () {
             }
         });
     });
+
+    $(document).on('click', '#updateTeamMemberActivity', function(e) {        //  Update Manager And Supervisor And Active Columns In Team Member Table Function
+
+        e.preventDefault();
+        
+        $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                dataType: 'json',
+                data: { 
+                    activeColumnJson:        activeColumnJson,
+                    supervisorColumnJson:    supervisorColumnJson,
+                    managerColumnJson:       managerColumnJson,
+                    userID:                  $('#UserSessionID').val(),
+                    action:                  "updateTeamMemberTable"
+                },
+                success: function (response) {
+                    // Replace this Popup To normal popup 
+                    Swal.fire("Team Member Updated Successfully"); 
+                    setTimeout(function() {
+                        fillTable();
+                    }, 0);
+                    
+                },
+                error: function (response) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text:  JSON.stringify(response),
+                    });
+                    setTimeout(function() {
+                        fillTable();
+                    }, 0);
+                }
+        });
+    });
+
 
     ///////////////////////////////////////////***************** Team Member Page Start  *************************/////////////////////////////////////////
 

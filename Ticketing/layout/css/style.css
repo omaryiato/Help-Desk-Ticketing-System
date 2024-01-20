@@ -380,7 +380,8 @@ a.sidebar-link {
   /* overflow-x: scroll; */
 }
 
-.content .scro {
+.content .scro,
+.content .teamMember {
   text-align: left;
   border-collapse: collapse;
   cursor: pointer;
@@ -388,13 +389,15 @@ a.sidebar-link {
   border-spacing: 0;
 }
 
-.content .scro thead {
+.content .scro thead,
+.content .teamMember thead {
   color: white;
   text-align: center;
   font-size: 1.1em;
 }
 
-.content .scro th {
+.content .scro th, 
+.content .teamMember th {
   padding: 5px;
   height: 50px;
   position: sticky;
@@ -404,7 +407,8 @@ a.sidebar-link {
   font-weight: normal;
 }
 
-.content .scro tbody tr {
+.content .scro tbody tr,
+.content .teamMember tbody tr {
   background: white;
   border-bottom: 1px solid #ccc;
 }
@@ -484,6 +488,14 @@ a.sidebar-link {
   background: #e0e0e0;
 }
 
+.content .teamMemberTable tr:hover td {
+  background-color: #e0e0e0;
+}
+
+.content .teamMemberTable tr.selected td {
+  background: #e0e0e0;
+}
+
 .content .details tr:hover td:not(:last-child):not(:nth-last-child(2)),
 .content .details tr.selected td:not(:last-child):not(:nth-last-child(2)) {
   background-color: #e0e0e0;
@@ -528,6 +540,11 @@ a.sidebar-link {
 }
 
 .scroll {
+  max-height: 300px;
+  overflow-y: scroll
+}
+
+.teamMemberTable {
   max-height: 300px;
   overflow-y: scroll
 }
