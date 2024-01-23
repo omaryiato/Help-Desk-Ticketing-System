@@ -47,10 +47,14 @@ if (isset($_SESSION['user'])) {
         $action = 'Manage';
     }
 
+
+
+
     if ($action == 'Manage') {              // Home page thats contain Ticket Transation based on user permission 
 
         InsertUserID(); // This Function To Insert user permission to table global_temp_table until you can see the tickets
         // select all tickets based on user permission
+
         $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         // Execute the query
@@ -560,91 +564,6 @@ if (isset($_SESSION['user'])) {
             </div>
         </main>
         <!-- Content Profile End -->
-    <?php
-    } elseif ($action == 'new') {           // Create New Ticket Page  
-    ?>
-        <!-- New Ticket Form Start -->
-        <main class="content px-3 py-2"> <!-- Main Start  -->
-            <div class="container-fluid"> <!-- Container-fluid Div Start  -->
-                <div class="mb-3">
-                    <h2 class="text-center mt-3">Create New Ticket</h2>
-                    <div class="container"> <!-- Container Div Start  -->
-                        <!-- Edit Ticket Information Form Start -->
-                        <form class="form-horizontal  row" action="" method="POST">
-                            <div class="col-sm-5">
-                                <!-- Start Name SelectBox -->
-                                <div class="form-group">
-                                    <label class="col-sm-2 form-label mt-3" for="">User Name</label>
-                                    <div class="col-sm-10">
-                                        <input type="text" name="name" value="<?php echo $_SESSION['user'] ?>" class=" form-control name" disabled>
-                                    </div>
-                                </div>
-                                <!-- End Name  SelectBox -->
-                                <!-- Start Service Type Field Start-->
-                                <div class="form-group">
-                                    <label class="col-sm-2 form-label mt-3" for="service">Service Type</label>
-                                    <div class="col-sm-10">
-                                        <select class="form-select service" name="service" id="service" required>
-                                            <option value="">Choes Service</option>
-                                            <?php
-                                            // // Query to retrieve a list of tables
-                                            $department = "SELECT  * FROM TICKETING.SERVICE";
-                                            $dep = oci_parse($conn, $department);
-                                            // Execute the query
-                                            oci_execute($dep);
-                                            while ($dept = oci_fetch_assoc($dep)) {
-                                                echo "<option value='" . $dept['SERVICE_NO'] . "'>" . $dept['SERVICE_NAME'] . "</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <!-- End TService Type Field End -->
-                                <!-- Start Service Details Field Start-->
-                                <div class="form-group">
-                                    <label class="col-sm-4 form-label mt-3" for="details">Service Details</label>
-                                    <div class="col-sm-10">
-                                        <select class="form-select details" name="details" id="details" required>
-                                            <option value="">Choose Service Detail</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <!-- End Service Details Field End -->
-                                <!-- Start Device Field Start-->
-                                <div class="form-group">
-                                    <label class="col-sm-2 form-label mt-3" for="details">Device</label>
-                                    <div class="col-sm-10">
-                                        <select class="form-select device" name="device" id="device">
-                                            <option value="">Choose Device</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <!-- End Device End -->
-                            </div>
-                            <div class="col-sm-7">
-                                <!-- Start Issue Description Field -->
-                                <div class="form-group">
-                                    <label class="col-sm-2 control-lable mt-3" for="">Issue Description</label>
-                                    <div class="col-sm-8">
-                                        <textarea name="description" id="description" class=" form-control  description" cols="30" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
-                                    </div>
-                                </div>
-                                <!-- End Issue Description Field -->
-                                <!-- Start Submit Button -->
-                                <div class="form-group">
-                                    <div class="col-sm-offset-2 col-sm-10">
-                                        <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" name="addTicket">Create Ticket</button>
-                                    </div>
-                                </div>
-                                <!-- End Submit Button  -->
-                            </div>
-                        </form>
-                        <!-- Edit Ticket Information Form End -->
-                    </div> <!-- Container Div End  -->
-                </div>
-            </div> <!-- Container-fluid Div End  -->
-        </main> <!-- Main End  -->
-        <!-- New Ticket Form End -->
     <?php
     } elseif ($action == 'edit') {
     ?>

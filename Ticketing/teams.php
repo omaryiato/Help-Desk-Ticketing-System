@@ -292,7 +292,7 @@ if (isset($_SESSION['user'])) {
     </div>
     <!-- Edit Team Information Pop Up Form End -->
 
-    <!-- New Service Details Pop Up Form Start -->
+    <!-- Add New Team Member  Details Pop Up Form Start -->
     <div class="modal fade" id="NewTeamMember" tabindex="-1" aria-labelledby="NewTeamMemberPopupLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -304,21 +304,23 @@ if (isset($_SESSION['user'])) {
                     <main class="content px-3 py-2"> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-3">
-                                <h2 class="text-center" id="NewTeamMemberPopupLabel">Add New Service Detail</h2>
+                                <h2 class="text-center" id="NewTeamMemberPopupLabel">Add New Member</h2>
                                 <div class="container mb-4 mt-4">
                                     <div class="row">
+                                        <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                         <div class="col-sm-6 ">
-                                            <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-                                            <label class="" for="autoSizingSelect">Service Name</label>
-                                            <input type="text" class="form-control" id="GetServiceTypeName" aria-label="Name" readonly required>
-                                            <input type="hidden" class="form-control" id="GetServiceTypeID" aria-label="ID" readonly required>
+                                            <label class="" for="autoSizingSelect">Team No</label>
+                                            <input type="text" class="form-control" id="GetTeamName" aria-label="Name" required>
+                                            <input type="hidden" class="form-control" id="GetTeamID" aria-label="ID" readonly required>
                                         </div>
+
                                         <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Service Detail Name</label>
-                                            <input type="text" class="form-control" id="NewServiceDetailsName" aria-label="Name" required>
+                                            <label class="" for="autoSizingSelect">Member Name</label>
+                                            <input type="text" class="form-control" id="GetMemberName" aria-label="Name" readonly required>
                                         </div>
+
                                         <div class="col-sm-12 mt-2">
-                                            <label class="" for="autoSizingSelect">Service Detail Description</label>
+                                            <label class="" for="autoSizingSelect">Description</label>
                                             <input type="text" class="form-control" id="ServiceDetailsDescription" aria-label="Description" required>
                                         </div>
                                         <div class="col-sm-10  mt-4">
@@ -336,7 +338,7 @@ if (isset($_SESSION['user'])) {
             </div>
         </div>
     </div>
-    <!-- New Service Details Pop Up Form End -->
+    <!-- Add New Team Member Pop Up Form End -->
 
     <!-- Assign New Service Details Team  Pop Up Form Start -->
     <div class="modal fade" id="NewDetailTeam" tabindex="-1" aria-labelledby="NewDetailTeamPopupLabel" aria-hidden="true">

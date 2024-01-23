@@ -1,6 +1,5 @@
 <?php
 
-
 // Select UserID bsed on Username To return User Roles
 $userNamePre = "SELECT USER_ID FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $_SESSION["user"] . "'";
 $prevlag = oci_parse($conn, $userNamePre);
@@ -214,291 +213,11 @@ $roles = oci_fetch_assoc($userRole); // User Roles
 
         <div class="wrapper" id="wrapper">
             <div class="contents">
-                <ul class="menu">
-                    <?php
-                    if ($roles['ROLE_ID'] == 2) {  // End User Permission 
-                    ?>
-                        <li>
-                            <a href="?action=new" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-                                <i class="fa-solid fa-folder-open"></i>
-                                <span>New Ticket</span>
-                            </a>
-                        </li>
+                <span>Ticket No#:</span>
+                <span id="returnTicketNumber"></span>
+                <ul class="menu" id="actionTicketTransactionList">
+                    <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>">
 
-                        <li>
-                            <a class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket'>
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Edit Ticket</span>
-                            </a>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                                <i class="fa-solid fa-ban"></i>
-                                <span>Cancel</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                                <i class="fa-solid fa-calendar-xmark"></i>
-                                <span>Finish</span>
-                            </button>
-                        </li>
-                    <?php } ?>
-
-                    <?php
-                    if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) {  // GM & Supervisor Permission 
-
-                        echo '<input type="hidden" id="UserSessionID" value="' . $userNamePreResault . '">';
-                    ?>
-                        <li>
-                            <span>Ticket No#:</span>
-                            <span id="ticketreturnNumber"></span>
-                        </li>
-                        <li>
-                            <a href="?action=new" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-                                <i class="fa-solid fa-folder-open"></i>
-                                <span>New Ticket </span>
-                            </a>
-                        </li>
-                        <?php
-                        // if ($row["TICKET_STATUS"] == 10) {
-                        ?>
-                        <li>
-                            <a class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket'>
-                                <i class="fa-solid fa-pen-to-square"></i>
-                                <span>Edit Ticket</span>
-                            </a>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                                <i class="fa-solid fa-ban"></i>
-                                <span>Cancel</span>
-                            </button>
-                        </li>
-                        <!-- <li>
-                            <a class="item assign" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
-                                <i class='fa-solid fa-at'></i>
-                                <span>Assign link</span>
-                            </a>
-                        </li> -->
-                        <li>
-
-                            <button class="item assign" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
-                                <i class='fa-solid fa-at'></i>
-                                <span>Assign</span>
-                            </button>
-                        </li>
-                        <?php
-                        // }
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                                <i class="fa-solid fa-calendar-xmark"></i>
-                                <span>Finish</span>
-                            </button>
-                        </li>
-                        <?php
-                        // if ($row["TICKET_STATUS"] == 20) {
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                                <i class="fa-solid fa-share"></i>
-                                <span>Forword</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                                <i class="fa-solid fa-pen"></i>
-                                <span>Change</span>
-                            </button>
-                        </li>
-                        <li>
-                            <!-- <input type="text" id="UserSessionID" value="<?php echo $userNamePreResault ?>"> -->
-                            <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
-                                <i class="fa-solid fa-play"></i>
-                                <span>Start</span>
-                            </button>
-                        </li>
-                        <?php
-                        // }
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
-                                <i class="fa-solid fa-wrench"></i>
-                                <span>Update Out Service</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
-                                <i class="fa-solid fa-inbox"></i>
-                                <span>Received From Out</span>
-                            </button>
-                        </li>
-                        <?php
-                        // if ($row["TICKET_STATUS"] == 30) {
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                                <i class="fa-solid fa-share"></i>
-                                <span>Forword</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                                <i class="fa-solid fa-pen"></i>
-                                <span>Change</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <span>SendOut Service</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-                                <i class="fa-solid fa-circle-check"></i>
-                                <span>Complete</span>
-                            </button>
-                        </li>
-                        <?php
-                        // }
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
-                                <i class='fa-solid fa-at'></i>
-                                <span>Action History</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
-                                <i class="fa-solid fa-comments"></i>
-                                <span>Chat</span>
-                            </button>
-                        </li>
-                    <?php
-                    }
-                    ?>
-                    <?php
-                    if ($roles['ROLE_ID'] == 4) {  // Technichin Permission 
-                    ?>
-                        <li>
-                            <a href="?action=new" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-                                <i class="fa-solid fa-folder-open"></i>
-                                <span>New Ticket </span>
-                            </a>
-                        </li>
-                        <?php
-                        // if ($row["TICKET_STATUS"] == 10) {
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                                <i class="fa-solid fa-ban"></i>
-                                <span>Cancel</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                                <i class="fa-solid fa-calendar-xmark"></i>
-                                <span>Finish</span>
-                            </button>
-                        </li>
-                        <!-- <li>
-                            <a class="item assign" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
-                                <i class='fa-solid fa-at'></i>
-                                <span>Assign link</span>
-                            </a>
-                        </li> -->
-                        <li>
-                            <button class="item assign" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
-                                <i class='fa-solid fa-at'></i>
-                                <span>Assign</span>
-                            </button>
-                        </li>
-                        <?php
-                        // }
-                        ?>
-                        <?php
-                        // if ($row["TICKET_STATUS"] == 20) {
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                                <i class="fa-solid fa-share"></i>
-                                <span>Forword</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                                <i class="fa-solid fa-pen"></i>
-                                <span>Change</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
-                                <i class="fa-solid fa-play"></i>
-                                <span>Start</span>
-                            </button>
-                        </li>
-                        <?php
-                        // }
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
-                                <i class="fa-solid fa-wrench"></i>
-                                <span>Update Out Service</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
-                                <i class="fa-solid fa-inbox"></i>
-                                <span>Received From Out</span>
-                            </button>
-                        </li>
-                        <?php
-                        // if ($row["TICKET_STATUS"] == 30) {
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                                <i class="fa-solid fa-share"></i>
-                                <span>Forword</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                                <i class="fa-solid fa-pen"></i>
-                                <span>Change</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <span>SendOut Service</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-                                <i class="fa-solid fa-circle-check"></i>
-                                <span>Complete</span>
-                            </button>
-                        </li>
-                        <?php
-                        // }
-                        ?>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
-                                <i class='fa-solid fa-at'></i>
-                                <span>Action History</span>
-                            </button>
-                        </li>
-                        <li>
-                            <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
-                                <i class="fa-solid fa-comments"></i>
-                                <span>Chat</span>
-                            </button>
-                        </li>
-                    <?php
-                    }
-                    ?>
                 </ul>
             </div>
         </div>
@@ -513,10 +232,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                     </div>
                     <div class="modal-body">
                         <form>
-                            <!-- <div class="mb-3">
-                                                    <label for="recipient-name" class="col-form-label">Recipient:</label>
-                                                    <input type="text" class="form-control" id="recipient-name">
-                                                            </div> -->
+
                             <div class="mb-3">
                                 <label for="message-text" class="col-form-label">Technician Issue Description:</label>
                                 <textarea class="form-control issue" id="message-text"></textarea>
@@ -530,7 +246,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary solveTicket">Send message</button>
+                        <button type="button" class="btn btn-primary solveTicket" value="<?php echo  $prevlegs['USER_ID'] ?>">Send message</button>
                     </div>
                 </div>
             </div>
@@ -684,30 +400,25 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                     </div>
                     <div class="modal-body">
                         <!-- Assign Ticket  Start -->
-                        <main class="content px-3 py-2"> <!-- Main Start -->
+                        <main class="content px-3 py-2 teamMember"> <!-- Main Start -->
                             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                                 <div class="mb-3">
                                     <div class="container">
-                                        <div class="omar" style="display: flex; justify-content:space-around; max-width: 1200px;"> <!-- Container Div Start  -->
-                                            <div style="width: 500px; margin-right: 15px">
-                                                <h3 class="text-start mt-3 text-dark" id="actionHistoryLabel">Action History</h3>
-                                                <input type="text" class="form-control" id="ticketNumber" aria-label="City" hidden>
+                                        <div class="omar"> <!-- Container Div Start  -->
+                                            <div class="teamMemberTable">
+                                                <h2 class="text-center" id="actionHistoryLabel">Action History</h2>
+                                                <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>">
                                                 <table class="main-table text-center table table-bordered mt-3 ">
                                                     <thead>
                                                         <tr>
-                                                            <td>User Name</td>
-                                                            <td>Name</td>
-                                                            <td>Status</td>
-                                                            <td>Control</td>
+                                                            <th>Sequence</th>
+                                                            <th>Action</th>
+                                                            <th>Action By</th>
+                                                            <th>Action Date</th>
+                                                            <th>Comments</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="teamMember">
-                                                        <tr>
-                                                            <td>User Name</td>
-                                                            <td>Name</td>
-                                                            <td>Status</td>
-                                                            <td>Control</td>
-                                                        </tr>
+                                                    <tbody id="ticketActionHistoryBodyTable">
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -723,50 +434,8 @@ $roles = oci_fetch_assoc($userRole); // User Roles
         </div>
         <!-- Action History Pop Up Form Start -->
 
-        <!-- Action List End  -->
-
     </div>
 </main>
 
 <!-- Main Table End -->
 <!-- Dashboard (Main)  Page End  -->
-
-<?php
-/*
-// if ($roles['ROLE_ID'] == 2) {  // End User Permission 
-                            //     echo "<td > 
-                            //             <div style='display: flex; justify-content: center; align-items: center;'>
-                            //         <button style='margin-right: 5px;' value='" . $ticks["TICKET_NO"] . "' class='btn btn-danger deleteTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Delete Ticket' ><i class='fa-solid fa-trash-can '></i></button>
-                            //         <a style='margin-right: 5px;' href='?action=edit&tickid=" . $ticks["TICKET_NO"] . "' class='btn btn-warning'  data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket' ><i class='fa-solid fa-pen-to-square '></i></a>
-                            //         <a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["TICKET_NO"] . "' class='btn btn-primary text-white'  data-bs-toggle='tooltip' data-bs-placement='top' title='View Ticket' ><i class='fa-solid fa-eye '></i></a>";
-                            //     echo "</div>
-                            //         </td>\n";
-                            // } else { // Technition, Supervisor, Application Manager Permission
-                                echo "<td > 
-                                <div style='display: flex; justify-content: center; align-items: center;'>";
-
-                                if ($ticks["TICKET_STATUS"] == '10') {  // If Ticket Status == New Show Assign Ticket Button
-                                    echo "<a style='margin-right: 5px;' href='?action=Assign&tickid=" . $ticks["TICKET_NO"] . "' class='btn btn-warning'  data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket' ><i class='fa-solid fa-at'></i></a>";
-                                }
-                                if ($ticks["TICKET_STATUS"] == '10') { // If Ticket Status == New Show Start Ticket Button
-                                    echo "<button style='margin-right: 5px; color: white;' value='" . $ticks["TICKET_NO"] . "'  class='btn btn-info startTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket' ><i class='fa-solid fa-play' ></i></button>";
-                                }
-                                if ($ticks["TICKET_STATUS"] == '30') {  // If Ticket Status == Started Show Solve Ticket Button
-                        ?>
-                                    <!-- <button class='btn btn-success' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#exampleModal" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'><i class='fa-solid fa-check'></i></button> -->
-
-                        <?php
-                                }
-                                if ($ticks["TICKET_STATUS"] == '10') {  // If Ticket Status == New Show Cancele Ticket Button
-                                    echo "<button style='margin-right: 5px;' value='" . $ticks["TICKET_NO"] . "' class='btn btn-danger  rejectTicket'  data-bs-toggle='tooltip' data-bs-placement='top' title='Reject Ticket' ><i class='fa-solid fa-circle-xmark'></i></button>";
-                                }
-                                // View Ticket Information Button Show it Always
-                                echo "
-                                <a style='margin-right: 5px;' href='?action=View&tickid=" . $ticks["TICKET_NO"] . "' class='btn btn-primary text-white'  data-bs-toggle='tooltip' data-bs-placement='top' title='View Ticket' ><i class='fa-solid fa-eye '></i></a>";
-                                echo "</div>
-                                </td>\n";
-                            }
-                            echo "</tr>\n";
-                        
-                            */
-?>
