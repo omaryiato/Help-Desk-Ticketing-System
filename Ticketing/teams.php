@@ -207,10 +207,15 @@ if (isset($_SESSION['user'])) {
                                             <label class="" for="autoSizingSelect">Description</label>
                                             <input type="text" class="form-control" id="description" aria-label="State" required>
                                         </div>
-
+                                        <script>
+                                            function restrictInput(event) {
+                                                const input = event.target;
+                                                input.value = input.value.replace(/[^0-9.]/g, '');
+                                            }
+                                        </script>
                                         <div class="col-sm-4">
                                             <label class="" for="autoSizingSelect">Department ID</label>
-                                            <input type="text" class="form-control" id="departmentID" aria-label="State" required>
+                                            <input type="text" oninput="restrictInput(event)" class="form-control" id="departmentID" aria-label="State" required > 
                                         </div>
                                         <div class="col-sm-4 mt-4">
                                             <button class="btn btn-success button" id="AddNewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
@@ -277,6 +282,7 @@ if (isset($_SESSION['user'])) {
 
                                         <div class="col-sm-4 mt-2 ">
                                             <button class="btn btn-success button" id="UpdateTeamInfoButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
+                                                <i class="fa-solid fa-pen-to-square"></i>
                                                 <span>Update</span>
                                             </button>
                                         </div>
@@ -309,14 +315,14 @@ if (isset($_SESSION['user'])) {
                                     <div class="row">
                                         <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                         <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Team No</label>
-                                            <input type="text" class="form-control" id="GetTeamName" aria-label="Name" required>
+                                            <label class="" for="autoSizingSelect">Team Name</label>
+                                            <input type="text" class="form-control" id="GetTeamName" aria-label="Name" required readonly>
                                             <input type="hidden" class="form-control" id="GetTeamID" aria-label="ID" readonly required>
                                         </div>
 
                                         <div class="col-sm-6 ">
                                             <label class="" for="autoSizingSelect">Member Name</label>
-                                            <input type="text" class="form-control" id="GetMemberName" aria-label="Name" readonly required>
+                                            <input type="text" class="form-control" id="GetMemberName" aria-label="Name" required>
                                         </div>
 
                                         <div class="col-sm-12 mt-2">

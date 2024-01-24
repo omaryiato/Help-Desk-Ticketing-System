@@ -213,10 +213,12 @@ $roles = oci_fetch_assoc($userRole); // User Roles
 
         <div class="wrapper" id="wrapper">
             <div class="contents">
-                <span>Ticket No#:</span>
+                <span style="padding: 10px;">Ticket No#:</span>
                 <span id="returnTicketNumber"></span>
+                <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>" readonly>
+                <input type="hidden" id="UserRole" value="<?php echo  $roles['ROLE_ID'] ?>" readonly>
                 <ul class="menu" id="actionTicketTransactionList">
-                    <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>">
+
 
                 </ul>
             </div>
@@ -258,11 +260,9 @@ $roles = oci_fetch_assoc($userRole); // User Roles
             <div class="modal-dialog modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <!-- <h1 class="modal-title fs-5" id="assignPopupLabel">Any Comment For User</h1> -->
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <!-- Assign Ticket  Start -->
                         <main class="content px-3 py-2"> <!-- Main Start -->
                             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                                 <div class="mb-3">
@@ -290,6 +290,8 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                                     <option value="6">6</option>
                                                     <option value="7">7</option>
                                                     <option value="8">8</option>
+                                                    <option value="9">9</option>
+                                                    <option value="10">10</option>
                                                 </select>
                                             </div>
                                             <div class="col-sm-4">
@@ -325,69 +327,60 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                         </div>
                                     </div>
 
-                                    <div class="container">
-                                        <div class="omar" style="display: flex; justify-content:space-around; max-width: 1200px;"> <!-- Container Div Start  -->
-                                            <div class="scroll" style="width: 500px; margin-right: 15px;">
+                                    <div class="container-fluid mb-4 mt-2">
+                                        <div class="row d-flex justify-content-center"> <!-- Container Div Start  -->
+                                            <div class="col-sm-6 ">
+                                                <div class=" text-center mt-5" id="waitingMessageForTeamAssignMember">
+                                                    <div class="alert alert-primary" role="alert">
+                                                        There Is No Data You Can See It Yet.
+                                                    </div>
+                                                </div>
                                                 <h3 class="text-start mt-3 text-dark">Team Member</h3>
-                                                <table class="main-table text-center table table-bordered mt-3 ">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>User Name</th>
-                                                            <th>Name</th>
-                                                            <th>Status</th>
-                                                            <th>Control</th>
-                                                        </tr>
-                                                    </thead>
+                                                <div class="teamMemberTable">
+                                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>User Name</th>
+                                                                <th>Name</th>
+                                                                <th>Status</th>
+                                                                <th>Control</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="teamMember">
 
-                                                    <tbody id="teamMember">
-                                                        <tr>
-                                                            <td class="userName" hidden>omar</td>
-                                                            <td class="name" hidden>omar alkhateeb</td>
-                                                            <td hidden>active</td>
-                                                            <td hidden><button class='btn btn-warning include'>Include</button></td>
-                                                        </tr>
-                                                    </tbody>
-
-                                                </table>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
                                             </div>
-
-                                            <div class="scroll" style="width: 500px; margin-right: 15px">
+                                            <div class=" col-sm-6 ">
                                                 <h3 class="text-start mt-3 text-dark">Selected Team Member for Ticket</h3>
-                                                <table class="main-table text-center table table-bordered mt-3  ">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>User Name</th>
-                                                            <th>Name</th>
-                                                            <th>Description</th>
-                                                            <th>Team Leader</th>
-                                                            <th>Control</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="memberAssigned">
-                                                        <tr>
-                                                            <td class="userName" hidden>omar</td>
-                                                            <td class="name" hidden>omar alkhateeb</td>
-                                                            <td hidden></td>
-                                                            <td hidden>
-                                                                <div class="check"><input type="checkbox"></div>
-                                                            </td>
-                                                            <td hidden><button class='btn btn-warning exclude'>Exclude</button></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
+                                                <div class="teamMemberTable">
+                                                    <table class="main-table text-center table table-bordered mt-3  ">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>User Name</th>
+                                                                <th>Name</th>
+                                                                <th>Description</th>
+                                                                <th>Team Leader</th>
+                                                                <th>Control</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="memberAssigned">
 
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div> <!-- Container Div End  -->
                                     </div>
-
                                 </div>
                             </div><!-- Container-fluid Div End  -->
                         </main> <!-- Main End -->
-                        <!-- Assign Ticket Info End -->
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- Assign Pop Up Form Start -->
 
         <!-- Action History Pop Up Form Start -->
@@ -405,8 +398,8 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                 <div class="mb-3">
                                     <div class="container">
                                         <div class="omar"> <!-- Container Div Start  -->
+                                            <h2 class="text-center" id="actionHistoryLabel">Action History</h2>
                                             <div class="teamMemberTable">
-                                                <h2 class="text-center" id="actionHistoryLabel">Action History</h2>
                                                 <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>">
                                                 <table class="main-table text-center table table-bordered mt-3 ">
                                                     <thead>
@@ -433,6 +426,58 @@ $roles = oci_fetch_assoc($userRole); // User Roles
             </div>
         </div>
         <!-- Action History Pop Up Form Start -->
+
+        <!-- Edit Ticket Pop Up Form Start -->
+        <div class="modal fade" id="EditTicketPopup" tabindex="-1" aria-labelledby="EditTicketPopupLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <!-- <h1 class="modal-title fs-5" id="assignPopupLabel">Any Comment For User</h1> -->
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Assign Ticket  Start -->
+                        <main class="content px-3 py-2"> <!-- Main Start -->
+                            <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                                <div class="mb-3">
+                                    <h2 class="text-center mb-2" id="EditTicketPopupLabel">Edit Ticket</h2>
+                                    <div class="container  mt-2">
+                                        <div class="row g-3 mt-4" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                            <div class="col-sm-6">
+                                                <label class="" for="autoSizingSelect">Ticket #</label>
+                                                <input type="text" class="form-control" id="EditTicketNumber" aria-label="City" readonly>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label class="" for="autoSizingSelect">Requested By</label>
+                                                <input type="text" class="form-control" id="EditRequestedBy" aria-label="State" readonly>
+                                            </div>
+                                            <div class="col-sm-6 mb-2">
+                                                <label class="" for="requestType">Service Name</label>
+                                                <input type="text" class="form-control" id="EditrequestType" aria-label="City" readonly>
+                                            </div>
+                                            <div class="col-sm-6 mb-2">
+                                                <label class="" for="autoSizingSelect">Service Details</label>
+                                                <select class="form-select" id="EditServiceDetails">
+                                                    <option selected></option>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <button class="btn btn-success button" id="UpdateTicketInformationButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
+                                                    <i class="fa-solid fa-pen-to-square"></i>
+                                                    <span>Update</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div><!-- Container-fluid Div End  -->
+                        </main> <!-- Main End -->
+                        <!-- Assign Ticket Info End -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Edit Ticket Pop Up Form Start -->
 
     </div>
 </main>

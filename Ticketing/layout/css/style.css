@@ -384,7 +384,6 @@ a.sidebar-link {
 .content .teamMember {
   text-align: left;
   border-collapse: collapse;
-  cursor: pointer;
   padding: 10px;
   border-spacing: 0;
 }
@@ -394,6 +393,7 @@ a.sidebar-link {
   color: white;
   text-align: center;
   font-size: 1.1em;
+  cursor: pointer;
 }
 
 .content .scro th, 
@@ -405,17 +405,20 @@ a.sidebar-link {
   background: #068a9e;
   color: white;
   font-weight: normal;
+  cursor: pointer;
 }
 
 .content .scro tbody tr,
 .content .teamMember tbody tr {
   background: white;
   border-bottom: 1px solid #ccc;
+  cursor: pointer;
 }
 
 .content .scro td {
   height: 50px;
   text-align: center;
+  cursor: pointer;
 }
 
 .content .scro th:nth-child(1),
@@ -551,7 +554,8 @@ a.sidebar-link {
 
 .details {
   max-height: 300px;
-  overflow-y: scroll
+  overflow-y: scroll;
+  cursor: pointer;
 }
 
 .main-table th{
@@ -563,6 +567,7 @@ a.sidebar-link {
   color: white;
   font-weight: normal;
   z-index: 2;
+  cursor: pointer;
 }
 
 .detailsTable th {
@@ -574,6 +579,7 @@ a.sidebar-link {
   color: white;
   font-weight: normal;
   z-index: 2;
+  cursor: pointer;
 }
 
 /***************   Short List In Service Page  ****************************/

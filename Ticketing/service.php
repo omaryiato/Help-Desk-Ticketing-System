@@ -208,6 +208,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                         <div class="col-sm-4 mt-4">
                                             <button class="btn btn-success button" id="UpdateServiceDetailsInfoButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
+                                                <i class="fa-solid fa-pen-to-square"></i>
                                                 <span>Update</span>
                                             </button>
                                         </div>

@@ -319,7 +319,7 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
             oci_rollback($conn);
         }
-    } elseif ($action == 'add') {                               // Add New Ticket Function
+    } elseif ($action == 'add') {       // Add New Ticket Function
 
         $userName       = $_POST['name'];       // user who create the ticket
         $serviceType    = $_POST['service'];
@@ -397,54 +397,92 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
             http_response_code(500); // Internal Server Error
             echo json_encode(['status' => 'error', 'message' => oci_error($add)['message']]);
         }
-    } elseif ($action == 'complete') {
+    } elseif ($action == 'complete') {  // Confirm Ticket ( Change Ticket Status To Confirm )
 
         $ticketid       = $_POST['tickid'];
-        $comment       = $_POST['comment'];
+        $userID         = $_POST['UserSessionID'];
+        $statusUpdate   = 40;
 
-        $statusUpdate = 'completed';
-
-        // var_dump($userName, $ticketName, $ticketDes, $userDep, $tags);
-
-        $statusTicket = "UPDATE tickets SET 
-                            STATUS = :new_status, UPDATED_DATE = CURRENT_TIMESTAMP, comments = :t_comments
-                            WHERE ID = :t_id";
+        $statusTicket = "UPDATE TICKETING.TICKETS SET 
+                            TICKET_STATUS = " . $statusUpdate . ", LAST_UPDATE_DATE = CURRENT_TIMESTAMP,
+                            TICKET_START_DATE = CURRENT_TIMESTAMP, LAST_UPDATED_BY = " . $userID . "
+                            WHERE TICKET_NO = " . $ticketid;
 
         $status = oci_parse($conn, $statusTicket);
-
-        oci_bind_by_name($status, ':new_status', $statusUpdate);
-        oci_bind_by_name($status, ':t_comments', $comment);
-        oci_bind_by_name($status, ':t_id', $ticketid);
-
-        $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
+        $run = oci_execute($status);
 
         if ($run) {
-            oci_commit($conn);
-            echo 'done';
+
+            $lastSequanceNo = "SELECT MAX(SEQUENCE_NUMBER) FROM  TICKETING.TICKET_ACTION_HISTORY
+                                WHERE TICKET_NO = " . $ticketid;
+            $seqStatment = oci_parse($conn, $lastSequanceNo);
+            oci_execute($seqStatment);
+            $SeqResult = oci_fetch_assoc($seqStatment);
+            $SeqNo   = ++$SeqResult['MAX(SEQUENCE_NUMBER)'];
+
+            $addTicketHistory = "INSERT INTO TICKETING.TICKET_ACTION_HISTORY 
+                                                    (TICKET_NO, SEQUENCE_NUMBER, ACTION_CODE, 
+                                                    ACTION_DATE, CREATED_BY, CREATION_DATE,
+                                                    LAST_UPDATED_BY, LAST_UPDATE_DATE) 
+                                            VALUES ($ticketid, $SeqNo, $statusUpdate, 
+                                                    CURRENT_TIMESTAMP, $userID, CURRENT_TIMESTAMP,
+                                                    $userID, CURRENT_TIMESTAMP)";
+            $newHistory = oci_parse($conn, $addTicketHistory);
+            $resault = oci_execute($newHistory);
+
+            if ($resault) {
+                http_response_code(200);
+                echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['status' => 'error', 'message' => oci_error($newHistory)['message']]);
+            }
         } else {
-            $e = oci_error($status);
-            echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
-            oci_rollback($conn);
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['status' => 'error', 'message' => oci_error($status)['message']]);
         }
-    } elseif ($action == 'delete') {
+    } elseif ($action == 'cancel') {    // Cancel Ticket ( Change Ticket Status To Canceled )
 
         $ticketid       = $_POST['tickid'];
+        $userID         = $_POST['UserSessionID'];
+        $statusUpdate   = 70;
 
-        $statusTicket = "DELETE FROM tickets WHERE ID = :t_id";
+        $statusTicket = "UPDATE TICKETING.TICKETS SET 
+                            TICKET_STATUS = " . $statusUpdate . ", LAST_UPDATE_DATE = CURRENT_TIMESTAMP,
+                            TICKET_START_DATE = CURRENT_TIMESTAMP, LAST_UPDATED_BY = " . $userID . "
+                            WHERE TICKET_NO = " . $ticketid;
 
         $status = oci_parse($conn, $statusTicket);
-
-        oci_bind_by_name($status, ':t_id', $ticketid);
-
-        $run = oci_execute($status, OCI_NO_AUTO_COMMIT);
+        $run = oci_execute($status);
 
         if ($run) {
-            oci_commit($conn);
-            echo 'done';
+
+            $lastSequanceNo = "SELECT MAX(SEQUENCE_NUMBER) FROM  TICKETING.TICKET_ACTION_HISTORY
+                                WHERE TICKET_NO = " . $ticketid;
+            $seqStatment = oci_parse($conn, $lastSequanceNo);
+            oci_execute($seqStatment);
+            $SeqResult = oci_fetch_assoc($seqStatment);
+            $SeqNo   = ++$SeqResult['MAX(SEQUENCE_NUMBER)'];
+
+            $addTicketHistory = "INSERT INTO TICKETING.TICKET_ACTION_HISTORY 
+                                                    (TICKET_NO, SEQUENCE_NUMBER, ACTION_CODE, 
+                                                    ACTION_DATE, CREATED_BY, CREATION_DATE,
+                                                    LAST_UPDATED_BY, LAST_UPDATE_DATE) 
+                                            VALUES ($ticketid, $SeqNo, $statusUpdate, 
+                                                    CURRENT_TIMESTAMP, $userID, CURRENT_TIMESTAMP,
+                                                    $userID, CURRENT_TIMESTAMP)";
+            $newHistory = oci_parse($conn, $addTicketHistory);
+            $resault = oci_execute($newHistory);
+            if ($resault) {
+                http_response_code(200);
+                echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
+            } else {
+                http_response_code(500); // Internal Server Error
+                echo json_encode(['status' => 'error', 'message' => oci_error($newHistory)['message']]);
+            }
         } else {
-            $e = oci_error($status);
-            echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
-            oci_rollback($conn);
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['status' => 'error', 'message' => oci_error($status)['message']]);
         }
     }
     ////////////////////////////////////////////////////////////   Service & Service Details Page Request Functions Start 
@@ -884,6 +922,13 @@ if (isset($_POST['delegated'])) {   // Display Delegated User Debends On Team Nu
 ///////////////////////////////////////////***************** Delegate Supervisor Page Request Functions End  *************************/////////////////////////////////////////
 
 
+
+
+
+
+
+
+
 ///////////////////////////////////////////***************** Change All Solved Ticket To Confirmed Request Functions Start  *************************/////////////////////////////////////////
 
 if (isset($_POST['UserNameSession'])) {   // Change All Status Solved Ticket To Confirmed Status
@@ -909,6 +954,15 @@ if (isset($_POST['UserNameSession'])) {   // Change All Status Solved Ticket To 
 }
 
 ///////////////////////////////////////////***************** Change All Solved Ticket To Confirmed Request Functions End  *************************/////////////////////////////////////////
+
+
+
+
+
+
+
+
+
 
 
 ///////////////////////////////////////////***************** Ticket Transation Page Request Functions Start  *************************/////////////////////////////////////////
@@ -939,30 +993,6 @@ if (isset($_POST['teamMembers'])) {   // Choose Team Member Based On Team Number
         );
     }
     echo json_encode($data);
-}
-
-if (isset($_POST['ticketNumber'])) {   // Choose Team Information Debends On Team Number Assign Popup
-    $ticketNumber    = $_POST['ticketNumber'];
-
-    // Query to fetch Last Service Details ID To Create The Next ID
-    $ticketInformation = "SELECT 
-                                TICKETING.TICKETS.TICKET_NO,USER_EN_NAME , TICKETING.SERVICE.SERVICE_NAME, TICKETING.SERVICE_DETAILS.SERVICE_DETAIL_NAME 
-                            FROM 
-                                TICKETING.TICKETS
-                            JOIN
-                                TICKETING.SERVICE 
-                            ON 
-                                TICKETING.SERVICE.SERVICE_NO = TICKETING.TICKETS.REQUEST_TYPE_NO
-                            JOIN
-                                TICKETING.SERVICE_DETAILS
-                            ON
-                                TICKETING.SERVICE_DETAILS.SERVICE_DETAIL_NO = TICKETING.TICKETS.SERVICE_DETAIL_NO
-                            WHERE TICKETING.TICKETS.TICKET_NO=" . $ticketNumber;
-    $information     = oci_parse($conn, $ticketInformation);
-    oci_execute($information);
-    // Build HTML options for users
-    $result = oci_fetch_assoc($information);
-    echo json_encode($result);
 }
 
 if (isset($_POST['selectDetailsTeamMember'])) {   // Retrive  Team Member Based On Team Name
@@ -1015,38 +1045,69 @@ if (isset($_POST['actionHistory'])) {   // retrive Service Details Information b
     echo json_encode($data);
 }
 
+if (isset($_POST['EditServiceType'])) {   // Retrive  Service Detail Name In Update Ticket Imformation Popup
+    $EditServiceType = $_POST['EditServiceType'];  // Service Type Number
+    $selectedServiceDetailsName = $_POST['EditServiceDetails'];  // Service Type Number
+
+    // Query to fetch Service Details based on the selected Service Type
+    $ServiceDetailName = "SELECT
+                                TICKETING.SERVICE.SERVICE_NO,
+                                TICKETING.SERVICE_DETAILS.SERVICE_DETAIL_NO,
+                                SERVICE_DETAIL_NAME
+                            FROM
+                                TICKETING.SERVICE
+                            JOIN
+                                TICKETING.SERVICE_DETAILS ON TICKETING.SERVICE_DETAILS.SERVICE_NO = TICKETING.SERVICE.SERVICE_NO
+                            WHERE
+                                TICKETING.SERVICE.SERVICE_NAME = '" . $EditServiceType . "'
+                                AND TICKETING.SERVICE_DETAILS.SERVICE_DETAIL_NAME NOT IN ('" . $selectedServiceDetailsName . "')";
+
+    $EditServiceDetailsName = oci_parse($conn, $ServiceDetailName);
+    oci_execute($EditServiceDetailsName);
+    $options = '';
+    while ($row = oci_fetch_assoc($EditServiceDetailsName)) {
+        $options .= "<option value='{$row['SERVICE_DETAIL_NO']}'>{$row['SERVICE_DETAIL_NAME']}</option>";
+    }
+    echo $options;
+}
+
+if (isset($_POST['UpdateTicketInformationButton'])) {   // Update Ticket Information
+
+    $EditTicketNumber = $_POST['UpdateTicketInformationButton'];  // Service Type Number
+    $selectedServiceDetailsName = $_POST['EditServiceDetails'];  // Service Type Number
+
+    // Query to fetch Service Details based on the selected Service Type
+    $ServiceDetailName = "SELECT SERVICE_DETAIL_NO
+                            FROM TICKETING.SERVICE_DETAILS
+                            WHERE SERVICE_DETAIL_NAME = '" . $selectedServiceDetailsName  . "'";
+
+    $EditTicketInformation = oci_parse($conn, $ServiceDetailName);
+    oci_execute($EditTicketInformation);
+
+    $row = oci_fetch_assoc($EditTicketInformation);
+    $ServiceNo = $row["SERVICE_DETAIL_NO"];
+
+    // Query to fetch Service Details based on the selected Service Type
+    $UpdateTicketInformation = "UPDATE TICKETING.TICKETS SET SERVICE_DETAIL_NO = " . $ServiceNo . " WHERE TICKET_NO = " . $EditTicketNumber;
+
+    $NewTicketInformation = oci_parse($conn, $UpdateTicketInformation);
+    $run = oci_execute($NewTicketInformation);
+
+    if ($run) {
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
+    } else {
+        http_response_code(500); // Internal Server Error
+        echo json_encode(['status' => 'error', 'message' => oci_error($NewTicketInformation)['message']]);
+    }
+}
 
 ///////////////////////////////////////////***************** Ticket Transation Page Request Functions End  *************************/////////////////////////////////////////
 
 
 
 
-if (isset($_POST['ticketNumberActionList'])) {
 
-    $ticketNumber = $_POST['ticketNumberActionList'];
-    $UserSessionID = $_POST['UserSessionID'];
-
-    $role = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $UserSessionID;
-    $userRole = oci_parse($conn, $role);
-    $run = oci_execute($userRole);
-    $roles = oci_fetch_assoc($userRole); // User Roles
-    $resualt = $roles['ROLE_ID'];
-
-    $ticket = " SELECT TICKET_STATUS FROM TICKETING.TICKETS WHERE TICKET_NO =  " . $ticketNumber;
-    $ticketStatus = oci_parse($conn, $ticket);
-    $runticketQuery = oci_execute($ticketStatus);
-    $status = oci_fetch_assoc($ticketStatus); // User Roles
-    $statusCode = $status['TICKET_STATUS'];
-
-    // Create an associative array to hold the data
-    $response = array(
-        'role' => $resualt,
-        'statusCode' => $statusCode
-    );
-
-    // Encode the array as JSON and echo it
-    echo json_encode($response);
-}
 
 
 
