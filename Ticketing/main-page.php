@@ -47,11 +47,15 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                         <tbody id="mainTableTicketTransation">
                             <?php
                             while ($ticks = oci_fetch_assoc($all)) {
-                                echo "<tr>\n";
+                                echo "<tr";
+                                if ($ticks["TICKET_STATUS"] == '70') {
+                                    echo ' class="canceled-row"';
+                                }
+                                echo ">\n";
                                 echo "<td>" . $ticks["TICKET_NO"] . "</td>\n";
                                 echo "<td>" . $ticks["SERVICE_TYPE"] . "</td>\n";
                                 echo "<td>" . $ticks["SERVICE_DETAIL"] . "</td>\n";
-                                echo "<td>" . $ticks["TICKET_PERIORITY"] . "</td>\n";
+                                echo "<td>" . $ticks["TICKET_PERIORITY_MEANING"] . "</td>\n";
                                 echo "<td>";
                                 if ($ticks["TICKET_STATUS"] == '10') {
                                     echo '<span class="badge bg-primary ">New</span>';
@@ -179,7 +183,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                     <div class="col-2">
                         <div class="card text-bg-light mb-3" style="max-width: 15rem;">
                             <?php
-                            $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V ";
+                            $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V ";
 
                             $alltick = oci_parse($conn, $allTicket);
                             // oci_bind_by_name($alltick, ":t_service", $user['DEPARTMENT']);
@@ -225,11 +229,11 @@ $roles = oci_fetch_assoc($userRole); // User Roles
         </div>
 
         <!-- Success Pop Up Form Start -->
-        <div class="modal fade" id="solvePopup" tabindex="-1" aria-labelledby="solvePopupLabel" aria-hidden="true">
+        <div class="modal fade" id="finishPopup" tabindex="-1" aria-labelledby="finishPopupLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="solvePopupLabel">Any Comment For User</h1>
+                        <h1 class="modal-title fs-5" id="finishPopupLabel">Any Comment For User</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -279,19 +283,9 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                                 <input type="text" class="form-control" id="RequestedBy" aria-label="State" readonly>
                                             </div>
                                             <div class="col-sm-4">
-                                                <label class="" for="autoSizingSelect">Ticket Weight</label>
-                                                <select class="form-select" id="autoSizingSelect">
-                                                    <option selected>Choose...</option>
-                                                    <option value="1">1</option>
-                                                    <option value="2">2</option>
-                                                    <option value="3">3</option>
-                                                    <option value="4">4</option>
-                                                    <option value="5">5</option>
-                                                    <option value="6">6</option>
-                                                    <option value="7">7</option>
-                                                    <option value="8">8</option>
-                                                    <option value="9">9</option>
-                                                    <option value="10">10</option>
+                                                <label class="" for="ticketWeight">Ticket Weight</label>
+                                                <select class="form-select" id="ticketWeight">
+
                                                 </select>
                                             </div>
                                             <div class="col-sm-4">
@@ -303,13 +297,9 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                                 <input type="text" class="form-control" id="serviceFor" aria-label="State" readonly>
                                             </div>
                                             <div class="col-sm-4">
-                                                <label class="" for="autoSizingSelect">Ticket Periority</label>
-                                                <select class="form-select" id="autoSizingSelect">
-                                                    <option selected>Choose...</option>
-                                                    <option value="U">U</option>
-                                                    <option value="H">H</option>
-                                                    <option value="M">M</option>
-                                                    <option value="L">L</option>
+                                                <label class="" for="ticketPeriority">Ticket Periority</label>
+                                                <select class="form-select" id="ticketPeriority">
+
                                                 </select>
                                             </div>
                                         </div>
@@ -340,6 +330,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                                     <table class="main-table text-center table table-bordered mt-3 ">
                                                         <thead>
                                                             <tr>
+                                                                <th hidden>ID</th>
                                                                 <th>User Name</th>
                                                                 <th>Name</th>
                                                                 <th>Status</th>
@@ -358,6 +349,7 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                                     <table class="main-table text-center table table-bordered mt-3  ">
                                                         <thead>
                                                             <tr>
+                                                                <th hidden>ID</th>
                                                                 <th>User Name</th>
                                                                 <th>Name</th>
                                                                 <th>Description</th>
@@ -372,6 +364,12 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                                                 </div>
                                             </div>
                                         </div> <!-- Container Div End  -->
+                                        <div class="col-sm-4 mt-4">
+                                            <button class="btn btn-success button" id="assignTicket" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                                <i class='fa-solid fa-at'></i>
+                                                <span>Assign</span>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div><!-- Container-fluid Div End  -->

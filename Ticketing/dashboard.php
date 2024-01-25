@@ -55,7 +55,7 @@ if (isset($_SESSION['user'])) {
         InsertUserID(); // This Function To Insert user permission to table global_temp_table until you can see the tickets
         // select all tickets based on user permission
 
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         // Execute the query
         oci_execute($all);
@@ -76,7 +76,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 30;
 
         // Select Started Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -98,7 +98,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 60;
 
         // Select Solved Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -120,7 +120,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 50;
 
         // Select Rejected Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -142,7 +142,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 10;
 
         // Select New Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -164,7 +164,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 20;
 
         // Select Assigned Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -186,7 +186,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 110;
 
         // Select Sent Out Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -208,7 +208,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 40;
 
         // Select Confirmed Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -230,7 +230,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 70;
 
         // Select Canceled Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query
@@ -252,7 +252,7 @@ if (isset($_SESSION['user'])) {
         $ticketStatus = 120;
 
         // Select Received Ticket
-        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_SUB_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
+        $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE ticket_status = :t_status ORDER BY TICKET_NO DESC";
         $all = oci_parse($conn, $allTicket);
         oci_bind_by_name($all, ":t_status", $ticketStatus);
         // Execute the query

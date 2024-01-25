@@ -171,12 +171,6 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
                     </button>
                 </li>
                 <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                        <i class="fa-solid fa-calendar-xmark"></i>
-                        <span>Finish</span>
-                    </button>
-                </li>
-                <li>
                     <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
                         <i class="fa-solid fa-ban"></i>
                         <span>Cancel</span>
@@ -230,18 +224,12 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
         if (ticketStatus == 'Solved') {
             // Additional content for status code 30
             $('#actionTicketTransactionList').append(`
-            <li>
-                <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>Complete</span>
-                </button>
-            </li>
-            <li>
-                <button class="item" id='rejectTicket' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-                    <i class="fa-solid fa-circle-xmark"></i>
-                    <span>Reject</span>
-                </button>
-            </li>
+                <li>
+                    <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Finish</span>
+                    </button>
+                </li>
             `);
         }
         // Add common HTML content for all roles
@@ -371,12 +359,6 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
                         <span>Cancel</span>
                     </button>
                 </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                        <i class="fa-solid fa-calendar-xmark"></i>
-                        <span>Finish</span>
-                    </button>
-                </li>
             `);
         }
 
@@ -389,18 +371,18 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
                         <span>Cancel</span>
                     </button>
                 </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                        <i class="fa-solid fa-calendar-xmark"></i>
-                        <span>Finish</span>
-                    </button>
-                </li>
             `);
         }
 
         if (ticketStatus == 'Solved') {
             // Additional content for status code 30
             $('#actionTicketTransactionList').append(`
+            <li>
+                <button class="item" style='margin-right: 5px;'   data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Finish</span>
+                </button>
+            </li>
             <li>
                 <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
                     <i class="fa-solid fa-circle-check"></i>
@@ -416,7 +398,6 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
             `);
         }
     }
-        
     
 });
 
@@ -434,7 +415,7 @@ $(document).on('click', function () {
 
     }).blur(function () {
         $(this).attr('placeholder', $(this).attr('data-text'));
-    })
+    });
 
     // Add Asterisk On Required Field
     // $('input').each(function () {
@@ -1427,7 +1408,7 @@ $(document).on('click', function () {
 
     ///////////////////////////////////////////***************** Ticket Transation Page Start  *************************/////////////////////////////////////////
 
-    $(document).on('click', '.assign', function(e) {
+    $(document).on('click', '.assign', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
         e.preventDefault();
         $('#RequestedBy').val(" ");
         $('#requestType').val(" ");
@@ -1435,6 +1416,9 @@ $(document).on('click', function () {
         $('#ticketNumber').val(" ");
         $('#assignTeam').html(" ");
         $('#teamMember').empty();
+        $('#ticketWeight').val(" ");
+        $('#ticketPeriority').val(" ");
+        $('#memberAssigned').empty();
 
 
         $('#ticketNumber').val(ticketNumber);
@@ -1445,23 +1429,27 @@ $(document).on('click', function () {
         $('#teamMember').text("Waiting Data");
         $('#waitingMessageForTeamAssignMember').empty().removeClass('mt-5');
 
-        $('#assignTeam').html(`"<option selected>Choose Team ...</option>"`);
-
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
             data: { selectDetailsTeamMember: serviceDetails},
             success: function (data) {
-                $('#assignTeam').append(data);
+                // Parse the JSON response
+                var responseData = JSON.parse(data);
+
+                // Update HTML elements based on IDs
+                $('#ticketWeight').html(responseData.weights);
+                $('#assignTeam').html(responseData.teams);
+                $('#ticketPeriority').html(responseData.priorities);
             },
-            error: function () {
-                alert('Error fetching users');
+            error: function (data) {
+                alert('Error fetching Ticket Information');
             }
         });
         
     });
 
-    $('#assignTeam').on('change', function () {             // Return Service Number  Based On Service Name Function
+    $('#assignTeam').on('change', function () {             // Return Team Member Based ON Team Choosen Function
         $('#teamMember').text(" Waiting Data ");
         $.ajax({
             type: 'POST',
@@ -1483,6 +1471,7 @@ $(document).on('click', function () {
                     // Populate each cell with data
                     newDRow.html(`
             
+                        <td hidden>${row.ID}</td>
                         <td>${row.name}</td>
                         <td>${row.Ename}</td>`
             
@@ -1515,27 +1504,6 @@ $(document).on('click', function () {
         });
     });
 
-    function updateCheckboxState() {
-        var memberAssignedTable = $('#memberAssigned');
-        var checkboxes = memberAssignedTable.find('input[type="checkbox"]');
-
-        if (memberAssignedTable.find('tr').length === 1) {
-            // Disable the checkbox if there is only one row
-            checkboxes.prop('disabled', true);
-        } else {
-            // Enable all checkboxes
-            checkboxes.prop('disabled', false);
-
-            // Disable other checkboxes if one is checked
-            checkboxes.on('change', function() {
-                if ($(this).prop('checked')) {
-                    checkboxes.not(this).prop('disabled', true);
-                } else {
-                    checkboxes.prop('disabled', false);
-                }
-            });
-        }
-    }
     // // Include button click event for moving rows from teamMember to memberAssigned
     // $('#teamMember').on('click', '.include', function() {
     //     moveRow($(this), '#teamMember', '#memberAssigned');
@@ -1577,7 +1545,7 @@ $(document).on('click', function () {
 
     // Include button click event
     var isChecked;
-    $('.teamMemberTable').on('click', '.includeBtn', function() {
+    $('.teamMemberTable').on('click', '.includeBtn', function() {  // Move Row From Team Member Table To Selected Team Member For Ticket
         // Get the row data
         var rowData = $(this).closest('tr').find('td').map(function() {
             return $(this).text();
@@ -1587,8 +1555,9 @@ $(document).on('click', function () {
 
         // Create a new row for the memberAssigned table
         var newRow = $('<tr>').append(
-            $('<td>').text(rowData[0]),  // User Name
-            $('<td>').text(rowData[1]),  // Name
+            $('<td hidden>').text(rowData[0]),  // User ID
+            $('<td>').text(rowData[1]),  // User Name
+            $('<td>').text(rowData[2]),  // Name
             $('<td>').text(''),          // Description (empty)
             $('<td>').html('<div class="check"><input type="checkbox"></div>'),  // Team Leader checkbox   
             $('<td>').html('<button class="btn btn-warning excludeBtn">Exclude</button>')  // Exclude button 
@@ -1599,10 +1568,46 @@ $(document).on('click', function () {
 
         // Remove the row from the teamMember table
         $(this).closest('tr').remove();
+
+        var memberAssignedTable = $('#memberAssigned');
+        var checkboxes = memberAssignedTable.find('input[type="checkbox"]');
+
+        if (memberAssignedTable.find('tr').length === 1) {
+            // Disable the checkbox if there is only one row
+            checkboxes.prop('disabled', true);
+        } else {
+            // Enable all checkboxes
+            checkboxes.prop('disabled', false);
+
+            // Disable other checkboxes if one is checked
+            checkboxes.on('change', function() {
+                if ($(this).prop('checked')) {
+                    checkboxes.not(this).prop('disabled', true);
+                } else {
+                    checkboxes.prop('disabled', false);
+                }
+            });
+        }
+
+        // $.ajax({
+        //     type: 'POST',
+        //     url: 'function.php', // Function Page For All ajax Function
+        //     data: { 
+        //         includeMember:          ticketNumber,
+        //         UserSessionID:          $('#UserSessionID').val(),
+        //         UserAssigned:          $(this).closest('tr').find('td:nth-child(2)').text()
+        //     },
+        //     success: function (data) {
+        //         console.log(data);
+        //     },
+        //     error: function (data) {
+        //         console.log(data);
+        //     }
+        // });
     });
 
     // Exclude button click event
-    $('.teamMemberTable').on('click', '.excludeBtn', function() {
+    $('.teamMemberTable').on('click', '.excludeBtn', function() {  // Return Row From Selected Team Member For Ticket To Team Member Table
         // Get the row data
         var rowData = $(this).closest('tr').find('td').map(function() {
             return $(this).text();
@@ -1610,8 +1615,9 @@ $(document).on('click', function () {
 
         // Create a new row for the teamMember table
         var newRow = $('<tr>').append(
-            $('<td>').text(rowData[0]),  // User Name
-            $('<td>').text(rowData[1]),  // Name
+            $('<td hidden>').text(rowData[0]),  // User ID
+            $('<td>').text(rowData[1]),  // User Name
+            $('<td>').text(rowData[2]),  // Name
             $('<td>').html('<div class="check"><input type="checkbox"' + (isChecked ? ' checked' : '') + '></div>'),  // Status (assuming it's the third column)
             $('<td>').html('<button class="btn btn-warning includeBtn">Include</button>')  // Include button
         );
@@ -1622,11 +1628,118 @@ $(document).on('click', function () {
         // Remove the row from the memberAssigned table
         $(this).closest('tr').remove();
 
-        updateCheckboxState();
+        var memberAssignedTable = $('#memberAssigned');
+        var checkboxes = memberAssignedTable.find('input[type="checkbox"]');
+
+        if (memberAssignedTable.find('tr').length === 1) {
+            // Disable the checkbox if there is only one row
+            checkboxes.prop('disabled', true);
+        } else {
+            // Enable all checkboxes
+            checkboxes.prop('disabled', false);
+
+            // Disable other checkboxes if one is checked
+            checkboxes.on('change', function() {
+                if ($(this).prop('checked')) {
+                    checkboxes.not(this).prop('disabled', true);
+                } else {
+                    checkboxes.prop('disabled', false);
+                }
+            });
+        }
+
+        // $.ajax({
+        //     type: 'POST',
+        //     url: 'function.php', // Function Page For All ajax Function
+        //     data: { 
+        //         excludeMember:          ticketNumber,
+        //         UserSessionID:          $('#UserSessionID').val(),
+        //         UserAssigned:           $(this).closest('tr').find('td:nth-child(2)').text()
+        //     },
+        //     success: function (data) {
+        //         console.log(data);
+        //     },
+        //     error: function (data) {
+        //         console.log(data);
+        //     }
+        // });
     });
 
+    $(document).on('click', '#assignTicket', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
+        e.preventDefault();
 
-    
+        var tableData = [];
+
+        // Iterate through each row in the table
+        $('.main-table #memberAssigned tr').each(function () {
+            var isTeamLeader = $(this).find('td:eq(4) input[type=checkbox]').prop('checked');
+            var rowData = {
+                userID: $(this).find('td:eq(0)').text(),
+                userName: $(this).find('td:eq(1)').text(),
+                name: $(this).find('td:eq(2)').text(),
+                description: $(this).find('td:eq(3)').text(),
+                teamLeader: isTeamLeader ? 'Y' : 'N',
+            };
+
+            // Add the row data to the array
+            tableData.push(rowData);
+        });
+
+        // Convert data to JSON
+        var jsonData = JSON.stringify(tableData);
+
+        // console.log(ticketNumber + " " +
+        //               $('#UserSessionID').val() + " " +
+        //               $('#ticketWeight').val() + " " +
+        //               $('#ticketPeriority').val() + " " +
+        //               jsonData + " " +
+        //               $('#assignTeam').val());
+        // alert(ticketNumber +  " " +
+        //               $('#UserSessionID').val() + " " +
+        //               $('#ticketWeight').val() + " " +
+        //               $('#ticketPeriority').val() + " " +
+        //               jsonData + " " +
+        //               $('#assignTeam').val());
+
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Function Page For All ajax Function
+            data: { 
+                'ticketNumber':             ticketNumber,
+                "UserSessionID":            $('#UserSessionID').val(),
+                "ticketWeight":             $('#ticketWeight').val(),
+                "ticketPeriority":          $('#ticketPeriority').val(),
+                "memberAssigned":           jsonData,
+                "assignTeam":               $('#assignTeam').val(),
+                'action':                   'assignTicket'
+            },
+            success: function (response) {
+                $('#assignPopup').modal('hide');
+                Swal.fire("Ticket Assigned Successfully... ");
+                setTimeout(function() { 
+                    window.location.reload();
+                }, 0);
+                $('#memberAssigned').empty();
+                $('#ticketWeight').val(" ");
+                $('#ticketPeriority').val(" ");
+            },
+            error: function (response) {
+                $('#assignPopup').modal('hide');
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: JSON.stringify(response),
+                });
+                setTimeout(function() {
+                    window.location.reload();
+                }, 0);
+                $('#memberAssigned').empty();
+                $('#ticketWeight').val(" ");
+                $('#ticketPeriority').val(" ");
+            }
+        });
+        
+    });
 
     $(document).on('click', '.startTicket', function(e) {  // Update Ticket Status To Start Ticket Function
 
@@ -1641,7 +1754,10 @@ $(document).on('click', function () {
                 "action" :              "start"
             },
             success: function (response) {
-                    Swal.fire("Ticket Started... ");
+                    Swal.fire("Ticket Started Successfully... ");
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 0);
                 },
                 error: function (response) {
                     Swal.fire({
@@ -1649,6 +1765,9 @@ $(document).on('click', function () {
                         title: "Oops...",
                         text: JSON.stringify(response),
                     });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 0);
                 }
             
         });
@@ -1671,6 +1790,9 @@ $(document).on('click', function () {
             success: function (response) {
                     $('#solvePopup').modal('hide');
                     Swal.fire("Ticket Solved Successfully");
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 0);
             },
             error: function (response){
                 $('#solvePopup').modal('hide');
@@ -1679,6 +1801,9 @@ $(document).on('click', function () {
                         title: "Oops...",
                         text: JSON.stringify(response),
                     });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 0);
             }
         });
     });
@@ -1697,6 +1822,9 @@ $(document).on('click', function () {
             },
             success: function (response) {
                     Swal.fire("Ticket Canceled Successfully");
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 0);
             },
             error: function (response){
                 Swal.fire({
@@ -1704,6 +1832,9 @@ $(document).on('click', function () {
                     title: "Oops...",
                     text: "Something went wrong!",
                 });    
+                setTimeout(function() {
+                    window.location.reload();
+                }, 0);
             }
         });
     });
@@ -1771,6 +1902,7 @@ $(document).on('click', function () {
             data: { EditServiceType: serviceType, EditServiceDetails: serviceDetails},
             success: function (data) {
                 $('#EditServiceDetails').append(data);
+
             },
             error: function () {
                 alert('Error fetching users');
@@ -1794,6 +1926,9 @@ $(document).on('click', function () {
             success: function (data) {
                 $('#EditTicketPopup').modal('hide');
                 Swal.fire("Ticket Information Updated Successfully ");
+                setTimeout(function() {
+                    window.location.reload();
+                }, 0);
             },
             error: function () {
                 $('#EditTicketPopup').modal('hide');
@@ -1802,6 +1937,9 @@ $(document).on('click', function () {
                     title: "Oops...",
                     text: "Somthing Went Wrong!!",
                 });
+                setTimeout(function() {
+                    window.location.reload();
+                }, 0);
             }
         });
         
@@ -1822,6 +1960,9 @@ $(document).on('click', function () {
             },
             success: function (response) {
                     Swal.fire("Ticket Completed Successfully");
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 0);
             },
             error: function (response) {
                 Swal.fire({
@@ -1829,6 +1970,9 @@ $(document).on('click', function () {
                     title: "Oops...",
                     text: "Something went wrong!",
                 });
+                setTimeout(function() {
+                    window.location.reload();
+                }, 0);
             }
         });
     });
