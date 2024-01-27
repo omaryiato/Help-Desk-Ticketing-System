@@ -228,12 +228,12 @@ $roles = oci_fetch_assoc($userRole); // User Roles
             </div>
         </div>
 
-        <!-- Success Pop Up Form Start -->
-        <div class="modal fade" id="finishPopup" tabindex="-1" aria-labelledby="finishPopupLabel" aria-hidden="true">
+        <!-- Solve Pop Up Form Start -->
+        <div class="modal fade" id="solvePopup" tabindex="-1" aria-labelledby="solvePopupLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="finishPopupLabel">Any Comment For User</h1>
+                        <h1 class="modal-title fs-5" id="solvePopupLabel">Any Comment For User</h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -257,7 +257,98 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                 </div>
             </div>
         </div>
-        <!-- Success Pop Up Form Start -->
+        <!-- Solve Pop Up Form Start -->
+
+        <!-- Confirm Pop Up Form Start -->
+        <div class="modal fade" id="finishPopup" tabindex="-1" aria-labelledby="finishPopupLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="finishPopupLabel">Send Your Evaluation</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="radioConfirm">
+                            <input type="radio" name="select" id="confirm" checked>
+                            <input type="radio" name="select" id="reject">
+                            <label for="confirm" class="option confirm">
+                                <div class="dot"></div>
+                                <span>Confirm</span>
+                            </label>
+                            <label for="reject" class="option reject">
+                                <div class="dot"></div>
+                                <span>Reject</span>
+                            </label>
+                        </div>
+                        <label for="returnedTicketNumber" class="d-inline">Ticket Number:</label>
+                        <input style="width: 100px;" id="returnedTicketNumber">
+                        <div class=" " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                            <div class="text-center">
+                                <h4>Quick Evaluation</h4>
+                                <p>( Take few second to serve you better )</p>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <div style="margin-right: 40px;">
+                                            <p>Response Time:</p>
+                                        </div>
+                                        <div class="radioConfirm" style="width: 100px; height: 90px;">
+                                            <input type="radio" name="confirmation" id="fast" checked>
+                                            <input type="radio" name="confirmation" id="slow">
+                                            <label for="fast" class="option fast">
+                                                <span class="emoji"><i class="fa-solid fa-face-smile-beam "></i></span>
+                                            </label>
+                                            <label for="slow" class="option slow">
+                                                <span class="emoji"><i class="fa-solid fa-face-angry "></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex  align-items-center justify-content-between">
+                                        <div style="margin-right: 40px;">
+                                            <p>Technician Attitude:</p>
+                                        </div>
+                                        <div class="radioConfirm" style="width: 100px; height: 90px;">
+                                            <input type="radio" name="technicianAttitude" id="nice" checked>
+                                            <input type="radio" name="technicianAttitude" id="bad">
+                                            <label for="nice" class="option nice">
+                                                <span class="emoji"><i class="fa-solid fa-face-smile-beam "></i></span>
+                                            </label>
+                                            <label for="bad" class="option bad">
+                                                <span class="emoji"><i class="fa-solid fa-face-angry "></i></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class=" row ms-2">
+                                        <label for="select" class="col-sm-10 col-form-label">Service Evaluation In General</label>
+                                        <div class="col-sm-10 mb-3">
+                                            <select class="form-select" id="assignTeam">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">User Evaluation Description:</label>
+                            <textarea class="form-control " id="evaluation"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary " id="ConfirmTicket" value="<?php echo  $prevlegs['USER_ID'] ?>">Send message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Confirm Pop Up Form Start -->
 
         <!-- Assign Pop Up Form Start -->
         <div class="modal fade" id="assignPopup" tabindex="-1" aria-labelledby="assignPopupLabel" aria-hidden="true">
@@ -270,8 +361,8 @@ $roles = oci_fetch_assoc($userRole); // User Roles
                         <main class="content px-3 py-2"> <!-- Main Start -->
                             <div class="container-fluid"> <!-- Container-fluid Div Start -->
                                 <div class="mb-3">
-                                    <h2 class="text-center mt-3 mb-5" id="assignPopupLabel">Assign Tickets</h2>
-                                    <div class="container mb-4 mt-4">
+                                    <h2 class="text-center" id="assignPopupLabel">Assign Tickets</h2>
+                                    <div class="container  mt-2">
                                         <h3 class="text-start mt-3 mb-4 text-dark">Ticket Information</h3>
                                         <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                             <div class="col-sm-4">

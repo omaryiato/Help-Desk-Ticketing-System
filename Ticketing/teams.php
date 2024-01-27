@@ -93,16 +93,12 @@ if (isset($_SESSION['user'])) {
                                 <div class="col-sm-4 my-2">
                                     <label class="" for="autoSizingSelect">Department</label>
                                     <input type="text" class="form-control" id="dept" aria-label="State" readonly>
-                                    <!-- <select class="form-select dept" name="dept" id="dept" required>
-                                            <option value="">Choose Department</option>
-                                        </select> -->
+                                    <input type="hidden" class="form-control" id="depID" aria-label="State" readonly>
                                 </div>
                                 <div class='col-sm-4 my-2'>
                                     <label class="" for="autoSizingSelect">Branch</label>
                                     <input type="text" class="form-control" id="branch" aria-label="State" readonly>
-                                    <!-- <select class="form-select branch" name="branch" id="branch" required>
-                                            <option value="">Choose Branch</option>
-                                        </select> -->
+
                                 </div>
                                 <div class='check  col-sm-4' style='display: flex; justify-content: center; align-items: center;'>
                                     <label class="pe-2" for="autoSizingSelect">Status</label>
@@ -178,7 +174,6 @@ if (isset($_SESSION['user'])) {
     </main> <!-- Main End -->
     <!-- Team Member Information End -->
 
-
     <!-- Add New Team Pop Up Form Start -->
     <div class="modal fade" id="NewTeam" tabindex="-1" aria-labelledby="NewTeamPopupLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -195,29 +190,33 @@ if (isset($_SESSION['user'])) {
                                 <div class="container mb-4 mt-4">
                                     <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                     <div class="row d-flex justify-content-between">
-                                        <div class="col-sm-8 mb-2">
+                                        <div class="col-sm-10 mb-2">
                                             <label class="" for="autoSizingSelect">Team Name</label>
                                             <input type="text" class="form-control" id="NewTeamName" aria-label="State" required>
                                         </div>
-                                        <div class="col-sm-4 mb-2">
-                                            <label class="" for="autoSizingSelect">Branch Code</label>
-                                            <input type="text" class="form-control" id="branchCode" aria-label="State" required>
-                                        </div>
-                                        <div class="col-sm-8">
+                                        <div class="col-sm-10 mb-2">
                                             <label class="" for="autoSizingSelect">Description</label>
                                             <input type="text" class="form-control" id="description" aria-label="State" required>
                                         </div>
-                                        <script>
-                                            function restrictInput(event) {
-                                                const input = event.target;
-                                                input.value = input.value.replace(/[^0-9.]/g, '');
-                                            }
-                                        </script>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-10 mb-2">
                                             <label class="" for="autoSizingSelect">Department ID</label>
-                                            <input type="text" oninput="restrictInput(event)" class="form-control" id="departmentID" aria-label="State" required > 
+                                            <select class="form-select departmentID" name="departmentID" id="departmentID" required>
+                                                <option value="" selected>Choose Department ID...</option>
+                                                <option value="1017">IT Dept-Tracking</option>
+                                                <option value="1013">Information Technology Dept</option>
+                                                <option value="1005">Legal Affairs</option>
+                                            </select>
                                         </div>
-                                        <div class="col-sm-4 mt-4">
+                                        <div class="col-sm-6">
+                                            <label class="" for="autoSizingSelect">Branch Code</label>
+                                            <select class="form-select branchCode" name="branchCode" id="branchCode" required>
+                                                <option value="null" selected>Choose Branch Code...</option>
+                                                <option value="RYD">RYD</option>
+                                                <option value="HUF">HUF</option>
+                                                <option value="JIZ">JIZ</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-5 mt-4">
                                             <button class="btn btn-success button" id="AddNewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
                                                 <span>Save</span>
                                             </button>
@@ -267,12 +266,16 @@ if (isset($_SESSION['user'])) {
 
                                         <div class="col-sm-4">
                                             <label class="" for="autoSizingSelect">Branch Code</label>
-                                            <input type="text" class="form-control" id="EditTeamBranchCode" aria-label="State" required>
+                                            <select class="form-select EditTeamBranchCode" name="EditTeamBranchCode" id="EditTeamBranchCode" required>
+
+                                            </select>
                                         </div>
 
                                         <div class="col-sm-4">
                                             <label class="" for="autoSizingSelect">Department ID</label>
-                                            <input type="text" class="form-control" id="EditTeamDepartmentID" aria-label="State" required>
+                                            <select class="form-select EditTeamDepartmentID" name="EditTeamDepartmentID" id="EditTeamDepartmentID" required>
+
+                                            </select>
                                         </div>
 
                                         <div class='check  col-sm-4 mb-2'>
@@ -322,15 +325,18 @@ if (isset($_SESSION['user'])) {
 
                                         <div class="col-sm-6 ">
                                             <label class="" for="autoSizingSelect">Member Name</label>
-                                            <input type="text" class="form-control" id="GetMemberName" aria-label="Name" required>
+                                            <input type="hidden" class="form-control" id="GetDeptID" aria-label="ID" readonly required>
+                                            <select class="form-select GetMemberName" name="GetMemberName" id="GetMemberName" required>
+
+                                            </select>
                                         </div>
 
                                         <div class="col-sm-12 mt-2">
                                             <label class="" for="autoSizingSelect">Description</label>
-                                            <input type="text" class="form-control" id="ServiceDetailsDescription" aria-label="Description" required>
+                                            <input type="text" class="form-control" id="GetMemberDeacription" aria-label="Description" required>
                                         </div>
                                         <div class="col-sm-10  mt-4">
-                                            <button class="btn btn-success button width-75" id="AddNewServiceDetails" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
+                                            <button class="btn btn-success button width-75" id="AddNewTeamMemberButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
                                                 <span>Save</span>
                                             </button>
                                         </div>
@@ -345,54 +351,7 @@ if (isset($_SESSION['user'])) {
         </div>
     </div>
     <!-- Add New Team Member Pop Up Form End -->
-
-    <!-- Assign New Service Details Team  Pop Up Form Start -->
-    <div class="modal fade" id="NewDetailTeam" tabindex="-1" aria-labelledby="NewDetailTeamPopupLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- New Service  Start -->
-                    <main class="content px-3 py-2"> <!-- Main Start -->
-                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
-                            <div class="mb-3">
-                                <h2 class="text-center" id="NewDetailTeamPopupLabel">Assign New Team</h2>
-                                <div class="container mb-4 mt-4">
-                                    <div class="row">
-                                        <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Service Details Name</label>
-                                            <input type="text" class="form-control" id="GetServiceDetailsName" aria-label="Name" readonly required>
-                                            <input type="hidden" class="form-control" id="GetServiceDetailsID" aria-label="ID" readonly required>
-                                            <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="" for="autoSizingSelect">Team Name</label>
-                                            <select class="form-select" name="ServiceTypeNumber" id="GetServiceDetailsTeamNumber" required>
-                                                <option value="">Choose Service Details Team Name </option>
-
-                                            </select>
-                                        </div>
-                                        <div class="col-sm-10  mt-4">
-                                            <button class="btn btn-success button width-75" id="AddNewServiceDetailsTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
-                                                <span>Save</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- Container-fluid Div End  -->
-                    </main> <!-- Main End -->
-                    <!-- New Service Info End -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Assign New Service Details Teams Pop Up Form End -->
-
 <?php
-
     include $inc . 'footer.php';
 } else {
     header('Location: index.php');

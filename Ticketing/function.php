@@ -805,8 +805,6 @@ if (isset($_POST['action'])) {  // Assign Ticket To The Team Member
         }
     } elseif ($action == 'updateTeamMemberTable') {         // Update Manager And Supervisor And Active Columns In Team Member Table Function
 
-
-
         $userID                 = $_POST['userID'];
 
         if (!empty($_POST['activeColumnJson'])) {
@@ -961,10 +959,10 @@ if (isset($_POST['UserNameSession'])) {   // Change All Status Solved Ticket To 
     // Query to fetch Delegated users based on the selected Team Number
     $confirmTicket = "UPDATE TICKETING.TICKETS SET " .
         "TICKET_END_DATE = CURRENT_TIMESTAMP,
-                                    TICKET_STATUS = " . $NewStatus .  ",
-                                    LAST_UPDATED_BY = " . $UserSessionID . ",
-                                    LAST_UPDATE_DATE = CURRENT_TIMESTAMP
-                                    WHERE TICKET_STATUS =" . $oldStatus;
+                        TICKET_STATUS = " . $NewStatus .  ",
+                        LAST_UPDATED_BY = " . $UserSessionID . ",
+                        LAST_UPDATE_DATE = CURRENT_TIMESTAMP
+                        WHERE TICKET_STATUS =" . $oldStatus;
     $confirmed = oci_parse($conn, $confirmTicket);
     $run = oci_execute($confirmed);
     if ($run) {
@@ -1503,6 +1501,53 @@ if (isset($_POST['delegateTeamMember'])) {   // Display Delegated User Debends O
     echo json_encode($data);
 }
 
+if (isset($_POST['GetMember'])) {   // Choose Team Member Based On Team Number In Assign Page
+    $DepartmentNumber = $_POST['GetMember'];  // Team Number
+    $TeamNumber = $_POST['GetTeam'];  // Team Number
+
+    // Query to fetch Team Member based on the selected Team Number
+    $UsersDepartmentID = "SELECT USER_EN_NAME, USER_ID FROM TICKETING.xxajmi_ticket_user_info  WHERE USER_ID NOT IN 
+                        (SELECT TEAM_MEMBER_USER_ID FROM TICKETING.TEAM_MEMBERS WHERE TEAM_NO = " . $TeamNumber . ") AND COST_CENTER = " . $DepartmentNumber;
+    $member = oci_parse($conn, $UsersDepartmentID);
+
+    oci_execute($member);
+    $options = '';
+    while ($row = oci_fetch_assoc($member)) {
+        $options .= "<option value='{$row['USER_ID']}'>{$row['USER_EN_NAME']}</option>";
+    }
+    echo $options;
+}
+
+if (isset($_POST['GetTeamID'])) {   // Add New Team Member To The Team Based On Team Number And Department ID
+
+    $GetTeamID = $_POST['GetTeamID'];  // Team Number
+    $UserSessionID = $_POST['UserSessionID'];
+    $GetMemberName = $_POST['GetMemberName'];
+    $GetMemberDeacription = $_POST['GetMemberDeacription'];
+    $active = 'Y';
+
+    // Query to fetch Last Team Member No To Create The Next ID
+    $lastTeamMemberNo = "SELECT MAX(TEAM_MEMBER_NO) FROM TICKETING.TEAM_MEMBERS";
+    $TeamMemberNo     = oci_parse($conn, $lastTeamMemberNo);
+    oci_execute($TeamMemberNo);
+    $result        = oci_fetch_array($TeamMemberNo);
+    $NewTeamMemberNo  = ++$result['MAX(TEAM_MEMBER_NO)'];
+
+    $TeamMember = "INSERT INTO TICKETING.TEAM_MEMBERS (TEAM_MEMBER_NO, TEAM_MEMBER_USER_ID, ACTIVE, 
+                                                        DESCRIPTION, TEAM_NO,  CREATED_BY,  CREATION_DATE)
+                                                VALUES ($NewTeamMemberNo, $GetMemberName , '$active', 
+                                                '$GetMemberDeacription', $GetTeamID, $UserSessionID, CURRENT_TIMESTAMP)";
+    $AddNewTeamMember = oci_parse($conn, $TeamMember);
+    $run = oci_execute($AddNewTeamMember);
+
+    if ($run) {
+        http_response_code(200); // Internal Server Error
+        echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
+    } else {
+        http_response_code(500); // Internal Server Error
+        echo json_encode(['status' => 'error', 'message' => oci_error($action)['message']]);
+    }
+}
 ///////////////////////////////////**************************************** Team Member Page Request Functions End  ************************************************///////////////////////////////
 
 

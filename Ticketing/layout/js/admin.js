@@ -107,6 +107,7 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
         top: e.pageY
     });
     $('#returnTicketNumber').text($(this).find('td:first').text());
+    $('#returnedTicketNumber').val($(this).find('td:first').text());
     $('#ticketActionNumber').text($(this).find('td:first').text());
 
     var UserRole = $('#UserRole').val();
@@ -326,6 +327,18 @@ $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
             `);
         }
 
+        if (ticketStatus == 'Solved') {
+            // Additional content for status code 30
+            $('#actionTicketTransactionList').append(`
+                <li>
+                    <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>Finish</span>
+                    </button>
+                </li>
+            `);
+        }
+
         // Add common HTML content for all roles
         $('#actionTicketTransactionList').append(`
         <li>
@@ -425,9 +438,9 @@ $(document).on('click', function () {
     // });
 
     // Confirmation Message On Button
-    $('.confirm').click(function() {
-        return confirm('Are You Sure About Delete This Information !!!');
-    });
+    // $('.confirm').click(function() {
+    //     return confirm('Are You Sure About Delete This Information !!!');
+    // });
 
 
     $(document).on('click', function(event) {
@@ -1026,7 +1039,7 @@ $(document).on('click', function () {
                 <i class="fa-solid fa-plus"></i>
                 <span>Add New Team</span>
             </button>
-            <button class="btn btn-success" data-bs-toggle='modal' data-bs-target="#EditTeamInformation" data-bs-whatever="EditTeamInformation" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team Information'>
+            <button class="btn btn-success" id='updateTeamPopupButton' data-bs-toggle='modal' data-bs-target="#EditTeamInformation" data-bs-whatever="EditTeamInformation" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Team Information'>
                 <i class="fa-solid fa-pen-to-square"></i>
                 <span>Update</span>
             </button>
@@ -1044,7 +1057,7 @@ $(document).on('click', function () {
         `);
 
         $('#TeamMemberButtons').html(`
-            <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeamMember" data-bs-whatever="NewTeamMember" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team Member'>
+            <button class="btn btn-primary" id='addNewMemberPopupButton' data-bs-toggle='modal' data-bs-target="#NewTeamMember" data-bs-whatever="NewTeamMember" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team Member'>
                 <i class="fa-solid fa-plus"></i>
                 <span>Add New Member</span>
             </button>
@@ -1083,6 +1096,8 @@ $(document).on('click', function () {
 
                 $('#status').prop('checked', data.TEAM_ACTIVE === 'Y');
                 $('#dept').val(data.EMP_DEPARTMENT);
+                $('#depID').val(data.DEPT_ID);
+                $('#GetDeptID').val(data.DEPT_ID);
                 $('#branch').val(data.BRANCH_CODE);
                 $('#description').val(data.TEAM_DESCRIPTION);
                 $('#EditTeamStatus').prop('checked', data.TEAM_ACTIVE === 'Y');
@@ -1110,9 +1125,7 @@ $(document).on('click', function () {
     });
 
     $('#TeamName').on('change', function () {     // Return Team Member Information  Based On Team Number Function
-
         fillTable();
-        
     });
 
     function fillTable() {              //  Dispaly Team Member Information Based On Team Number Function
@@ -1120,6 +1133,7 @@ $(document).on('click', function () {
         $('#TeamMemberBodyTable').text("Waiting Data");
         $('#GetTeamName').val($('#TeamName').find('option:selected').text());
         $('#GetTeamID').val($('#TeamName').val());
+        
           // Parse the returned JSON data
         $.ajax({
             type: 'POST',
@@ -1175,10 +1189,34 @@ $(document).on('click', function () {
 
                     // Append the new row to the table body
                     tableBody.append(newRow);
+
+                    $.ajax({
+                        type: 'POST',
+                        url: 'function.php',
+                        data: { 
+                            GetMember: $('#GetDeptID').val(), 
+                            GetTeam: $('#TeamName').val() 
+                        },
+                        success: function (data) { 
+                            $('#GetMemberName').html(data)
+                        },
+                        error: function (data) { 
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "Error fetching Members",
+                            });
+                        }
+            
+                    });
                 });
                 },
                 error: function () {
-                    alert('Error fetching users');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Error fetching Team Information",
+                    });
                 }
         });
     }
@@ -1320,6 +1358,32 @@ $(document).on('click', function () {
         managerColumnJson = JSON.stringify(managerColumn);
     });
 
+    $(document).on('click', '#updateTeamPopupButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+
+        e.preventDefault();
+
+        const staticBranchOptions = {
+            'RYD': `<option value="HUF">HUF</option><option value="JIZ">JIZ</option>`,
+            'HUF': `<option value="RYD">RYD</option><option value="JIZ">JIZ</option>`,
+            'JIZ': `<option value="RYD">RYD</option><option value="HUF">HUF</option>`
+        };
+        $('#EditTeamBranchCode').html(`<option value='${$('#branch').val()}' selected>${$('#branch').val()}</option>`);
+        if (staticBranchOptions.hasOwnProperty($('#branch').val())) {
+            $('#EditTeamBranchCode').append(staticBranchOptions[$('#branch').val()]);
+        }
+
+        const staticDepartmentOptions = {
+            '1017': `<option value="1013">Information Technology Dept</option><option value="1005">Legal Affairs</option>`,
+            '1013': `<option value="1017">IT Dept-Tracking</option><option value="1005">Legal Affairs</option>`,
+            '1005': `<option value="1017">IT Dept-Tracking</option><option value="1013">Information Technology Dept</option>`
+        };
+        $('#EditTeamDepartmentID').html(`<option value='${$('#depID').val()}' selected>${$('#dept').val()}</option>`);
+        if (staticDepartmentOptions.hasOwnProperty($('#depID').val())) {
+            $('#EditTeamDepartmentID').append(staticDepartmentOptions[$('#depID').val()]);
+        }
+
+    });
+
     $(document).on('click', '#UpdateTeamInfoButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
 
         e.preventDefault();
@@ -1339,20 +1403,62 @@ $(document).on('click', function () {
             },
             success: function (data) {
                 $('#EditTeamInformation').modal('hide');
+                $('#TeamName').html(data);
                 Swal.fire("Team Information Updated Successfully ");
+                
                 setTimeout(function() {
                     fillTeamInfo();
                 }, 0);
             },
             error: function () {
                 $('#EditTeamInformation').modal('hide');
+                $('#TeamName').html(data);
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
                         text: "Error fetching Team Information",
                     });
+                    
                     setTimeout(function() {
                         fillTeamInfo();
+                    }, 0);
+            }
+        });
+    });
+
+    $(document).on('click', '#AddNewTeamMemberButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+
+        e.preventDefault();
+
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                GetTeamID:                   $(this).closest('.content').find('#GetTeamID').val(),
+                UserSessionID:                $(this).closest('.content').find('#UserSessionID').val(),
+                GetMemberName:                 $(this).closest('.content').find('#GetMemberName').val(),
+                GetMemberDeacription:          $(this).closest('.content').find('#GetMemberDeacription').val()
+            },
+            success: function (data) {
+                $('#NewTeamMember').modal('hide');
+                $('#GetMemberName').empty();
+                $('#GetMemberDeacription').val(" ");
+                Swal.fire(data);
+                setTimeout(function() {
+                    fillTable();
+                }, 0);
+            },
+            error: function () {
+                $('#NewTeamMember').modal('hide');
+                $('#GetMemberName').empty();
+                $('#GetMemberDeacription').val(" ");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Error Somthing Went Wrong",
+                    });
+                    setTimeout(function() {
+                        fillTable();
                     }, 0);
             }
         });
@@ -1688,19 +1794,6 @@ $(document).on('click', function () {
         // Convert data to JSON
         var jsonData = JSON.stringify(tableData);
 
-        // console.log(ticketNumber + " " +
-        //               $('#UserSessionID').val() + " " +
-        //               $('#ticketWeight').val() + " " +
-        //               $('#ticketPeriority').val() + " " +
-        //               jsonData + " " +
-        //               $('#assignTeam').val());
-        // alert(ticketNumber +  " " +
-        //               $('#UserSessionID').val() + " " +
-        //               $('#ticketWeight').val() + " " +
-        //               $('#ticketPeriority').val() + " " +
-        //               jsonData + " " +
-        //               $('#assignTeam').val());
-
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
@@ -1945,10 +2038,10 @@ $(document).on('click', function () {
         
     });
 
-    $(document).on('click', '.completTicket', function(e) {     // Update Ticket Status To Confirme Ticket Function
+    $(document).on('click', '#ConfirmTicket', function(e) {     // Update Ticket Status To Confirme Ticket Function
 
         e.preventDefault();
-        var comment             =$(this).closest('.content').find('.comment').val();  // User Evaluation
+        var comment             =$(this).closest('.content').find('#evaluation').val();  // User Evaluation
         
         $.ajax({
             method: "POST",
@@ -1956,6 +2049,7 @@ $(document).on('click', function () {
             data: {
                 "tickid":           ticketNumber,
                 "comment":          comment,
+                "UserSessionID":    $('#UserSessionID').val(),
                 "action" :          "complete"
             },
             success: function (response) {
