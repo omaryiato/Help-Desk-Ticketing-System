@@ -67,11 +67,11 @@ if (isset($_SESSION['user'])) {
                             <div class="row">
                                 <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                 <div class='col-sm-3'>
-                                    <label class="" for="autoSizingSelect">Team No</label>
+                                    <label class="" for="TeamNoID">Team No</label>
                                     <input type="text" class="form-control" id="TeamNoID" aria-label="State" readonly>
                                 </div>
                                 <div class="col-sm-8">
-                                    <label class="" for="autoSizingSelect">Name</label>
+                                    <label class="" for="TeamName">Name</label>
                                     <select class="form-select TeamName" name="TeamName" id="TeamName" required>
                                         <option value="">Choose Team Name</option>
                                         <?php
@@ -87,21 +87,21 @@ if (isset($_SESSION['user'])) {
                                     </select>
                                 </div>
                                 <div class="col-sm-9 my-2">
-                                    <label class="" for="autoSizingSelect">Description</label>
-                                    <textarea type="text" class="form-control" id="description" aria-label="City" readonly></textarea>
+                                    <label class="" for="teamDescription">Description</label>
+                                    <textarea type="text" class="form-control" id="teamDescription" aria-label="City" readonly></textarea>
                                 </div>
                                 <div class="col-sm-4 my-2">
-                                    <label class="" for="autoSizingSelect">Department</label>
+                                    <label class="" for="dept">Department</label>
                                     <input type="text" class="form-control" id="dept" aria-label="State" readonly>
                                     <input type="hidden" class="form-control" id="depID" aria-label="State" readonly>
                                 </div>
                                 <div class='col-sm-4 my-2'>
-                                    <label class="" for="autoSizingSelect">Branch</label>
+                                    <label class="" for="branch">Branch</label>
                                     <input type="text" class="form-control" id="branch" aria-label="State" readonly>
 
                                 </div>
                                 <div class='check  col-sm-4' style='display: flex; justify-content: center; align-items: center;'>
-                                    <label class="pe-2" for="autoSizingSelect">Status</label>
+                                    <label class="pe-2" for="status">Status</label>
                                     <input type='checkbox' name='status' id='status' disabled>
                                 </div>
                             </div>
@@ -191,15 +191,15 @@ if (isset($_SESSION['user'])) {
                                     <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                     <div class="row d-flex justify-content-between">
                                         <div class="col-sm-10 mb-2">
-                                            <label class="" for="autoSizingSelect">Team Name</label>
+                                            <label class="" for="NewTeamName">Team Name</label>
                                             <input type="text" class="form-control" id="NewTeamName" aria-label="State" required>
                                         </div>
                                         <div class="col-sm-10 mb-2">
-                                            <label class="" for="autoSizingSelect">Description</label>
+                                            <label class="" for="description">Description</label>
                                             <input type="text" class="form-control" id="description" aria-label="State" required>
                                         </div>
                                         <div class="col-sm-10 mb-2">
-                                            <label class="" for="autoSizingSelect">Department ID</label>
+                                            <label class="" for="departmentID">Department ID</label>
                                             <select class="form-select departmentID" name="departmentID" id="departmentID" required>
                                                 <option value="" selected>Choose Department ID...</option>
                                                 <option value="1017">IT Dept-Tracking</option>
@@ -208,7 +208,7 @@ if (isset($_SESSION['user'])) {
                                             </select>
                                         </div>
                                         <div class="col-sm-6">
-                                            <label class="" for="autoSizingSelect">Branch Code</label>
+                                            <label class="" for="branchCode">Branch Code</label>
                                             <select class="form-select branchCode" name="branchCode" id="branchCode" required>
                                                 <option value="null" selected>Choose Branch Code...</option>
                                                 <option value="RYD">RYD</option>
@@ -255,31 +255,31 @@ if (isset($_SESSION['user'])) {
                                         </div>
 
                                         <div class="col-sm-10 mb-2">
-                                            <label class="" for="autoSizingSelect">Team Name</label>
+                                            <label class="" for="EditTeamName">Team Name</label>
                                             <input type="text" class="form-control" id="EditTeamName" aria-label="State" required>
                                         </div>
 
                                         <div class="col-sm-10 mb-2">
-                                            <label class="" for="autoSizingSelect">Description</label>
+                                            <label class="" for="EditTeamDescription">Description</label>
                                             <input type="text" class="form-control" id="EditTeamDescription" aria-label="State" required>
                                         </div>
 
                                         <div class="col-sm-4">
-                                            <label class="" for="autoSizingSelect">Branch Code</label>
+                                            <label class="" for="EditTeamBranchCode">Branch Code</label>
                                             <select class="form-select EditTeamBranchCode" name="EditTeamBranchCode" id="EditTeamBranchCode" required>
 
                                             </select>
                                         </div>
 
                                         <div class="col-sm-4">
-                                            <label class="" for="autoSizingSelect">Department ID</label>
+                                            <label class="" for="EditTeamDepartmentID">Department ID</label>
                                             <select class="form-select EditTeamDepartmentID" name="EditTeamDepartmentID" id="EditTeamDepartmentID" required>
 
                                             </select>
                                         </div>
 
                                         <div class='check  col-sm-4 mb-2'>
-                                            <label class="pe-2" for="autoSizingSelect">Active</label>
+                                            <label class="pe-2" for="EditTeamStatus">Active</label>
                                             <input type='checkbox' name='status' id='EditTeamStatus'>
                                         </div>
 
@@ -318,13 +318,13 @@ if (isset($_SESSION['user'])) {
                                     <div class="row">
                                         <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                         <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Team Name</label>
+                                            <label class="" for="GetTeamName">Team Name</label>
                                             <input type="text" class="form-control" id="GetTeamName" aria-label="Name" required readonly>
                                             <input type="hidden" class="form-control" id="GetTeamID" aria-label="ID" readonly required>
                                         </div>
 
                                         <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Member Name</label>
+                                            <label class="" for="GetMemberName">Member Name</label>
                                             <input type="hidden" class="form-control" id="GetDeptID" aria-label="ID" readonly required>
                                             <select class="form-select GetMemberName" name="GetMemberName" id="GetMemberName" required>
 
@@ -332,7 +332,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
 
                                         <div class="col-sm-12 mt-2">
-                                            <label class="" for="autoSizingSelect">Description</label>
+                                            <label class="" for="GetMemberDeacription">Description</label>
                                             <input type="text" class="form-control" id="GetMemberDeacription" aria-label="Description" required>
                                         </div>
                                         <div class="col-sm-10  mt-4">

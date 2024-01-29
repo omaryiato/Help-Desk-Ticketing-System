@@ -66,11 +66,11 @@ if (isset($_SESSION['user'])) {
                             </div>
                             <div class="row">
                                 <div class="col-sm-2">
-                                    <label class="" for="autoSizingSelect">Service #</label>
+                                    <label class="" for="ServiceID">Service #</label>
                                     <input type="text" class="form-control" id="ServiceID" aria-label="State" readonly>
                                 </div>
                                 <div class="col-sm-10" id="newservice">
-                                    <label class="" for="autoSizingSelect">Service Name</label>
+                                    <label class="" for="serviceLOV">Service Name</label>
                                     <select class="form-select serviceLOV" name="serviceLOV" id="serviceLOV" required>
                                         <option value="">Choose Service Name</option>
                                         <?php
@@ -198,12 +198,12 @@ if (isset($_SESSION['user'])) {
                                         </div>
 
                                         <div class="col-sm-8">
-                                            <label class="" for="autoSizingSelect">Service Details Name</label>
+                                            <label class="" for="EditServiceDetailsName">Service Details Name</label>
                                             <input type="text" class="form-control" id="EditServiceDetailsName" aria-label="State" required>
                                         </div>
 
                                         <div class="col-sm-8">
-                                            <label class="" for="autoSizingSelect">Service Details Description</label>
+                                            <label class="" for="EditServiceDetailsDescription">Service Details Description</label>
                                             <input type="text" class="form-control" id="EditServiceDetailsDescription" aria-label="State" required>
                                         </div>
                                         <div class="col-sm-4 mt-4">
@@ -240,7 +240,7 @@ if (isset($_SESSION['user'])) {
                                 <div class="container mb-4 mt-4">
                                     <div class="row d-flex justify-content-between">
                                         <div class="col-sm-8">
-                                            <label class="" for="autoSizingSelect">Service Name</label>
+                                            <label class="" for="NewServiceName">Service Name</label>
                                             <input type="text" class="form-control" id="NewServiceName" aria-label="State" required>
                                             <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                         </div>
@@ -278,16 +278,16 @@ if (isset($_SESSION['user'])) {
                                     <div class="row">
                                         <div class="col-sm-6 ">
                                             <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-                                            <label class="" for="autoSizingSelect">Service Name</label>
+                                            <label class="" for="GetServiceTypeName">Service Name</label>
                                             <input type="text" class="form-control" id="GetServiceTypeName" aria-label="Name" readonly required>
                                             <input type="hidden" class="form-control" id="GetServiceTypeID" aria-label="ID" readonly required>
                                         </div>
                                         <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Service Detail Name</label>
+                                            <label class="" for="NewServiceDetailsName">Service Detail Name</label>
                                             <input type="text" class="form-control" id="NewServiceDetailsName" aria-label="Name" required>
                                         </div>
                                         <div class="col-sm-12 mt-2">
-                                            <label class="" for="autoSizingSelect">Service Detail Description</label>
+                                            <label class="" for="ServiceDetailsDescription">Service Detail Description</label>
                                             <input type="text" class="form-control" id="ServiceDetailsDescription" aria-label="Description" required>
                                         </div>
                                         <div class="col-sm-10  mt-4">
@@ -323,13 +323,13 @@ if (isset($_SESSION['user'])) {
                                 <div class="container mb-4 mt-4">
                                     <div class="row">
                                         <div class="col-sm-6 ">
-                                            <label class="" for="autoSizingSelect">Service Details Name</label>
+                                            <label class="" for="GetServiceDetailsName">Service Details Name</label>
                                             <input type="text" class="form-control" id="GetServiceDetailsName" aria-label="Name" readonly required>
                                             <input type="hidden" class="form-control" id="GetServiceDetailsID" aria-label="ID" readonly required>
                                             <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                         </div>
                                         <div class="col-sm-6">
-                                            <label class="" for="autoSizingSelect">Team Name</label>
+                                            <label class="" for="GetServiceDetailsTeamNumber">Team Name</label>
                                             <select class="form-select" name="ServiceTypeNumber" id="GetServiceDetailsTeamNumber" required>
                                                 <option value="">Choose Service Details Team Name </option>
 
