@@ -12,6 +12,7 @@ $js = 'layout/js/';       // Js Directory
 
 include 'function.php'; // All Function You Need In This Project
 include $inc . 'header.php'; // Header File For This Project 
+// include $inc . 'footer.php';
 
 // IF This Variable Is Exist So Dont Include The SideBar In This Page (Like Login Page (index))
 

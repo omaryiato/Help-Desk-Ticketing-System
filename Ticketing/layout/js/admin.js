@@ -19,54 +19,58 @@ if (solvePopup) {
 }
 
 
-// Select Row on Click Function
+// Select Row on Click Function In Ticket Transaction Page In Ticket Transaction Table
 document.addEventListener('DOMContentLoaded', function() {
     var table = document.querySelector('.scroll table');
 
-    table.addEventListener('click', function(event) {
-        var targetRow = event.target.closest('tr');
-        if (targetRow) {
-            // Remove the 'selected' class from all rows
-            var rows = table.querySelectorAll('tr');
-            rows.forEach(function(row) {
-                row.classList.remove('selected');
-            });
-
-            // Add the 'selected' class to the clicked row
-            targetRow.classList.add('selected');
-        }
-    });
-
-    // Add click event listener to the document body
-    document.body.addEventListener('click', function(event) {
-        // Check if the clicked element is outside the table
-        if (!table.contains(event.target)) {
-            // Remove the 'selected' class from all rows
-            var rows = table.querySelectorAll('tr');
-            rows.forEach(function(row) {
-                row.classList.remove('selected');
-            });
-        }
-    });
+    if (table) {
+        table.addEventListener('click', function(event) {
+            var targetRow = event.target.closest('tr');
+            if (targetRow) {
+                // Remove the 'selected' class from all rows
+                var rows = table.querySelectorAll('tr');
+                rows.forEach(function(row) {
+                    row.classList.remove('selected');
+                });
+    
+                // Add the 'selected' class to the clicked row
+                targetRow.classList.add('selected');
+            }
+        });
+    
+        // Add click event listener to the document body
+        document.body.addEventListener('click', function(event) {
+            // Check if the clicked element is outside the table
+            if (!table.contains(event.target)) {
+                // Remove the 'selected' class from all rows
+                var rows = table.querySelectorAll('tr');
+                rows.forEach(function(row) {
+                    row.classList.remove('selected');
+                });
+            }
+        });
+    }
 });
 
+// Select Row on Click Function In Service Page In Service Details Table
 document.addEventListener('DOMContentLoaded', function() {
     var table = document.querySelector('.details .detailsTable');
 
-    table.addEventListener('click', function(event) {
-        var targetRow = event.target.closest('tr');
-        if (targetRow) {
-            // Remove the 'selected' class from all rows
-            var rows = table.querySelectorAll('tr');
-            rows.forEach(function(row) {
-                row.classList.remove('selected');
-            });
-
-            // Add the 'selected' class to the clicked row
-            targetRow.classList.add('selected');
-        }
-    });
-
+    if (table) {
+        table.addEventListener('click', function(event) {
+            var targetRow = event.target.closest('tr');
+            if (targetRow) {
+                // Remove the 'selected' class from all rows
+                var rows = table.querySelectorAll('tr');
+                rows.forEach(function(row) {
+                    row.classList.remove('selected');
+                });
+    
+                // Add the 'selected' class to the clicked row
+                targetRow.classList.add('selected');
+            }
+        });
+    
     // Add click event listener to the document body
     document.body.addEventListener('click', function(event) {
         // Check if the clicked element is outside the table
@@ -78,17 +82,51 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+    
+    }
 });
 
 $(function () {
 
     'use strict';
 
-    // List Ticket Action 
+    /*
+        ** All Ticket Function That Retrive All Ticket 
+        ** Has Three Paramters (USER_ID = 'USER_ID', UserSessionID = ' User Who Logged In' , Filter = 0 meaning All Ticket Otheerwise Each Number Meaning Ine Status)
+        to display All Ticket With Their Information
+    */
+        var USER_ID = 'USER_ID'; 
+        var UserSessionID = $('#UserSessionID').val(); 
+        var Filter = 0;
+        getTicketTransaction(USER_ID, UserSessionID, Filter);
 
-// Handle right-click on table rows
+    /*
+        ** Count Function That Echo The Numbers of  Ticket in differnt Status
+        ** Has one Paramter $status to display number of rows for each status
+    */
 
+    $('.tickets').each(function() {
+        var filter = $(this).data('filter');
+        getCount(filter);
+    });
 
+    function getCount(filter) {
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Replace with the URL of your PHP file to get the count
+            data: { 
+                filter: filter,
+                USER_ID: USER_ID,
+                UserSessionID: UserSessionID
+            },
+            success: function(response) {
+                $('#count-' + filter).text(response);
+            },
+            error: function() {
+                $('#count-' + filter).text('Error fetching count');
+            }
+        });
+    }
 
     // Hide Placeholder On Form Focus
 
@@ -101,18 +139,14 @@ $(function () {
         $(this).attr('placeholder', $(this).attr('data-text'));
     });
 
-    // Add Asterisk On Required Field
-    // $('input').each(function () {
-    //     if ($(this).attr('required') === 'required') { 
-    //         $(this).after('<span class="asterisk">*</span>');
-    //     }
-    // });
+    // Toggel User Dropdown List
 
-    // Confirmation Message On Button
-    // $('.confirm').click(function() {
-    //     return confirm('Are You Sure About Delete This Information !!!');
-    // });
-
+    $('.users').click(function(event) {
+        // Prevent the event from bubbling up to the document
+        event.stopPropagation();
+        // Toggle the .userno element
+        $('.userno').toggle(100);
+    });
 
     $(document).on('click', function(event) {
         // Check if the clicked element is not part of .users or .userno
@@ -122,14 +156,13 @@ $(function () {
         }
         
     });
-
-    $('.users').click(function(event) {
-        // Prevent the event from bubbling up to the document
-        event.stopPropagation();
-        // Toggle the .userno element
-        $('.userno').toggle(100);
-    });
     
+    // Toggel Ticket Transaction Dropdown List
+
+    $('.trans').click(function() {
+        $('.tran').toggle(100);
+    });
+
     $(document).on('click', function(event) {
         // Check if the clicked element is not part of .users or .userno
         if (!$(event.target).closest('.trans, .tran').length) {
@@ -138,40 +171,48 @@ $(function () {
         }
     });
 
-    $('.trans').click(function() {
-        $('.tran').toggle(100);
+
+
+    /////////////////////////////////////////// ***************** Manage Service Page Start  *************************/////////////////////////////////////////
+
+    var UserSessionID =  $('#UserSessionID').val(); // User Name In This Session (Who Logged In)
+
+
+    $("#AddNewServiceForm").validate({                                          // Validate Function For Add New Service PopUp
+        rules: {
+            NewServiceName: "required" // Name field is required
+        },
+        messages: {
+            NewServiceName: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Name</div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
     });
-
-
-
-
-
-
-
-
-
-
-    /////////////////////////////////////////// ***************** Service Page Actions Start  *************************/////////////////////////////////////////
 
     $(document).on('click', '#AddNewService', function(e) {                     // Add New Service To Service Table Function
 
         e.preventDefault();
 
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "serviceName":              $(this).closest('.content').find('#NewServiceName').val(),
-                "UserSessionID":            $(this).closest('.content').find('#UserSessionID').val(),
-                "action" :                  "NewService"
-            },
-            success: function (response) {
+        // Validate the form
+        if ($("#AddNewServiceForm").valid()) {
+            // Form is valid, proceed with AJAX submission
+            $.ajax({
+                method: "POST",
+                url: "function.php",
+                data: {
+                    "serviceName":          $(this).closest('.content').find('#NewServiceName').val(),
+                    "UserSessionID":        UserSessionID,
+                    "action" :              "NewService"
+                },
+                success: function (response) {
                     $('#NewService').modal('hide');
                     Swal.fire("Service Added Successfully ");
                     $('#serviceLOV').html(response);
                     $('#NewServiceName').val('');
-            },
-            error: function () {
+                },
+                error: function () {
                     $('#NewService').modal('hide');
                     Swal.fire({
                         icon: "error",
@@ -180,35 +221,50 @@ $(function () {
                     });
                     $('#serviceLOV').html(response);
                     $('#NewServiceName').val('');
-            }
-        });
+                }
+            });
+        } 
+    });
+
+    $("#AddNewServiceDetailsForm").validate({                                   // Validate Function For Add New Service Details PopUp
+        rules: {
+            NewServiceDetailsName: "required", // Name field is required
+            ServiceDetailsDescription: "required" // Name field is required
+        },
+        messages: {
+            NewServiceDetailsName: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Details Name</div>",
+            ServiceDetailsDescription: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Details Description</div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
     });
 
     $(document).on('click', '#AddNewServiceDetails', function(e) {              // Add New Service Details To Service Details Table Function
 
         e.preventDefault();
-
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "NewServiceDetailsName":            $(this).closest('.content').find('#NewServiceDetailsName').val(),
-                "UserSessionID":                    $(this).closest('.content').find('#UserSessionID').val(),
-                "GetServiceTypeID":                 $(this).closest('.content').find('#GetServiceTypeID').val(),
-                "ServiceDetailsDescription":        $(this).closest('.content').find('#ServiceDetailsDescription').val(),
-                "action" :                          "NewServiceDetails"
-            },
-            success: function (response) {
-
-                if (response.trim() === 'done') {
+        if ($("#AddNewServiceDetailsForm").valid()) {
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    "NewServiceDetailsName":            $(this).closest('.content').find('#NewServiceDetailsName').val(),
+                    "UserSessionID":                    UserSessionID,
+                    "GetServiceTypeID":                 $(this).closest('.content').find('#GetServiceTypeID').val(),
+                    "ServiceDetailsDescription":        $(this).closest('.content').find('#ServiceDetailsDescription').val(),
+                    "action" :                          "NewServiceDetails"
+                },
+                success: function (response) {
                     $('#NewServiceDetailsName').val('');
                     $('#ServiceDetailsDescription').val('');
                     $('#NewServiceDetail').modal('hide');
                     Swal.fire("Service Details Added Successfully ");
-                    
-                } 
-
-                if (response.trim() === 'wrong') {
+                    setTimeout(function() {
+                        fillServiceDetailsTable();
+                    }, 0);
+                },
+                error: function (response) { 
                     $('#NewServiceDetailsName').val('');
                     $('#ServiceDetailsDescription').val('');
                     $('#NewServiceDetail').modal('hide');
@@ -217,115 +273,149 @@ $(function () {
                         title: "Oops...",
                         text: "This Service Details Name Is Already Exist!",
                     });
+                    setTimeout(function() {
+                        fillServiceDetailsTable();
+                    }, 0);
                 }
-                setTimeout(function() {
-                    fillServiceDetailsTable();
-                }, 0);
-            }
-        });
+            });
+        }
+    });
+
+    $("#AddNewServiceDetailsTeamForm").validate({                                   // Validate Function For Add New Service Details Team PopUp
+        rules: {
+            GetServiceDetailsTeamNumber: "required"
+        },
+        messages: {
+            GetServiceDetailsTeamNumber: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Team</div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
     });
 
     $(document).on('click', '#AddNewServiceDetailsTeam', function(e) {          // Add New Service Details Team To Service Details Team Table Function
 
         e.preventDefault();
 
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "GetServiceDetailsName":                        $(this).closest('.content').find('#GetServiceDetailsName').val(),
-                "GetServiceDetailsTeamNumber":                  $(this).closest('.content').find('#GetServiceDetailsTeamNumber').val(),
-                "GetServiceDetailsID":                          $(this).closest('.content').find('#GetServiceDetailsID').val(),
-                "UserSessionID":                                $(this).closest('.content').find('#UserSessionID').val(),
-                "action" :                                      "NewServiceDetailsTeam"
-            },
-            success: function (response) {
-
-                if (response.trim() === 'done') {
+        if ($("#AddNewServiceDetailsTeamForm").valid()) {
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    "GetServiceDetailsName":                        $(this).closest('.content').find('#GetServiceDetailsName').val(),
+                    "GetServiceDetailsTeamNumber":                  $(this).closest('.content').find('#GetServiceDetailsTeamNumber').val(),
+                    "GetServiceDetailsID":                          $(this).closest('.content').find('#GetServiceDetailsID').val(),
+                    "UserSessionID":                                UserSessionID,
+                    "action" :                                      "NewServiceDetailsTeam"
+                },
+                success: function (response) {
                     $('#NewDetailTeam').modal('hide');
                     Swal.fire("Service Details Team Added Successfully ");
-                    
-                } 
-
-                if (response.trim() === 'wrong') {
+                    setTimeout(function() {
+                        fillServiceDetailsTeamTable();
+                    }, 0);
+                },
+                error: function (response) { 
                     $('#NewDetailTeam').modal('hide');
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "This Service Details Name Is Already Exist!",
-                    });
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "This Service Details Name Is Already Exist!",
+                        });
+                    setTimeout(function() {
+                        fillServiceDetailsTeamTable();
+                    }, 0);
                 }
-                setTimeout(function() {
-                    fillServiceDetailsTeamTable();
-                }, 0);
-            }
-        });
+            });
+        }
     });
 
-    $(document).on('click', '#UpdateServiceDetailsInfoButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+    $("#EditServiceDetailsInformationForm").validate({                          // Validate Function For Edit Service Details Information PopUp
+        rules: {
+            EditServiceDetailsName: "required",
+            EditServiceDetailsDescription: "required"
+        },
+        messages: {
+            EditServiceDetailsName: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Details Name</div>",
+            EditServiceDetailsDescription: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Details Description</div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
+    $(document).on('click', '#UpdateServiceDetailsInfoButton', function(e) {    // Edit Service Details Information Function
 
         e.preventDefault();
-
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "EditServiceDetailsName":           $(this).closest('.content').find('#EditServiceDetailsName').val(),
-                "UserSessionID":                    $(this).closest('.content').find('#UserSessionID').val(),
-                "EditServiceDetailsDescription":    $(this).closest('.content').find('#EditServiceDetailsDescription').val(),
-                "EditServiceDetailsID":             $(this).closest('.content').find('#EditServiceDetailsID').val(),
-                "action" :                          "EditServiceDetailsInformation"
-            },
-            success: function (data) {
-                $('#EditServiceDetails').modal('hide');
-                Swal.fire("Service Details Updated Successfully ");
-                setTimeout(function() {
-                    fillServiceDetailsTable();
-                }, 0);
-            },
-            error: function () {
-                $('#EditServiceDetails').modal('hide');
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Error fetching Service Details Information",
-                    });
+        if ($("#EditServiceDetailsInformationForm").valid()) {
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    "EditServiceDetailsName":           $(this).closest('.content').find('#EditServiceDetailsName').val(),
+                    "UserSessionID":                    UserSessionID,
+                    "EditServiceDetailsDescription":    $(this).closest('.content').find('#EditServiceDetailsDescription').val(),
+                    "EditServiceDetailsID":             $(this).closest('.content').find('#EditServiceDetailsID').val(),
+                    "action" :                          "EditServiceDetailsInformation"
+                },
+                success: function (data) {
+                    $('#EditServiceDetails').modal('hide');
+                    Swal.fire("Service Details Updated Successfully ");
                     setTimeout(function() {
                         fillServiceDetailsTable();
                     }, 0);
-            }
+                },
+                error: function () {
+                    $('#EditServiceDetails').modal('hide');
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Error fetching Service Details Information",
+                        });
+                        setTimeout(function() {
+                            fillServiceDetailsTable();
+                        }, 0);
+                }
+            });
+        }
+    });
+
+    var custodyColumn = [];
+    var custodyColumnJson = [];
+    $(document).on('change', ':input[type="checkbox"].serviceDetailsCustody', function() { //  Store All Custody Checkboxes Changes To Update Them
+        // Find the manager checkbox in the same row and uncheck it
+        var servaiceDetailsNo = $(this).val();
+        var newStatus = this.checked ? 'Y' : 'N';
+
+        custodyColumn.push({
+            servaiceDetailsNo: servaiceDetailsNo,
+            newStatus: newStatus
         });
+
+        custodyColumnJson = JSON.stringify(custodyColumn);
+    });
+    
+    var privateColumn = [];    
+    var privateColumnJson = [];    
+    $(document).on('change', ':input[type="checkbox"].serviceDetailsPrivate', function() {   //  Store All Private Checkboxes Changes To Update Them
+
+        var servaiceDetailsNo = $(this).val();
+        var newStatus = this.checked ? 'Y' : 'N';
+
+                // Assign data for each row to the object
+        privateColumn.push({
+            servaiceDetailsNo: servaiceDetailsNo,
+            newStatus: newStatus
+        });
+
+        privateColumnJson = JSON.stringify(privateColumn);
     });
 
     $(document).on('click', '#updateServiceDetailsButton', function(e) {        //  Update Custody And Private Columns In Service Details Table Function
 
         e.preventDefault();
-        var custodyColumn = [];
-        $(':input[type="checkbox"].serviceDetailsCustody').each(function(i){
-            var servaiceDetailsNo = $(this).val();
-            var newStatus = this.checked ? 'Y' : 'N';
-
-                // Assign data for each row to the object
-                custodyColumn.push({
-                    servaiceDetailsNo: servaiceDetailsNo,
-                    newStatus: newStatus
-                });
-        });
-        var custodyColumnJson = JSON.stringify(custodyColumn);
-        
-        var privateColumn = [];
-        $(':input[type="checkbox"].serviceDetailsPrivate').each(function(i){
-            var servaiceDetailsNo = $(this).val();
-            var newStatus = this.checked ? 'Y' : 'N';
-
-                // Assign data for each row to the object
-                privateColumn.push({
-                    servaiceDetailsNo: servaiceDetailsNo,
-                    newStatus: newStatus
-                });
-        });
-        var privateColumnJson = JSON.stringify(privateColumn);
-
         $.ajax({
                 type: 'POST',
                 url: 'function.php',
@@ -333,7 +423,7 @@ $(function () {
                 data: { 
                     custodyColumnJson:  custodyColumnJson,
                     privateColumnJson:  privateColumnJson,
-                    userID:             $('#UserSessionID').val(),
+                    UserSessionID:             UserSessionID,
                     action:             "updateServiceDetailsTable"
                 },
                 success: function (response) {
@@ -351,38 +441,40 @@ $(function () {
                         text: "Error updating Service Detail",
                     });
                     setTimeout(function() {
-                        $('#serviceDetails').load('service.php #serviceDetails');
+                        fillServiceDetailsTable();
                     }, 0);
                 }
-            });
+        });
+    });
+
+    var enableTeamService = [];    
+    var enableTeamServiceJson = [];    
+    $(document).on('change', ':input[type="checkbox"].teamTable', function() { //  Store All Enable Checkboxes Changes To Update Them
+
+        var teamNo = $(this).val();
+        var newStatus = this.checked ? 'Y' : 'N';
+        var serviceDetailsID = $(this).attr('id');
+
+                // Assign data for each row to the object
+        enableTeamService.push({
+            teamNo: teamNo,
+            newStatus: newStatus,
+            serviceDetailsID: serviceDetailsID
+        });
+
+        enableTeamServiceJson = JSON.stringify(enableTeamService);
     });
 
     $(document).on('click', '#updateTeamEnabled', function(e) {                 //  Update Enabled Column In Team Table Function
 
         e.preventDefault();
-        var teamEnabled = [];
-
-        $(':input[type="checkbox"].teamTable').each(function(i){
-
-            var teamNo = $(this).val();
-            var newStatus = this.checked ? 'Y' : 'N';
-            var serviceDetailsID = $(this).attr('id');
-
-                // Assign data for each row to the object
-                teamEnabled.push({
-                    teamNo: teamNo,
-                    newStatus: newStatus,
-                    serviceDetailsID: serviceDetailsID
-                });
-        });
-        var teamEnabledJson = JSON.stringify(teamEnabled);
         $.ajax({
                 type: 'POST',
                 url: 'function.php',
                 dataType: 'json',
                 data: { 
-                    teamEnabled:    teamEnabledJson,
-                    userID:         $('#UserSessionID').val(),
+                    teamEnabled:    enableTeamServiceJson,
+                    userID:         UserSessionID,
                     action:         "updateTeamTable"
                 },
                 success: function (response) {
@@ -424,9 +516,11 @@ $(function () {
 
     // ***************** Edit Service Details Start  *************************
 
-    var serviceId;
+    var serviceDetailsId;
+    var serviceDetailsName;
+    var serviceDetailsDescription;
     // Handle right-click on table rows
-    $('#ServiceDetailsID tbody').on('contextmenu', 'tr', function (e) {
+    $('#ServiceDetailsID tbody').on('contextmenu', 'tr', function (e) { // Show Service Details List Action When Click Right 
         e.preventDefault();
         // Show context menu at the mouse position
         $('#service-list').css({
@@ -434,42 +528,24 @@ $(function () {
             left: e.pageX,
             top: e.pageY
         });
-        serviceId = $(this).find('td:first').text();
+        serviceDetailsId = $(this).find('td:first').text();
+        serviceDetailsName = $(this).find('td:nth-child(2)').text();
+        serviceDetailsDescription = $(this).find('td:nth-child(3)').text();
     });
 
-    // Hide context menu on click outside
-    $(document).on('click', function () {
+    $(document).on('click', function () {   // Hide context menu on click outside
         $('#service-list').css('display', 'none');
-        // $('.tran').css('display', 'none');
-        // $('.userno').css('display', 'none');
     });
 
-    // Handle menu item clicks
-    $(document).on('click', '#editServiceDetailsButton',  function () {
+    $(document).on('click', '#editServiceDetailsButton',  function () {   // Fill All Input Field In Edit Servivce Details Popup
         // Implement your logic for "Edit Service"
         $('#service-list').css('display', 'none');
-        $('#EditServiceDetailsID').val(serviceId);
-
-            $.ajax({
-                method: "POST",
-                url: "function.php",  // Function Page For All ajax Function
-                data: { ServiceDetailsInformation: serviceId },
-                dataType: 'json',
-                success: function (data) {
-                    $('#EditServiceDetailsName').val(data.SERVICE_DETAIL_NAME);
-                    $('#EditServiceDetailsDescription').val(data.DESCRIPTION);
-                    
-                },
-                error: function () {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: "Error fetching Service Details Information",
-                        });
-                }
-                    
-                        
-            });
+        $('#EditServiceDetailsID').empty();
+        $('#EditServiceDetailsName').empty();
+        $('#EditServiceDetailsDescription').empty();
+        $('#EditServiceDetailsID').val(serviceDetailsId);
+        $('#EditServiceDetailsName').val(serviceDetailsName);
+        $('#EditServiceDetailsDescription').val(serviceDetailsDescription);
     });
 
     // ***************** Edit Service Details End  *************************
@@ -479,7 +555,7 @@ $(function () {
         fillServiceDetailsTable();
     });
 
-    function fillServiceDetailsTable()                                  // Display Service Details Information Based On Service Type Number Function 
+    function fillServiceDetailsTable()                                  // Retrive Service Details Information Based On Service Type Number Function 
     {       // This function is not used now 4JAN2024-- Display Service Details Information Based On Service Number Function
         $('#ServiceID').val($('#serviceLOV').val()); // to retrive the selected ID into ServiceID text Box
         $('#serviceDetails').empty();
@@ -593,7 +669,7 @@ $(function () {
         }
     });
 
-    function fillServiceDetailsTeamTable() {                            //  Display Service Team Information Based On Service Details Number Function
+    function fillServiceDetailsTeamTable() {                            //  Retrive Service Team Information Based On Service Details Number Function
     
             $('#serviceDetailsTeam').empty();
             $('#serviceDetailsTeam').text("Waiting Data");
@@ -692,17 +768,24 @@ $(function () {
 
     ///////////////////////////////////////////***************** Team Member Page Start  *************************/////////////////////////////////////////
 
-    $('#TeamName').on('change', function () {     // Return Team Information  Based On Team Number Function
+    var UserSessionID = $('#UserSessionID').val();
+
+    $('#TeamName').on('change', function () {     // Call fillTeamInfo Function 
         fillTeamInfo();
     });
 
-    function fillTeamInfo() {              //  Dispaly Team Information Based On Team Number Function
+    function fillTeamInfo() {              //  Retrive Team Information Based On Team Number Function
         $('#TeamNoID').val($('#TeamName').val()); // Return  Team ID Based On Team Name From DB Using Select Option
         $('#EditTeamID').val($('#TeamName').val());
         $('#TeamMemberBodyTable').text("Waiting Data");
         $('#DelegateMemberHeadTable').text("Waiting Data");
         $('#waitingTeamMemberInfo').empty().removeClass('mt-5');
         $('#waitingDelegateMember').empty().removeClass('mt-5');
+        $('#status').prop('checked', false);
+        $('#dept').val(" ");
+        $('#depID').val(" ");
+        $('#GetDeptID').val(" ");
+        $('#branch').val(" ");
 
         $('#updateTeamInfoButton').html(`
             <button class="btn btn-primary" data-bs-toggle='modal' data-bs-target="#NewTeam" data-bs-whatever="NewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
@@ -782,23 +865,12 @@ $(function () {
         });
     }
 
-    // Event listener for the supervisor checkbox in each row
-    $(document).on('change', ':input[type="checkbox"].supervisor', function() {
-        // Find the manager checkbox in the same row and uncheck it
-        $(this).closest('tr').find(':input[type="checkbox"].manager').prop('checked', false);
-    });
-    
-    // Event listener for the manager checkbox in each row
-    $(document).on('change', ':input[type="checkbox"].manager', function() {
-        // Find the supervisor checkbox in the same row and uncheck it
-        $(this).closest('tr').find(':input[type="checkbox"].supervisor').prop('checked', false);
-    });
-
-    $('#TeamName').on('change', function () {     // Return Team Member Information  Based On Team Number Function
+    $('#TeamName').on('change', function () {     // Call fillTable Function
         fillTable();
     });
 
-    function fillTable() {              //  Dispaly Team Member Information Based On Team Number Function
+    function fillTable() {              //  Retrive Team Member Information Based On Team Number Function
+        $('#GetMemberName').empty();
         $('#TeamMemberBodyTable').empty();
         $('#TeamMemberBodyTable').text("Waiting Data");
         $('#GetTeamName').val($('#TeamName').find('option:selected').text());
@@ -941,94 +1013,69 @@ $(function () {
         });
     }
 
-    $(document).on('click', '#AddNewTeam', function(e) {                     // Add New Service To Service Table Function
+    $("#AddNewTeamForm").validate({                                          // Validate Function For Add New Team PopUp
+        rules: {
+            NewTeamName: "required", // Name field is required
+            description: "required", // Name field is required
+            departmentID: "required", // Name field is required
+            branchCode: "required" // Name field is required
+        },
+        messages: {
+            NewTeamName: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Team Name</div>",
+            description: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Team Description </div>",
+            departmentID: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Department</div>",
+            branchCode: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Branch</div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
+    $(document).on('click', '#AddNewTeam', function(e) {                     // Add New Team To Team Table Function
 
         e.preventDefault();
 
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "NewTeamName":              $(this).closest('.content').find('#NewTeamName').val(),
-                "branchCode":               $(this).closest('.content').find('#branchCode').val(),
-                "description":              $(this).closest('.content').find('#description').val(),
-                "departmentID":             $(this).closest('.content').find('#departmentID').val(),
-                "UserSessionID":            $(this).closest('.content').find('#UserSessionID').val(),
-                "action" :                  "NewTeam"
-            },
-            success: function (response) {
-                    $('#NewTeam').modal('hide');
-                    Swal.fire("Team Added Successfully ");
-                    $('#TeamName').html(response);
-                    $(this).closest('.content').find('#NewTeamName').val(" ");
-                    $(this).closest('.content').find('#branchCode').val(" ");
-                    $(this).closest('.content').find('#description').val(" ");
-                    $(this).closest('.content').find('#departmentID').val(" ");
-            },
-            error: function () {
-                    $('#NewTeam').modal('hide');
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "This Team Name Is Already Exist!",
-                    });
-                    $('#TeamName').html(response);
-                    $(this).closest('.content').find('#NewTeamName').val(" ");
-                    $(this).closest('.content').find('#branchCode').val(" ");
-                    $(this).closest('.content').find('#description').val(" ");
-                    $(this).closest('.content').find('#departmentID').val(" ");
-            }
-        });
+        if ($("#AddNewTeamForm").valid()) {
+            
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    "NewTeamName":              $(this).closest('.content').find('#NewTeamName').val(),
+                    "branchCode":               $(this).closest('.content').find('#branchCode').val(),
+                    "description":              $(this).closest('.content').find('#description').val(),
+                    "departmentID":             $(this).closest('.content').find('#departmentID').val(),
+                    "UserSessionID":            UserSessionID,
+                    "action" :                  "NewTeam"
+                },
+                success: function (response) {
+                        $('#NewTeam').modal('hide');
+                        Swal.fire("Team Added Successfully ");
+                        $('#TeamName').html(response);
+                        $(this).closest('.content').find('#NewTeamName').val(" ");
+                        $(this).closest('.content').find('#branchCode').val(" ");
+                        $(this).closest('.content').find('#description').val(" ");
+                        $(this).closest('.content').find('#departmentID').val(" ");
+                },
+                error: function () {
+                        $('#NewTeam').modal('hide');
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "This Team Name Is Already Exist!",
+                        });
+                        $('#TeamName').html(response);
+                        $(this).closest('.content').find('#NewTeamName').val(" ");
+                        $(this).closest('.content').find('#branchCode').val(" ");
+                        $(this).closest('.content').find('#description').val(" ");
+                        $(this).closest('.content').find('#departmentID').val(" ");
+                }
+            });
+        }
     });
 
-    var activeColumn = [];
-    var activeColumnJson = [];
-    $(document).on('change', ':input[type="checkbox"].active', function() {
-        // Find the manager checkbox in the same row and uncheck it
-        
-            var TeamMemberNo = $(this).attr('id');
-            var newStatus = this.checked ? 'Y' : 'N';
-
-                // Assign data for each row to the object
-                activeColumn.push({
-                    TeamMemberNo: TeamMemberNo,
-                    newStatus: newStatus
-                });
-            activeColumnJson = JSON.stringify(activeColumn);
-    });
-
-    // var supervisorColumn = [];
-    // var supervisorColumnJson = [];
-    // $(document).on('change', ':input[type="checkbox"].supervisor', function() {
-    //     // Find the manager checkbox in the same row and uncheck it
-    //     var TeamMemberNo = $(this).closest('tr').find('td:first').text();
-    //     var newStatus = this.checked ? 'Y' : 'N';
-
-    //     supervisorColumn.push({
-    //         TeamMemberNo: TeamMemberNo,
-    //         newStatus: newStatus
-    //     });
-
-    //     supervisorColumnJson = JSON.stringify(supervisorColumn);
-    // });
-    
-    // var managerColumn = [];    
-    // var managerColumnJson = [];    
-    // $(document).on('change', ':input[type="checkbox"].manager', function() {
-
-    //     var TeamMemberNo = $(this).attr('id');
-    //     var newStatus = this.checked ? 'Y' : 'N';
-
-    //             // Assign data for each row to the object
-    //     managerColumn.push({
-    //         TeamMemberNo: TeamMemberNo,
-    //         newStatus: newStatus
-    //     });
-
-    //     managerColumnJson = JSON.stringify(managerColumn);
-    // });
-
-    $(document).on('click', '#updateTeamPopupButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+    $(document).on('click', '#updateTeamPopupButton', function(e) {    // Get Team Information For Update Popup
 
         e.preventDefault();
 
@@ -1054,87 +1101,141 @@ $(function () {
 
     });
 
-    $(document).on('click', '#UpdateTeamInfoButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+    $("#UpdateTeamInformationForm").validate({                                          // Validate Function For Edit Information  Team PopUp
+        rules: {
+            EditTeamName: "required", // Name field is required
+            EditTeamDescription: "required", // Name field is required
+            EditTeamBranchCode: "required", // Name field is required
+            EditTeamDepartmentID: "required" // Name field is required
+
+        },
+        messages: {
+            EditTeamName: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Team Name</div>",
+            EditTeamDescription: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Team Description </div>",
+            EditTeamDepartmentID: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Department</div>",
+            EditTeamBranchCode: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Branch</div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
+    $(document).on('click', '#UpdateTeamInfoButton', function(e) {    // Update Team Information Into Team Table Function
 
         e.preventDefault();
 
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "EditTeamID":                   $(this).closest('.content').find('#EditTeamID').val(),
-                "UserSessionID":                $(this).closest('.content').find('#UserSessionID').val(),
-                "EditTeamName":                 $(this).closest('.content').find('#EditTeamName').val(),
-                "EditTeamDescription":          $(this).closest('.content').find('#EditTeamDescription').val(),
-                "EditTeamBranchCode":           $(this).closest('.content').find('#EditTeamBranchCode').val(),
-                "EditTeamStatus":               $(this).closest('.content').find('#EditTeamStatus').prop('checked') ? 'Y' : 'N',
-                "EditTeamDepartmentID":         $(this).closest('.content').find('#EditTeamDepartmentID').val(),
-                "action" :                      "EditTeamInformation"
-            },
-            success: function (data) {
-                $('#EditTeamInformation').modal('hide');
-                $('#TeamName').html(data);
-                Swal.fire("Team Information Updated Successfully ");
-                
-                setTimeout(function() {
-                    fillTeamInfo();
-                }, 0);
-            },
-            error: function () {
-                $('#EditTeamInformation').modal('hide');
-                $('#TeamName').html(data);
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Error fetching Team Information",
-                    });
+        if ($("#UpdateTeamInformationForm").valid()) {
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    "EditTeamID":                   $(this).closest('.content').find('#EditTeamID').val(),
+                    "UserSessionID":                UserSessionID,
+                    "EditTeamName":                 $(this).closest('.content').find('#EditTeamName').val(),
+                    "EditTeamDescription":          $(this).closest('.content').find('#EditTeamDescription').val(),
+                    "EditTeamBranchCode":           $(this).closest('.content').find('#EditTeamBranchCode').val(),
+                    "EditTeamStatus":               $(this).closest('.content').find('#EditTeamStatus').prop('checked') ? 'Y' : 'N',
+                    "EditTeamDepartmentID":         $(this).closest('.content').find('#EditTeamDepartmentID').val(),
+                    "action" :                      "EditTeamInformation"
+                },
+                success: function (data) {
+                    $('#EditTeamInformation').modal('hide');
+                    $('#TeamName').html(data);
+                    Swal.fire("Team Information Updated Successfully ");
                     
                     setTimeout(function() {
                         fillTeamInfo();
                     }, 0);
-            }
-        });
+                },
+                error: function () {
+                    $('#EditTeamInformation').modal('hide');
+                    $('#TeamName').html(data);
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Error fetching Team Information",
+                        });
+                        
+                        setTimeout(function() {
+                            fillTeamInfo();
+                        }, 0);
+                }
+            });
+        }
     });
 
-    $(document).on('click', '#AddNewTeamMemberButton', function(e) {    // Add New Service Details Information Into Service Details Table Function
+    $("#AddNewTeamMemberForm").validate({                                          // Validate Function For Add New Team Member PopUp
+        rules: {
+            GetMemberName: "required", // Name field is required
+            GetMemberDeacription: "required"
+        },
+        messages: {
+            GetMemberName: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Member Name</div>",
+            GetMemberDeacription: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Member Description </div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
+    $(document).on('click', '#AddNewTeamMemberButton', function(e) {    // Add New Team Member Into Team Member Table Function
 
         e.preventDefault();
-
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                GetTeamID:                   $(this).closest('.content').find('#GetTeamID').val(),
-                UserSessionID:                $(this).closest('.content').find('#UserSessionID').val(),
-                GetMemberName:                 $(this).closest('.content').find('#GetMemberName').val(),
-                GetMemberDeacription:          $(this).closest('.content').find('#GetMemberDeacription').val()
-            },
-            success: function (data) {
-                $('#NewTeamMember').modal('hide');
-                $('#GetMemberName').empty();
-                $('#GetMemberDeacription').val(" ");
-                Swal.fire(data);
-                setTimeout(function() {
-                    fillTable();
-                }, 0);
-            },
-            error: function () {
-                $('#NewTeamMember').modal('hide');
-                $('#GetMemberName').empty();
-                $('#GetMemberDeacription').val(" ");
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Error Somthing Went Wrong",
-                    });
+        if ($("#AddNewTeamMemberForm").valid()) {
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    GetTeamID:                   $(this).closest('.content').find('#GetTeamID').val(),
+                    UserSessionID:                UserSessionID,
+                    GetMemberName:                 $(this).closest('.content').find('#GetMemberName').val(),
+                    GetMemberDeacription:          $(this).closest('.content').find('#GetMemberDeacription').val()
+                },
+                success: function (data) {
+                    $('#NewTeamMember').modal('hide');
+                    $('#GetMemberName').empty();
+                    $('#GetMemberDeacription').val(" ");
+                    Swal.fire('Member Add To His Team Successfully');
                     setTimeout(function() {
                         fillTable();
                     }, 0);
-            }
-        });
+                },
+                error: function () {
+                    $('#NewTeamMember').modal('hide');
+                    $('#GetMemberName').empty();
+                    $('#GetMemberDeacription').val(" ");
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "Error Somthing Went Wrong",
+                        });
+                        setTimeout(function() {
+                            fillTable();
+                        }, 0);
+                }
+            });
+        }
     });
 
-    $(document).on('click', '#updateTeamMemberActivity', function(e) {        //  Update Manager And Supervisor And Active Columns In Team Member Table Function
+    var activeColumn = [];
+    var activeColumnJson = [];
+    $(document).on('change', ':input[type="checkbox"].active', function() {   //  Store All Active Checkboxes Changes To Update Them
+        // Find the manager checkbox in the same row and uncheck it
+        
+            var TeamMemberNo = $(this).attr('id');
+            var newStatus = this.checked ? 'Y' : 'N';
+
+                // Assign data for each row to the object
+                activeColumn.push({
+                    TeamMemberNo: TeamMemberNo,
+                    newStatus: newStatus
+                });
+            activeColumnJson = JSON.stringify(activeColumn);
+    });
+
+    $(document).on('click', '#updateTeamMemberActivity', function(e) {        //  Update Active Columns In Team Member Table Function
 
         e.preventDefault();
         
@@ -1144,7 +1245,7 @@ $(function () {
                 dataType: 'json',
                 data: { 
                     activeColumnJson:        activeColumnJson,
-                    userID:                  $('#UserSessionID').val(),
+                    userID:                  UserSessionID,
                     action:                  "updateTeamMemberTable"
                 },
                 success: function (response) {
@@ -1173,331 +1274,443 @@ $(function () {
 
 
 
-
-
-
-
-
-
-
     ///////////////////////////////////////////***************** Ticket Transation Page Start  *************************/////////////////////////////////////////
 
-var ticketNumber;
-var requestedBy;
-var serviceTypeNo;
-var serviceTypeName;
-var serviceDetailsNo;
-var serviceDetailsName;
-var periorityNo;
-var periorityNName;
-
-$('.hiddenList tbody').on('contextmenu', 'tr', function (e) {
-    e.preventDefault();
-
-    ticketNumber            = $(this).find('td:first').text();
-    serviceTypeName         = $(this).find('td:nth-child(2)').text();
-    serviceDetailsName      = $(this).find('td:nth-child(3)').text();
-    periorityNName          = $(this).find('td:nth-child(4)').text();
-    serviceTypeNo           = $(this).find('td:nth-child(6)').text();
-    serviceDetailsNo        = $(this).find('td:nth-child(7)').text();
-    periorityNo             = $(this).find('td:nth-child(8)').text();
-    requestedBy             = $(this).find('td:nth-child(12)').text();
-    // Show context menu at the mouse position
-    $('.wrapper').css({
-        visibility: 'visible',
-        left: e.pageX,
-        top: e.pageY
+    $(document).on('click', function () { // Hide context menu on click outside 
+        $('.wrapper').css('visibility', 'hidden');
     });
-    $('#returnTicketNumber').text($(this).find('td:first').text());
-    $('#returnedTicketNumber').val($(this).find('td:first').text());
-    $('#ticketActionNumber').text($(this).find('td:first').text());
 
-    var UserRole = $('#UserRole').val();
-    var ticketStatus = $(this).find('td:nth-child(5)').text();
-    $('#actionTicketTransactionList').empty();
+    var UserSessionID = $('#UserSessionID').val(); // User Who Logged In To The System
+    var USER_ID = 'USER_ID';                        //  Add To Global Table To Fetch User Ticket Data 
+    var Filter = 0;
 
-    // GM & Supervisor Permission 
-    if (UserRole == 1 || UserRole == 3) {
-        
-        $('#actionTicketTransactionList').append(`
-            <li>
-                <a href="newTicket.php" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>New Ticket</span>
-                </a>
-            </li>
-        `);
+    $(document).on('click', '#ticketButton', function(e) {          // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+        e.preventDefault();
+        // Get the filter value from the 'data-filter' attribute of the clicked button
+        var filter = $(this).data('filter');
+        // Call the getTicketTransaction function with the filter value
+        getTicketTransaction(USER_ID, UserSessionID, filter);
+    });
 
-        if (ticketStatus == 'New') {
-            // Additional content for status code 10
+    $('#TicketTransationTable').on('click', function(e) {               // Fetch Ticket Transaction Data From DB Based On User Session When Click On Ticket Transaction  Button 
+        e.preventDefault();
+
+        window.location.href = 'TicketTransaction.php'; // Replace 'your_other_page.php' with the URL of the page you want to navigate to
+        // Call the function after navigating to the page
+        $(window).on('load', function() {
+            getTicketTransaction(USER_ID, UserSessionID, Filter);
+        });
+        // getTicketTransaction(USER_ID, UserSessionID, Filter);
+    });
+
+    $('#refreshTicketTransation').on('click', function(e) {             // Fetch Ticket Transaction Data From DB Based On User Session When Click On Home Button  
+        e.preventDefault();
+
+        window.location.href = 'TicketTransaction.php'; // Replace 'your_other_page.php' with the URL of the page you want to navigate to
+        // Call the function after navigating to the page
+        $(window).on('load', function() {
+            getTicketTransaction(USER_ID, UserSessionID, Filter);
+        });
+        // getTicketTransaction(USER_ID, UserSessionID, Filter);
+    });
+
+    function getTicketTransaction(USER_ID, UserSessionID, Filter) {      // Fetch Ticket Transaction Data From DB Based On User Session
+
+        $('.tran').hide(100);
+        $('#mainTableTicketTransation').empty();
+        $('#mainTableTicketTransation').append('Loading....');
+
+        var startTime = new Date().getTime();
+        $.ajax({
+            type: 'POST',
+            url: 'function.php',
+            data: {
+                userNamePreResault:     'USER_ID',
+                userIDPreResault:       UserSessionID,
+                Filter:                 Filter,
+                action:                 'TicketTransation'
+            },
+            success: function(data) {
+                
+                
+                var tableDBody = $('#mainTableTicketTransation');
+                    // Parse the returned JSON data
+                var jsonData = JSON.parse(data);
+                    // Clear existing rows
+                tableDBody.empty();
+                jsonData.forEach(function(row) {
+                    var newDRow = $('<tr>');
+                        // Populate each cell with data
+                        if (row.TICKET_STATUS == '70') {
+                            newDRow.addClass('canceled-row');
+                        }
+                    newDRow.html(`
+                        <td >${row.TICKET_NO}</td>
+                        <td>${row.SERVICE_TYPE}</td>
+                        <td>${row.SERVICE_DETAIL}</td>
+                        <td>${row.TICKET_PERIORITY_MEANING}</td>
+                        <td>${
+                                row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                                row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                                row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                                row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                                row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                                row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                                row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                                row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                                row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                                row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                                ''
+                            }</td>
+                        <td hidden>${row.REQUEST_TYPE_NO}</td>
+                        <td hidden>${row.SERVICE_DETAIL_NO}</td>
+                        <td hidden>${row.TICKET_PERIORITY}</td>
+                        <td>${row.ISSUE_DESCRIPTION}</td>
+                        <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                        <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+                        <td>${row.USERNAME}</td>
+                        <td>${row.DEPARTMENT_NAME}</td>
+                        <td>${row.TICKET_START_DATE}</td>
+                        <td>${row.BRANCH_CODE}</td>
+                        <td>${row.ASSIGNED_TO}</td>
+                        <td>${row.TICKET_END_DATE}</td>
+                        <td>${row.TTOTAL_TIME}</td>
+                        <td>${row.TOTAL_TIME}</td>
+                    `);
+
+                        // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                });
+
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    }
+
+    var ticketNumber;
+    var requestedBy;
+    var serviceTypeNo;
+    var serviceTypeName;
+    var serviceDetailsNo;
+    var serviceDetailsName;
+    var periorityNo;
+    var periorityNName;
+
+    $('.hiddenList tbody').on('contextmenu', 'tr', function (e) {  // Show Action List  when Right Click on Table Row And Retrive Row Information
+        e.preventDefault();
+
+        ticketNumber            = $(this).find('td:first').text();
+        serviceTypeName         = $(this).find('td:nth-child(2)').text();
+        serviceDetailsName      = $(this).find('td:nth-child(3)').text();
+        periorityNName          = $(this).find('td:nth-child(4)').text();
+        serviceTypeNo           = $(this).find('td:nth-child(6)').text();
+        serviceDetailsNo        = $(this).find('td:nth-child(7)').text();
+        periorityNo             = $(this).find('td:nth-child(8)').text();
+        requestedBy             = $(this).find('td:nth-child(12)').text();
+        // Show context menu at the mouse position
+        $('.wrapper').css({
+            visibility: 'visible',
+            left: e.pageX,
+            top: e.pageY
+        });
+        $('#returnTicketNumber').text($(this).find('td:first').text());
+        $('#returnedTicketNumber').val($(this).find('td:first').text());
+        $('#ticketActionNumber').text($(this).find('td:first').text());
+
+        var UserRole = $('#UserRole').val();
+        var ticketStatus = $(this).find('td:nth-child(5)').text();
+        $('#actionTicketTransactionList').empty();
+
+        // GM & Supervisor Permission 
+        if (UserRole == 1 || UserRole == 3) {
+            
             $('#actionTicketTransactionList').append(`
                 <li>
-                    <a class="item" style='margin-right: 5px;' id='editTicketInformation' data-bs-toggle='modal' data-bs-target="#EditTicketPopup" data-bs-whatever="EditTicketPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket'>
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span>Edit Ticket</span>
+                    <a href="newTicket.php" class="item"  data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>New Ticket</span>
                     </a>
                 </li>
+            `);
+
+            if (ticketStatus == 'New') {
+                // Additional content for status code 10
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <a class="item" style='margin-right: 5px;' id='editTicketInformation' data-bs-toggle='modal' data-bs-target="#EditTicketPopup" data-bs-whatever="EditTicketPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket'>
+                            <i class="fa-solid fa-pen-to-square"></i>
+                            <span>Edit Ticket</span>
+                        </a>
+                    </li>
+                    <li>
+                        <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item " id='assign' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
+                            <i class='fa-solid fa-at'></i>
+                            <span>Assign</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            if (ticketStatus == 'Assign') {
+                // Additional content for status code 20
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
+                            <i class="fa-solid fa-share"></i>
+                            <span>Forword</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item " id='change' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#changePopup" data-bs-whatever="changePopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Change</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            if (ticketStatus == 'Started') {
+                // Additional content for status code 30
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item " id='change' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#changePopup" data-bs-whatever="changePopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Change</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
+                            <i class="fa-solid fa-share"></i>
+                            <span>Forword</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
+                            <i class="fa-solid fa-wrench"></i>
+                            <span>Update Out Service</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
+                            <i class="fa-solid fa-inbox"></i>
+                            <span>Received From Out</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>SendOut Service</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Complete</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            if (ticketStatus == 'Solved') {
+                // Additional content for status code 30
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Confirm</span>
+                        </button>
+                    </li>
+                `);
+            }
+            // Add common HTML content for all roles
+            $('#actionTicketTransactionList').append(`
                 <li>
-                    <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
+                    <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Action History</span>
                     </button>
                 </li>
                 <li>
-                    <button class="item " id='assign' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
-                        <i class='fa-solid fa-at'></i>
-                        <span>Assign</span>
+                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Chat</span>
                     </button>
                 </li>
             `);
         }
 
-        if (ticketStatus == 'Assign') {
-            // Additional content for status code 20
+        // Technichin Permission
+        if (UserRole == 4) {
             $('#actionTicketTransactionList').append(`
                 <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                        <i class="fa-solid fa-share"></i>
-                        <span>Forword</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
-                        <i class="fa-solid fa-play"></i>
-                        <span>Start</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
+                    <a href="newTicket.php" class="item" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>New Ticket</span>
+                    </a>
                 </li>
             `);
-        }
 
-        if (ticketStatus == 'Started') {
-            // Additional content for status code 30
-            $('#actionTicketTransactionList').append(`
-                <li>
-                    <button class="item " id='change' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#changePopup" data-bs-whatever="changePopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                        <i class="fa-solid fa-pen"></i>
-                        <span>Change</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                        <i class="fa-solid fa-share"></i>
-                        <span>Forword</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
-                        <i class="fa-solid fa-wrench"></i>
-                        <span>Update Out Service</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
-                        <i class="fa-solid fa-inbox"></i>
-                        <span>Received From Out</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span>SendOut Service</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-                        <i class="fa-solid fa-circle-check"></i>
-                        <span>Complete</span>
-                    </button>
-                </li>
-            `);
-        }
+            if (ticketStatus == 'New') {
+                // Additional content for status code 10
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </li>
+                `);
+            }
 
-        if (ticketStatus == 'Solved') {
-            // Additional content for status code 30
+            if (ticketStatus == 'Assign') {
+                // Additional content for status code 20
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
+                            <i class="fa-solid fa-play"></i>
+                            <span>Start</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            if (ticketStatus == 'Started') {
+                // Additional content for status code 30
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
+                            <i class="fa-solid fa-wrench"></i>
+                            <span>Update Out Service</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
+                            <i class="fa-solid fa-inbox"></i>
+                            <span>Received From Out</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>SendOut Service</span>
+                        </button>
+                    </li>
+                    <li>
+                        <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Complete</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            if (ticketStatus == 'Solved') {
+                // Additional content for status code 30
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>Confirm</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            // Add common HTML content for all roles
             $('#actionTicketTransactionList').append(`
-                <li>
-                    <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                        <i class="fa-solid fa-circle-check"></i>
-                        <span>Confirm</span>
-                    </button>
-                </li>
-            `);
-        }
-        // Add common HTML content for all roles
-        $('#actionTicketTransactionList').append(`
             <li>
                 <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Action History</span>
                 </button>
             </li>
-            <li>
-                <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
-                    <i class="fa-solid fa-comments"></i>
-                    <span>Chat</span>
-                </button>
-            </li>
-        `);
-    }
-
-    // Technichin Permission
-    if (UserRole == 4) {
-        $('#actionTicketTransactionList').append(`
-            <li>
-                <a href="newTicket.php" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>New Ticket</span>
-                </a>
-            </li>
-        `);
-
-        if (ticketStatus == 'New') {
-            // Additional content for status code 10
-            $('#actionTicketTransactionList').append(`
-                <li>
-                    <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
-                </li>
             `);
         }
 
-        if (ticketStatus == 'Assign') {
-            // Additional content for status code 20
+        // List Action For End User
+        if (UserRole == 2) {
+            // GM & Supervisor Permission 
             $('#actionTicketTransactionList').append(`
                 <li>
-                    <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
-                        <i class="fa-solid fa-play"></i>
-                        <span>Start</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
+                    <a href="newTicket.php" class="item" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
+                        <i class="fa-solid fa-folder-open"></i>
+                        <span>New Ticket</span>
+                    </a>
                 </li>
             `);
-        }
 
-        if (ticketStatus == 'Start') {
-            // Additional content for status code 30
-            $('#actionTicketTransactionList').append(`
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
-                        <i class="fa-solid fa-wrench"></i>
-                        <span>Update Out Service</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
-                        <i class="fa-solid fa-inbox"></i>
-                        <span>Received From Out</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
-                        <i class="fa-solid fa-paper-plane"></i>
-                        <span>SendOut Service</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-                        <i class="fa-solid fa-circle-check"></i>
-                        <span>Complete</span>
-                    </button>
-                </li>
-            `);
-        }
+            if (ticketStatus == 'New') {
+                // Additional content for status code 10
+                $('#actionTicketTransactionList').append(`
+                    
+                    <li>
+                        <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </li>
+                `);
+            }
 
-        if (ticketStatus == 'Solved') {
-            // Additional content for status code 30
-            $('#actionTicketTransactionList').append(`
+            if (ticketStatus == 'Assign') {
+                // Additional content for status code 20
+                $('#actionTicketTransactionList').append(`
+                    <li>
+                        <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
+                            <i class="fa-solid fa-ban"></i>
+                            <span>Cancel</span>
+                        </button>
+                    </li>
+                `);
+            }
+
+            if (ticketStatus == 'Solved') {
+                // Additional content for status code 30
+                $('#actionTicketTransactionList').append(`
                 <li>
-                    <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
+                    <button class="item" style='margin-right: 5px;'   data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
                         <i class="fa-solid fa-circle-check"></i>
                         <span>Confirm</span>
                     </button>
                 </li>
-            `);
+                `);
+            }
         }
+        
+    });
 
-        // Add common HTML content for all roles
-        $('#actionTicketTransactionList').append(`
-        <li>
-            <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
-                <i class="fa-solid fa-clock-rotate-left"></i>
-                <span>Action History</span>
-            </button>
-        </li>
-        `);
-    }
-
-    // List Action For End User
-    if (UserRole == 2) {
-        // GM & Supervisor Permission 
-        $('#actionTicketTransactionList').append(`
-            <li>
-                <a href="newTicket.php" class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>New Ticket</span>
-                </a>
-            </li>
-        `);
-
-        if (ticketStatus == 'New') {
-            // Additional content for status code 10
-            $('#actionTicketTransactionList').append(`
-                
-                <li>
-                    <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
-                </li>
-            `);
-        }
-
-        if (ticketStatus == 'Assign') {
-            // Additional content for status code 20
-            $('#actionTicketTransactionList').append(`
-                <li>
-                    <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-                        <i class="fa-solid fa-ban"></i>
-                        <span>Cancel</span>
-                    </button>
-                </li>
-            `);
-        }
-
-        if (ticketStatus == 'Solved') {
-            // Additional content for status code 30
-            $('#actionTicketTransactionList').append(`
-            <li>
-                <button class="item" style='margin-right: 5px;'   data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-                    <i class="fa-solid fa-circle-check"></i>
-                    <span>Confirm</span>
-                </button>
-            </li>
-            `);
-        }
-    }
-    
-});
-
-// Hide context menu on click outside
-$(document).on('click', function () {
-    $('.wrapper').css('visibility', 'hidden');
-});
-
-    $(document).on('click', '#assign', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
+    $(document).on('click', '#assign', function(e) {        // Retrive Ticket Information To Assign Popup Function  
         e.preventDefault();
         $('#RequestedBy').val(" ");
         $('#requestType').val(" ");
@@ -1516,6 +1729,11 @@ $(document).on('click', function () {
         $('#requestType').val(serviceTypeName);
         $('#serviceFor').val(serviceDetailsName);
 
+        $('#ticketWeight').html(`"<option value='0' selected> Select Ticket Weight...</option>"`);
+        $('#ticketPeriority').html(`"<option value='0' selected>Select Ticket Periority...</option>"`);
+        $('#assignTeam').html(`"<option value='0' selected>Select Team...</option>"`);
+
+
         $('#teamMember').text("Waiting Data");
         $('#waitingMessageForTeamAssignMember').empty().removeClass('mt-5');
 
@@ -1528,9 +1746,9 @@ $(document).on('click', function () {
                 var responseData = JSON.parse(data);
 
                 // Update HTML elements based on IDs
-                $('#ticketWeight').html(responseData.weights);
-                $('#assignTeam').html(responseData.teams);
-                $('#ticketPeriority').html(responseData.priorities);
+                $('#ticketWeight').append(responseData.weights);
+                $('#assignTeam').append(responseData.teams);
+                $('#ticketPeriority').append(responseData.priorities);
                 
             },
             error: function (data) {
@@ -1540,8 +1758,7 @@ $(document).on('click', function () {
         
     });
 
-    
-    $('#assignTeam').on('change', function () {             // Return Team Member Based ON Team Choosen Function
+    $('#assignTeam').on('change', function () {             // Retrive Team Member Based ON Team Choosen Function
         $('#teamMember').text(" Waiting Data ");
         $.ajax({
             type: 'POST',
@@ -1595,47 +1812,7 @@ $(document).on('click', function () {
             }
         });
     });
-
-    // // Include button click event for moving rows from teamMember to memberAssigned
-    // $('#teamMember').on('click', '.include', function() {
-    //     moveRow($(this), '#teamMember', '#memberAssigned');
-    // });
-
-    // // Exclude button click event for moving rows from memberAssigned back to teamMember
-    // $('#memberAssigned').on('click', '.exclude', function() {
-    //     moveRow($(this), '#memberAssigned', '#teamMember');
-    // });
-
-    // function moveRow(clickedButton, sourceTable, destinationTable) {
-    //     // Get the entire row
-    //     var row = clickedButton.closest('tr');
-
-    //     // Create a new row for the destination table
-    //     var newRow = $('<tr>');
-
-    //     // // Find the specific columns in the clicked row and clone them
-    //     // var userNameColumn = row.find('.userName').clone();
-    //     // var nameColumn = row.find('.name').clone();
-    //     // var statusColumn = row.find('td:eq(2)').clone(); // Assuming the status is at index 2
-    //     // var teamLeaderColumn = $('<td><div class="check"><input type="checkbox"></div></td>');
-
-    //     // // Find the "Control" column and clone it
-    //     // var controlColumn = clickedButton.clone();
-
-    //     // // Toggle class and change text based on the action
-    //     // controlColumn.toggleClass('include exclude').text(controlColumn.hasClass('include') ? 'Exclude' : 'Include');
-
-    //     // Append the cloned columns to the new row in the desired order
-    //     newRow.append(userNameColumn, nameColumn, statusColumn, teamLeaderColumn, controlColumn);
-
-    //     // Append the new row to the destination table
-    //     $(destinationTable).append(newRow);
-
-    //     // Remove the original row from the source table
-    //     row.remove();
-    // }
-
-    // Include button click event
+    
     var isChecked;
     $('.teamMemberTable').on('click', '.includeBtn', function() {  // Move Row From Team Member Table To Selected Team Member For Ticket
         // Get the row data
@@ -1677,11 +1854,12 @@ $(document).on('click', function () {
         } else {
             // Enable all checkboxes
             checkboxes.prop('disabled', false);
-
+            $('#assignTicket').hide();
             // Disable other checkboxes if one is checked
             checkboxes.on('change', function() {
                 if ($(this).prop('checked')) {
                     checkboxes.not(this).prop('disabled', true);
+                    $('#assignTicket').show();
                 } else {
                     checkboxes.prop('disabled', false);
                 }
@@ -1733,8 +1911,7 @@ $(document).on('click', function () {
 
     });
 
-
-    $(document).on('click', '#assignTicket', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
+    $(document).on('click', '#assignTicket', function(e) {        // Assign Ticket To The Team Member  
         e.preventDefault();
 
         var tableData = [];
@@ -1743,11 +1920,11 @@ $(document).on('click', function () {
         $('.main-table #memberAssigned tr').each(function () {
             var isTeamLeader = $(this).find('td:eq(4) input[type=checkbox]').prop('checked');
             var rowData = {
-                userID: $(this).find('td:eq(0)').text(),
-                userName: $(this).find('td:eq(1)').text(),
-                name: $(this).find('td:eq(2)').text(),
-                description: $(this).find('td:eq(3)').text(),
-                teamLeader: isTeamLeader ? 'Y' : 'N',
+                userID:         $(this).find('td:eq(0)').text(),
+                userName:       $(this).find('td:eq(1)').text(),
+                name:           $(this).find('td:eq(2)').text(),
+                description:    $(this).find('td:eq(3)').text(),
+                teamLeader:     isTeamLeader ? 'Y' : 'N',
             };
 
             // Add the row data to the array
@@ -1762,7 +1939,7 @@ $(document).on('click', function () {
             url: 'function.php', // Function Page For All ajax Function
             data: { 
                 'ticketNumber':             ticketNumber,
-                "UserSessionID":            $('#UserSessionID').val(),
+                "UserSessionID":            UserSessionID,
                 "ticketWeight":             $('#ticketWeight').val(),
                 "ticketPeriority":          $('#ticketPeriority').val(),
                 "memberAssigned":           jsonData,
@@ -1773,7 +1950,7 @@ $(document).on('click', function () {
                 $('#assignPopup').modal('hide');
                 Swal.fire("Ticket Assigned Successfully... ");
                 setTimeout(function() { 
-                    window.location.reload();
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
                 }, 0);
                 $('#memberAssigned').empty();
                 $('#ticketWeight').val(" ");
@@ -1787,7 +1964,7 @@ $(document).on('click', function () {
                     text: JSON.stringify(response),
                 });
                 setTimeout(function() {
-                    window.location.reload();
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
                 }, 0);
                 $('#memberAssigned').empty();
                 $('#ticketWeight').val(" ");
@@ -1806,13 +1983,13 @@ $(document).on('click', function () {
             url: "function.php",  // Function Page For All ajax Function ///cleab =
             data: {
                 "tickid":               ticketNumber,
-                "UserSessionID":        $('#UserSessionID').val(),
+                "UserSessionID":        UserSessionID,
                 "action" :              "start"
             },
             success: function (response) {
                     Swal.fire("Ticket Started Successfully... ");
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
                 },
                 error: function (response) {
@@ -1822,14 +1999,131 @@ $(document).on('click', function () {
                         text: JSON.stringify(response),
                     });
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
                 }
             
         });
     });
 
-    $(document).on('click', '#change', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
+    $(document).on('click', '#change', function(e) {        // Retrive Ticket Information To Change Popup Function  
+        e.preventDefault();
+
+        $('#memberAssignedChange').text(" Waiting Data ");
+        $('#teamMemberChange').text(" Waiting Data ");
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Function Page For All ajax Function
+            data: { teamMembersAssigned: ticketNumber },
+            success: function (data) {
+
+                var responseData = JSON.parse(data);
+                ////////////////////////////////Parsing the data retrived and plot it in table view///////////////////////////////////////////////////
+
+                var assignedTableBody = $('#memberAssignedChange');
+                assignedTableBody.empty();
+
+                responseData.teamAssigned.forEach(function (row) {
+                    var newDRow = $('<tr>');
+            
+                    // Populate each cell with data
+                    newDRow.html(`
+            
+                        <td hidden>${row.ID}</td>
+                        <td>${row.name}</td>
+                        <td>${row.Ename}</td>
+                        <td>${row.disc}</td>`
+            
+                        // Check Custody and Private conditions
+                        + (row.teamLeader === 'Y' ? `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' ${row.teamLeader === 'Y' ? 'checked' : ''}  >
+                                </div>
+                            </td>` :  `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox'  >
+                                </div>
+                            </td>`)
+                            +
+                            `<td><button class='btn btn-warning excludeChangeBtn'>Exclude</button></td>`
+                            );
+            
+                    // Append the new row to the table body
+                    assignedTableBody.append(newDRow);
+                    // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                    
+                    var memberAssignedTable = $('#memberAssignedChange');
+                    var checkboxes = memberAssignedTable.find('input[type="checkbox"]');
+
+                    if (memberAssignedTable.find('tr').length === 1) {
+                        // Disable the checkbox if there is only one row
+                        checkboxes.prop('disabled', true);
+                    } else {
+                        // Enable all checkboxes
+                        checkboxes.prop('disabled', false);
+                    
+                        // Disable other checkboxes if one is checked
+                        checkboxes.on('change', function() {
+                            if ($(this).prop('checked')) {
+                                checkboxes.not(this).prop('disabled', true);
+                            } else {
+                                checkboxes.prop('disabled', false);
+                            }
+                        });
+                    }
+                });
+                ////////////////////////////////////////////////////////////////////////////////////////
+            
+                var teamTableBody = $('#teamMemberChange');
+                teamTableBody.empty();
+                responseData.teamTables.forEach(function (row) {
+                    var newDRow = $('<tr>');
+            
+                    // Populate each cell with data
+                    newDRow.html(`
+            
+                        <td hidden>${row.ID}</td>
+                        <td>${row.name}</td>
+                        <td>${row.Ename}</td>`
+            
+                        // Check Custody and Private conditions
+                        + (row.active === 'Y' ? `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox' ${row.active === 'Y' ? 'checked' : ''} disabled >
+                                </div>
+                            </td>` :  `
+                            <td>
+                                <div class='check'>
+                                    <input type='checkbox'  disabled>
+                                </div>
+                            </td>`)
+                            +
+                            `<td><button class='btn btn-warning includeChangeBtn'>Include</button></td>`
+                            );
+            
+                    // Append the new row to the table body
+                    teamTableBody.append(newDRow);
+                    // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                    
+                });
+                
+                responseData.teamOption.forEach(function (option) {
+                    var optionElement = $('<option selected></option>').attr('value', option.TEAM_NO).text(option.TEAM_NAME);
+                    $('#assignTeamChange').append(optionElement);
+                });
+                
+            },
+            error: function () {
+                alert('Error fetching users');
+            }
+        });
+        
+    });
+
+    $(document).on('click', '#change', function(e) {        // Retrive Ticket Information To Assign Popup Function  
         e.preventDefault();
 
         $('#ticketNumberChange').val(ticketNumber);
@@ -1839,9 +2133,13 @@ $(document).on('click', function () {
         $('#ticketWeightChange').empty();
         $('#assignTeamChange').empty();
         $('#ticketPeriorityChange').empty();
-        
-        $('#ticketPeriorityChange').html(`"<option value='${periorityNo}' selected>` + periorityNName + `</option>"`);
 
+        if (periorityNo == " " || periorityNName == " ") {
+            $('#ticketPeriorityChange').html(`"<option value='0' selected>Selecte Periority ....</option>"`);
+        } else{
+            $('#ticketPeriorityChange').html(`"<option value='${periorityNo}' selected>` + periorityNName + `</option>"`);
+        }
+        
         $('#teamMemberChange').text("Waiting Data");
         $('#waitingMessageForTeamAssignMemberChange').empty().removeClass('mt-5');
 
@@ -1865,7 +2163,9 @@ $(document).on('click', function () {
         
     });
 
-    $('#assignTeamChange').on('change', function () {             // Return Team Member Based ON Team Choosen Function
+    $('#assignTeamChange').on('change', function () {             // Retrive Team Member Based ON Team Choosen Function
+        $('#memberAssignedChange').empty();
+        $('#teamMemberChange').empty();
         $('#teamMemberChange').text(" Waiting Data ");
         $.ajax({
             type: 'POST',
@@ -1921,7 +2221,7 @@ $(document).on('click', function () {
     });
 
     var IsChecked;
-    $('.teamMemberTable').on('click', '.includeChangeBtn', function() {  // Move Row From Team Member Table To Selected Team Member For Ticket
+    $('.teamMemberTable').on('click', '.includeChangeBtn', function() {  // Move Row From Team Member Change Table To Selected Team Member Change For Ticket
         // Get the row data
         var rowData = $(this).closest('tr').find('td').map(function() {
             return $(this).text();
@@ -1954,11 +2254,12 @@ $(document).on('click', function () {
         } else {
             // Enable all checkboxes
             checkboxes.prop('disabled', false);
-
+            $('#assignTicketChange').hide();
             // Disable other checkboxes if one is checked
             checkboxes.on('change', function() {
                 if ($(this).prop('checked')) {
                     checkboxes.not(this).prop('disabled', true);
+                    $('#assignTicketChange').show();
                 } else {
                     checkboxes.prop('disabled', false);
                 }
@@ -1983,7 +2284,7 @@ $(document).on('click', function () {
     });
 
     // Exclude button click event
-    $('.teamMemberTable').on('click', '.excludeChangeBtn', function() {  // Return Row From Selected Team Member For Ticket To Team Member Table
+    $('.teamMemberTable').on('click', '.excludeChangeBtn', function() {  // Return Row From Selected Team Member Change For Ticket To Team Member Change Table
         // Get the row data
         var rowData = $(this).closest('tr').find('td').map(function() {
             return $(this).text();
@@ -2040,8 +2341,71 @@ $(document).on('click', function () {
         //     }
         // });
     });
+
+    $(document).on('click', '#assignTicketChange', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
+        e.preventDefault();
+
+        var tableData = [];
+
+        // Iterate through each row in the table
+        $('.main-table #memberAssignedChange tr').each(function () {
+            var isTeamLeader = $(this).find('td:eq(4) input[type=checkbox]').prop('checked');
+            var rowData = {
+                userID:         $(this).find('td:eq(0)').text(),
+                userName:       $(this).find('td:eq(1)').text(),
+                name:           $(this).find('td:eq(2)').text(),
+                description:    $(this).find('td:eq(3)').text(),
+                teamLeader:     isTeamLeader ? 'Y' : 'N',
+            };
+
+            // Add the row data to the array
+            tableData.push(rowData);
+        });
+
+        // Convert data to JSON
+        var jsonData = JSON.stringify(tableData);
+
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Function Page For All ajax Function
+            data: { 
+                'ticketNumber':                      ticketNumber,
+                "UserSessionID":                     UserSessionID,
+                "ticketWeightChange":                $('#ticketWeightChange').val(),
+                "ticketPeriorityChange":             $('#ticketPeriorityChange').val(),
+                "memberAssignedChange":              jsonData,
+                "assignTeamChange":                  $('#assignTeamChange').val(),
+                'action':                            'assignTicketChange'
+            },
+            success: function (response) {
+                $('#changePopup').modal('hide');
+                Swal.fire("Assign Changed Successfully... ");
+                setTimeout(function() { 
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
+                }, 0);
+                $('#memberAssignedChange').empty();
+                $('#ticketWeightChange').val(" ");
+                $('#ticketPeriorityChange').val(" ");
+            },
+            error: function (response) {
+                $('#changePopup').modal('hide');
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: JSON.stringify(response),
+                });
+                setTimeout(function() {
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
+                }, 0);
+                $('#memberAssignedChange').empty();
+                $('#ticketWeightChange').val(" ");
+                $('#ticketPeriorityChange').val(" ");
+            }
+        });
+        
+    });
     
-    $(document).on('click', '.solveTicket', function(e) {  // Update Ticket Status To Solve Ticket Function
+    $(document).on('click', '#solveTicket', function(e) {  // Update Ticket Status To Solve Ticket Function
 
         e.preventDefault();
         
@@ -2050,16 +2414,16 @@ $(document).on('click', function () {
             url: "function.php",  // Function Page For All ajax Function
             data: {
                 "tickid":               ticketNumber,
-                "issue":                $(this).closest('.content').find('.issue').val(),
-                "resolution":           $(this).closest('.content').find('.resolution').val(),
-                "UserSessionID":        $(this).val(),
+                "issue":                $('#issue').val(),
+                "resolution":           $('#resolution').val(),
+                "UserSessionID":        UserSessionID,
                 "action" :              "solve"
             },
             success: function (response) {
                     $('#solvePopup').modal('hide');
                     Swal.fire("Ticket Solved Successfully");
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
             },
             error: function (response){
@@ -2070,7 +2434,7 @@ $(document).on('click', function () {
                         text: JSON.stringify(response),
                     });
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
             }
         });
@@ -2085,13 +2449,13 @@ $(document).on('click', function () {
             url: "function.php",
             data: {
                 "tickid":               ticketNumber,
-                "UserSessionID":        $('#UserSessionID').val(),
+                "UserSessionID":        UserSessionID,
                 "action" :              "cancel"
             },
             success: function (response) {
                     Swal.fire("Ticket Canceled Successfully");
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
             },
             error: function (response){
@@ -2101,53 +2465,8 @@ $(document).on('click', function () {
                     text: "Something went wrong!",
                 });    
                 setTimeout(function() {
-                    window.location.reload();
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
                 }, 0);
-            }
-        });
-    });
-
-    $(document).on('click', '.addUsers', function(e) {
-
-        e.preventDefault();
-
-        var username          =$(this).closest('.content').find('.username').val();
-        var password          =$(this).closest('.content').find('.password').val();
-        var email             =$(this).closest('.content').find('.email').val();
-        var usertype          =$(this).closest('.content').find('.usertype').val();
-        var phone             =$(this).closest('.content').find('.phone').val();
-        var admin             =$(this).closest('.content').find('.admin').val();
-        var userStatus        =$(this).closest('.content').find('.userStatus').val();
-
-        // alert( username +  password + email + department + usertype);
-        
-        $.ajax({
-            method: "POST",
-            url: "function.php",
-            data: {
-                "username":        username,
-                "password":        password,
-                "email":           email,
-                "userStatus":      userStatus,
-                "usertype":        usertype,
-                "phone":           phone,
-                "admin":           admin,
-                "action" :         "new"
-            },
-            success: function (response) {
-
-                if (response.trim() === 'exist') {
-                    alert('This username already exist ');
-                } else if (response.trim() === 'success') {
-                        Swal.fire("User Added Successfully ");
-                    } else {
-                        Swal.fire("User Added Successfully ");
-                    }
-                
-                
-                setTimeout(function () {
-                    location.reload();
-                }, 100);
             }
         });
     });
@@ -2195,7 +2514,7 @@ $(document).on('click', function () {
                 $('#EditTicketPopup').modal('hide');
                 Swal.fire("Ticket Information Updated Successfully ");
                 setTimeout(function() {
-                    window.location.reload();
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
                 }, 0);
             },
             error: function () {
@@ -2206,7 +2525,7 @@ $(document).on('click', function () {
                     text: "Somthing Went Wrong!!",
                 });
                 setTimeout(function() {
-                    window.location.reload();
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
                 }, 0);
             }
         });
@@ -2236,14 +2555,14 @@ $(document).on('click', function () {
                     "confirmSelection":             confirmSelection,
                     "technicianAttitude":           technicianAttitude,
                     "serviceEvaluation":            serviceEvaluation,
-                    "UserSessionID":                $('#UserSessionID').val(),
+                    "UserSessionID":                UserSessionID,
                     "action":                       "confirm"
                 },
                 success: function(response){
                     $('#finishPopup').modal('hide');
                     Swal.fire("Ticket Confirmed Successfully");
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
                 },
                 error: function(error){
@@ -2254,14 +2573,14 @@ $(document).on('click', function () {
                         text: JSON.stringify(error),
                     });
                     setTimeout(function() {
-                        window.location.reload();
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
                     }, 0);
                 }
             });
         
     });
 
-    $(document).on('click', '#actionHistoryTable', function(e) {
+    $(document).on('click', '#actionHistoryTable', function(e) {  // Retrive Ticket Action History 
 
         e.preventDefault();
 
@@ -2305,97 +2624,131 @@ $(document).on('click', function () {
 
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
 
+    
+
+///////////////////////////////////////////***************** Add New Ticket Page Start  *************************/////////////////////////////////////////
 
 
-
-
-
-
-
-    ///////////////////////////////////////////***************** Add New Ticket Page Start  *************************/////////////////////////////////////////
-
-    $('#service').on('change', function () {    // Return Service Details Based On Service Type Function
-        var selectedService = $(this).val(); // Service Type Number
-
-        $.ajax({
-            type: 'POST',
-            url: 'function.php', // Function Page For All ajax Function
-            data: { type: selectedService },
-            success: function (data) {
-                $('#details').html(data);
-            },
-            error: function () {
-                alert('Error fetching users');
-            }
-        });
-    });
-
-    $('#details').on('change', function () {    // Return Device Number Based On Service Details If its value custody Function
-        
-        // Check if selectedDetails is '14' and update #device field
-        
-        $.ajax({
-            type: 'POST',
-            url: 'function.php', // Handle Page For All AJAX Function
-            data: { 
-                'details': $(this).val(),
-                'username': $(this).closest('.content').find('.name').val(),
-                'det':     'det'
-            }, // Include both details and username
-            success: function (data) {
-                $('#device').html(data);
-                $('#device').prop('required', true);
-            },
-            error: function () {
-                alert('Error fetching users');
-            }
-        });
-    });
-
-    $(document).on('click', '.addTicket', function(e) {         // Add New Ticket To Tickets Table Function
-
-        e.preventDefault();
-        var UserSessionID     =$(this).closest('.content').find('#UserSessionID').val();    // Ticket Issue Description
-
-        if ( $(this).closest('.content').find('.service').val().trim() === ' ' ||
-            $(this).closest('.content').find('.details').val().trim() === '' ||
-            $(this).closest('.content').find('.description').val().trim() === '') {
-            alert('Please fill all fields');
-        } else{
-            $.ajax({
-                method: "POST",
-                url: "function.php",  // Function Page For All ajax Function
-                data: {
-                    "name":             $(this).closest('.content').find('.name').val(),
-                    "service":          $(this).closest('.content').find('.service').val(),
-                    "details":          $(this).closest('.content').find('.details').val(),
-                    "device":           $(this).closest('.content').find('.device').val(),
-                    "description":      $(this).closest('.content').find('.description').val(),
-                    "action" :          "add"
-                },
-                success: function (response) {
-                        Swal.fire("Ticket # " + response + " Created Successfully!!!");
-                        $('#service').val('');
-                        $('#details').val('');
-                        $('#device').val('');
-                        $('#description').val('');
-                },
-                error: function(response) {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: JSON.stringify(response),
-                        });
-                        $('#service').val('');
-                        $('#details').val('');
-                        $('#device').val('');
-                        $('#description').val('');
-                }
-            });
+$('#service').on('change', function () {    // Retrive Service Details Based On Service Type Function
+    var selectedService = $(this).val(); // Service Type Number
+    $.ajax({
+        type: 'POST',
+        url: 'function.php', // Function Page For All ajax Function
+        data: { type: selectedService },
+        success: function (data) {
+            $('#details').empty();
+            $('#details').append(`<option  value="">Select Service Details....</option>`);
+            $('#details').append(data);
+        },
+        error: function () {
+            alert('Error fetching users');
         }
     });
+});
 
-    ///////////////////////////////////////////***************** Add New Ticket Page End  *************************/////////////////////////////////////////
+$('#details').on('change', function () {    // Retrive Device Number Based On Service Details If its value custody Function
+    
+    // Check if selectedDetails is '14' and update #device field
+    $.ajax({
+        type: 'POST',
+        url: 'function.php', // Handle Page For All AJAX Function
+        data: { 
+            'details':          $(this).val(),
+            'UserSessionID':    $(this).closest('.content').find('#UserSessionID').val(),
+            'det':              'det'
+        }, // Include both details and username
+        success: function (data) {
+            $('#device').append(data);
+            if (data.trim() === 'empty[]') {
+                $('#device').prop('disabled', true);
+                $('#device').prop('required', false);
+            } else {
+                $('#device').prop('disabled', false);
+                $('#device').append(`<option  value="">Select  Device....</option>`);
+            }
+        },
+        error: function () {
+            alert('Error fetching users');
+        }
+    });
+});
+
+$("#AddNewTicketForm").validate({                                          // Validate Function For Add New Service PopUp
+    rules: {
+        service: "required" ,// Name field is required
+        details: "required", // Name field is required
+        description: "required", // Name field is required
+        device: "required" // Name field is required
+    },
+    messages: {
+        service: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Name</div>" ,// Name field is required
+        details: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Details Name</div>", // Name field is required
+        description: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Issue Description</div>", // Name field is required
+        device: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Device</div>" // Name field is required
+    },
+    submitHandler: function(form) {
+        // Form is valid, proceed with form submission
+        form.submit();
+    }
+});
+
+$(document).on('click', '#addTicket', function(e) {         // Add New Ticket To Tickets Table Function
+
+    e.preventDefault();
+
+    if ( $("#AddNewTicketForm").valid()){
+    
+        $.ajax({
+            method: "POST",
+            url: "function.php",  // Function Page For All ajax Function
+            data: {
+                "name":             $(this).closest('.content').find('#UserSessionID').val(),
+                "service":          $(this).closest('.content').find('.service').val(),
+                "details":          $(this).closest('.content').find('.details').val(),
+                "device":           $(this).closest('.content').find('.device').val(),
+                "description":      $(this).closest('.content').find('.description').val(),
+                "action" :          "add"
+            },
+            success: function (response) {
+                $('#AddNewTicketPopup').modal('hide');
+                Swal.fire("Ticket # " + response + " Created Successfully!!!");
+                $('#service').val('');
+                $('#details').val('');
+                $('#device').val('');
+                $('#description').val('');
+                setTimeout(function() {
+                    getTicketTransaction(USER_ID, UserSessionID, Filter);
+                }, 0);
+            },
+            error: function(response) {
+                $('#AddNewTicketPopup').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: JSON.stringify(response),
+                    });
+                    $('#service').val('');
+                    $('#details').val('');
+                    $('#device').val('');
+                    $('#description').val('');
+                    setTimeout(function() {
+                        getTicketTransaction(USER_ID, UserSessionID, Filter);
+                    }, 0);
+            }
+        });
+    }
+}); 
+
+$(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket Transation Dropdown  List
+
+    e.preventDefault();
+    $('.tran').hide(100);
+    
+}); 
+
+///////////////////////////////////////////***************** Add New Ticket Page End  *************************/////////////////////////////////////////
+
+
 
 
 

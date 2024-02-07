@@ -291,6 +291,8 @@ a.sidebar-link {
   color: white;
   font-size: 1rem;
   position: relative;
+  background-color: transparent;
+  border: none;
 }
 
 /* Responsive */
@@ -514,7 +516,7 @@ a.sidebar-link {
 }
 
 .content .scro td:nth-child(5) {
-  border-right: 1px solid #ccc;
+  border-right: 2px solid #ccc;
 }
 
 .content .scro th,
@@ -538,6 +540,11 @@ a.sidebar-link {
 .content .scro th:nth-child(4),
 .content .scro td:nth-child(4) {
   min-width: 25px;
+}
+
+.content .scro th:nth-child(5),
+.content .scro td:nth-child(5) {
+  min-width: 150px;
 }
 
 .content .scro th:nth-child(9),

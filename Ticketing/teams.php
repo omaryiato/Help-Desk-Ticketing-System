@@ -43,6 +43,7 @@ if (isset($_SESSION['user'])) {
     $row        = oci_fetch_assoc($info);
 ?>
 
+    <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>" disabled readonly>
     <!-- Team Member Information Start -->
     <main class="content px-3 py-2"> <!-- Main Start -->
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
@@ -65,10 +66,10 @@ if (isset($_SESSION['user'])) {
                             </div>
 
                             <div class="row">
-                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+
                                 <div class='col-sm-3'>
                                     <label class="" for="TeamNoID">Team No</label>
-                                    <input type="text" class="form-control" id="TeamNoID" aria-label="State" readonly>
+                                    <input type="text" class="form-control" id="TeamNoID" aria-label="State" readonly disabled>
                                 </div>
                                 <div class="col-sm-8">
                                     <label class="" for="TeamName">Name</label>
@@ -86,24 +87,24 @@ if (isset($_SESSION['user'])) {
                                         ?>
                                     </select>
                                 </div>
-                                <div class="col-sm-9 my-2">
+                                <div class="col-sm-8 my-2">
                                     <label class="" for="teamDescription">Description</label>
-                                    <textarea type="text" class="form-control" id="teamDescription" aria-label="City" readonly></textarea>
+                                    <textarea type="text" class="form-control" id="teamDescription" aria-label="City" readonly disabled></textarea>
                                 </div>
-                                <div class="col-sm-4 my-2">
-                                    <label class="" for="dept">Department</label>
-                                    <input type="text" class="form-control" id="dept" aria-label="State" readonly>
-                                    <input type="hidden" class="form-control" id="depID" aria-label="State" readonly>
-                                </div>
-                                <div class='col-sm-4 my-2'>
-                                    <label class="" for="branch">Branch</label>
-                                    <input type="text" class="form-control" id="branch" aria-label="State" readonly>
-
-                                </div>
-                                <div class='check  col-sm-4' style='display: flex; justify-content: center; align-items: center;'>
+                                <div class='check  col-sm-3' style='display: flex; justify-content: center; align-items: center;'>
                                     <label class="pe-2" for="status">Status</label>
                                     <input type='checkbox' name='status' id='status' disabled>
                                 </div>
+                                <div class="col-sm-8 my-2">
+                                    <label class="" for="dept">Department</label>
+                                    <input type="text" class="form-control" id="dept" aria-label="State" readonly disabled>
+                                    <input type="hidden" class="form-control" id="depID" aria-label="State" readonly disabled>
+                                </div>
+                                <div class='col-sm-3 my-2'>
+                                    <label class="" for="branch">Branch</label>
+                                    <input type="text" class="form-control" id="branch" aria-label="State" readonly disabled>
+                                </div>
+
                             </div>
                         </div>
                         <div class=" col-sm-7 mx-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
@@ -131,7 +132,6 @@ if (isset($_SESSION['user'])) {
 
                                     </tbody>
                                 </table>
-                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                             </div>
                         </div>
                     </div>
@@ -147,13 +147,11 @@ if (isset($_SESSION['user'])) {
 
                                 </div>
                             </div>
-
                             <div class=" text-center mt-1" id="waitingTeamMemberInfo">
                                 <div class="alert alert-primary change" role="alert">
                                     There Is No Data You Can See It Yet.
                                 </div>
                             </div>
-
                             <div class="teamMemberTable mx-2">
                                 <table class="main-table text-center table table-bordered mt-3  ">
                                     <thead id="TeamMemberHeadTable">
@@ -163,8 +161,6 @@ if (isset($_SESSION['user'])) {
 
                                     </tbody>
                                 </table>
-                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-
                             </div>
                         </div>
                     </div>
@@ -188,15 +184,14 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="NewTeamPopupLabel">Add New Team</h2>
                                 <div class="container mb-4 mt-4">
-                                    <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-                                    <div class="row d-flex justify-content-between">
+                                    <form class="row d-flex justify-content-between" id="AddNewTeamForm">
                                         <div class="col-sm-10 mb-2">
                                             <label class="" for="NewTeamName">Team Name</label>
-                                            <input type="text" class="form-control" id="NewTeamName" aria-label="State" required>
+                                            <input type="text" class="form-control" id="NewTeamName" name="NewTeamName" aria-label="State" required>
                                         </div>
                                         <div class="col-sm-10 mb-2">
                                             <label class="" for="description">Description</label>
-                                            <input type="text" class="form-control" id="description" aria-label="State" required>
+                                            <input type="text" class="form-control" id="description" name="description" aria-label="State" required>
                                         </div>
                                         <div class="col-sm-10 mb-2">
                                             <label class="" for="departmentID">Department ID</label>
@@ -217,11 +212,11 @@ if (isset($_SESSION['user'])) {
                                             </select>
                                         </div>
                                         <div class="col-sm-5 mt-4">
-                                            <button class="btn btn-success button" id="AddNewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                            <button type="submit" class="btn btn-success button" id="AddNewTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
                                                 <span>Save</span>
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- Container-fluid Div End  -->
@@ -247,21 +242,19 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="EditTeamInformationPopupLabel">Edit Team Information</h2>
                                 <div class="container mb-4 mt-4">
-                                    <div class="row d-flex justify-content-between">
-                                        <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-
+                                    <form class="row d-flex justify-content-between" id="UpdateTeamInformationForm">
                                         <div class="col-sm-10">
                                             <input type="hidden" class="form-control" id="EditTeamID" aria-label="State" required>
                                         </div>
 
                                         <div class="col-sm-10 mb-2">
                                             <label class="" for="EditTeamName">Team Name</label>
-                                            <input type="text" class="form-control" id="EditTeamName" aria-label="State" required>
+                                            <input type="text" class="form-control" id="EditTeamName" name="EditTeamName" aria-label="State" required>
                                         </div>
 
                                         <div class="col-sm-10 mb-2">
                                             <label class="" for="EditTeamDescription">Description</label>
-                                            <input type="text" class="form-control" id="EditTeamDescription" aria-label="State" required>
+                                            <input type="text" class="form-control" id="EditTeamDescription" name="EditTeamDescription" aria-label="State" required>
                                         </div>
 
                                         <div class="col-sm-4">
@@ -284,12 +277,12 @@ if (isset($_SESSION['user'])) {
                                         </div>
 
                                         <div class="col-sm-4 mt-2 ">
-                                            <button class="btn btn-success button" id="UpdateTeamInfoButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
+                                            <button type="submit" class="btn btn-success button" id="UpdateTeamInfoButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
                                                 <i class="fa-solid fa-pen-to-square"></i>
                                                 <span>Update</span>
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- Container-fluid Div End  -->
@@ -309,23 +302,22 @@ if (isset($_SESSION['user'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <!-- New Service  Start -->
+                    <!-- New Team  Start -->
                     <main class="content px-3 py-2"> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-3">
                                 <h2 class="text-center" id="NewTeamMemberPopupLabel">Add New Member</h2>
                                 <div class="container mb-4 mt-4">
-                                    <div class="row">
-                                        <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+                                    <form class="row" id="AddNewTeamMemberForm">
                                         <div class="col-sm-6 ">
                                             <label class="" for="GetTeamName">Team Name</label>
-                                            <input type="text" class="form-control" id="GetTeamName" aria-label="Name" required readonly>
-                                            <input type="hidden" class="form-control" id="GetTeamID" aria-label="ID" readonly required>
+                                            <input type="text" class="form-control" id="GetTeamName" aria-label="Name" required readonly disabled>
+                                            <input type="hidden" class="form-control" id="GetTeamID" aria-label="ID" readonly required disabled>
                                         </div>
 
                                         <div class="col-sm-6 ">
                                             <label class="" for="GetMemberName">Member Name</label>
-                                            <input type="hidden" class="form-control" id="GetDeptID" aria-label="ID" readonly required>
+                                            <input type="hidden" class="form-control" id="GetDeptID" aria-label="ID" readonly required disabled>
                                             <select class="form-select GetMemberName" name="GetMemberName" id="GetMemberName" required>
 
                                             </select>
@@ -333,19 +325,19 @@ if (isset($_SESSION['user'])) {
 
                                         <div class="col-sm-12 mt-2">
                                             <label class="" for="GetMemberDeacription">Description</label>
-                                            <input type="text" class="form-control" id="GetMemberDeacription" aria-label="Description" required>
+                                            <input type="text" class="form-control" id="GetMemberDeacription" name="GetMemberDeacription" aria-label="Description" required>
                                         </div>
                                         <div class="col-sm-10  mt-4">
-                                            <button class="btn btn-success button width-75" id="AddNewTeamMemberButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
+                                            <button type="submit" class="btn btn-success button width-75" id="AddNewTeamMemberButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
                                                 <span>Save</span>
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- Container-fluid Div End  -->
                     </main> <!-- Main End -->
-                    <!-- New Service Info End -->
+                    <!-- New Team Info End -->
                 </div>
             </div>
         </div>

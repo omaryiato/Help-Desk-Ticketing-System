@@ -45,10 +45,12 @@ if (isset($_SESSION['user'])) {
 
 ?>
 
+    <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>" disabled readonly>
     <!-- Service Page  Start -->
     <main class="content px-3 py-2"> <!-- Main Start -->
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
             <div class="mb-3">
+
                 <h2 class="text-center mt-3 ">Services</h2>
                 <div class="scro container-fluid mb-2 mt-2">
                     <div class="row d-flex justify-content-center">
@@ -67,7 +69,7 @@ if (isset($_SESSION['user'])) {
                             <div class="row">
                                 <div class="col-sm-2">
                                     <label class="" for="ServiceID">Service #</label>
-                                    <input type="text" class="form-control" id="ServiceID" aria-label="State" readonly>
+                                    <input type="text" class="form-control" id="ServiceID" aria-label="State" readonly disabled>
                                 </div>
                                 <div class="col-sm-10" id="newservice">
                                     <label class="" for="serviceLOV">Service Name</label>
@@ -114,7 +116,7 @@ if (isset($_SESSION['user'])) {
 
                                     </tbody>
                                 </table>
-                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+
                             </div>
                             <div class="mx-2 my-4 d-flex justify-content-start" id="updateServiceDetailButton">
                                 <!-- Update button will be appended here -->
@@ -144,7 +146,6 @@ if (isset($_SESSION['user'])) {
                                     <tbody id="serviceDetailsTeam">
                                     </tbody>
                                 </table>
-                                <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                             </div>
                             <div class="mx-2 my-4 d-flex justify-content-start" id="updateDetailTeamButton">
                                 <!-- Update button will be appended here -->
@@ -176,54 +177,6 @@ if (isset($_SESSION['user'])) {
         </div>
     </div>
 
-    <!-- Edit Service Details Pop Up Form Start -->
-    <div class="modal fade" id="EditServiceDetails" tabindex="-1" aria-labelledby="EditServiceDetailsPopupLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <!-- New Section  Start -->
-                    <main class="content px-3 py-2"> <!-- Main Start -->
-                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
-                            <div class="mb-3">
-                                <h2 class="text-center" id="EditServiceDetailsPopupLabel">Edit Service Details</h2>
-                                <div class="container mb-4 mt-4">
-                                    <div class="row d-flex justify-content-between">
-                                        <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
-
-                                        <div class="col-sm-8">
-                                            <input type="hidden" class="form-control" id="EditServiceDetailsID" aria-label="State" required>
-                                        </div>
-
-                                        <div class="col-sm-8">
-                                            <label class="" for="EditServiceDetailsName">Service Details Name</label>
-                                            <input type="text" class="form-control" id="EditServiceDetailsName" aria-label="State" required>
-                                        </div>
-
-                                        <div class="col-sm-8">
-                                            <label class="" for="EditServiceDetailsDescription">Service Details Description</label>
-                                            <input type="text" class="form-control" id="EditServiceDetailsDescription" aria-label="State" required>
-                                        </div>
-                                        <div class="col-sm-4 mt-4">
-                                            <button class="btn btn-success button" id="UpdateServiceDetailsInfoButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                                <span>Update</span>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- Container-fluid Div End  -->
-                    </main> <!-- Main End -->
-                    <!-- New Section Info End -->
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Edit Service Pop Up Form End -->
-
     <!-- New Service Pop Up Form Start -->
     <div class="modal fade" id="NewService" tabindex="-1" aria-labelledby="NewServicePopupLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -238,18 +191,17 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="NewServicePopupLabel">Add New Service</h2>
                                 <div class="container mb-4 mt-4">
-                                    <div class="row d-flex justify-content-between">
+                                    <form class="row d-flex justify-content-between" id="AddNewServiceForm">
                                         <div class="col-sm-8">
                                             <label class="" for="NewServiceName">Service Name</label>
-                                            <input type="text" class="form-control" id="NewServiceName" aria-label="State" required>
-                                            <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+                                            <input type="text" class="form-control" id="NewServiceName" name="NewServiceName" aria-label="State" required>
                                         </div>
                                         <div class="col-sm-4 mt-4">
-                                            <button class="btn btn-success button" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service'>
+                                            <button type="submit" class="btn btn-success button" id="AddNewService" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Service'>
                                                 <span>Save</span>
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- Container-fluid Div End  -->
@@ -260,6 +212,52 @@ if (isset($_SESSION['user'])) {
         </div>
     </div>
     <!-- New Service Pop Up Form End -->
+
+    <!-- Edit Service Details Pop Up Form Start -->
+    <div class="modal fade" id="EditServiceDetails" tabindex="-1" aria-labelledby="EditServiceDetailsPopupLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- New Section  Start -->
+                    <main class="content px-3 py-2"> <!-- Main Start -->
+                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                            <div class="mb-3">
+                                <h2 class="text-center" id="EditServiceDetailsPopupLabel">Edit Service Details</h2>
+                                <div class="container mb-4 mt-4">
+                                    <form class="row d-flex justify-content-between" id="EditServiceDetailsInformationForm">
+                                        <div class="col-sm-8">
+                                            <input type="hidden" class="form-control" id="EditServiceDetailsID" aria-label="State" required>
+                                        </div>
+
+                                        <div class="col-sm-8">
+                                            <label class="" for="EditServiceDetailsName">Service Details Name</label>
+                                            <input type="text" class="form-control" id="EditServiceDetailsName" name="EditServiceDetailsName" aria-label="State" required>
+                                        </div>
+
+                                        <div class="col-sm-8">
+                                            <label class="" for="EditServiceDetailsDescription">Service Details Description</label>
+                                            <input type="text" class="form-control" id="EditServiceDetailsDescription" name="EditServiceDetailsDescription" aria-label="State" required>
+                                        </div>
+                                        <div class="col-sm-4 mt-4">
+                                            <button type="submit" class="btn btn-success button" id="UpdateServiceDetailsInfoButton" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Service Details'>
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                                <span>Update</span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div><!-- Container-fluid Div End  -->
+                    </main> <!-- Main End -->
+                    <!-- New Section Info End -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Service Pop Up Form End -->
 
     <!-- New Service Details Pop Up Form Start -->
     <div class="modal fade" id="NewServiceDetail" tabindex="-1" aria-labelledby="NewServiceDetailPopupLabel" aria-hidden="true">
@@ -275,27 +273,26 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="NewServiceDetailPopupLabel">Add New Service Detail</h2>
                                 <div class="container mb-4 mt-4">
-                                    <div class="row">
+                                    <form class="row" id="AddNewServiceDetailsForm">
                                         <div class="col-sm-6 ">
-                                            <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
                                             <label class="" for="GetServiceTypeName">Service Name</label>
-                                            <input type="text" class="form-control" id="GetServiceTypeName" aria-label="Name" readonly required>
-                                            <input type="hidden" class="form-control" id="GetServiceTypeID" aria-label="ID" readonly required>
+                                            <input type="text" class="form-control" id="GetServiceTypeName" aria-label="Name" readonly required disabled>
+                                            <input type="hidden" class="form-control" id="GetServiceTypeID" aria-label="ID" readonly required disabled>
                                         </div>
                                         <div class="col-sm-6 ">
                                             <label class="" for="NewServiceDetailsName">Service Detail Name</label>
-                                            <input type="text" class="form-control" id="NewServiceDetailsName" aria-label="Name" required>
+                                            <input type="text" class="form-control" id="NewServiceDetailsName" name="NewServiceDetailsName" aria-label="Name" required>
                                         </div>
                                         <div class="col-sm-12 mt-2">
                                             <label class="" for="ServiceDetailsDescription">Service Detail Description</label>
-                                            <input type="text" class="form-control" id="ServiceDetailsDescription" aria-label="Description" required>
+                                            <input type="text" class="form-control" id="ServiceDetailsDescription" name="ServiceDetailsDescription" aria-label="Description" required>
                                         </div>
                                         <div class="col-sm-10  mt-4">
-                                            <button class="btn btn-success button width-75" id="AddNewServiceDetails" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
+                                            <button type="submit" class="btn btn-success button width-75" id="AddNewServiceDetails" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
                                                 <span>Save</span>
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- Container-fluid Div End  -->
@@ -321,26 +318,25 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="NewDetailTeamPopupLabel">Assign New Team</h2>
                                 <div class="container mb-4 mt-4">
-                                    <div class="row">
-                                        <div class="col-sm-6 ">
+                                    <form class="row" id="AddNewServiceDetailsTeamForm">
+                                        <div class="col-sm-6">
                                             <label class="" for="GetServiceDetailsName">Service Details Name</label>
-                                            <input type="text" class="form-control" id="GetServiceDetailsName" aria-label="Name" readonly required>
-                                            <input type="hidden" class="form-control" id="GetServiceDetailsID" aria-label="ID" readonly required>
-                                            <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>">
+                                            <input type="text" class="form-control" id="GetServiceDetailsName" aria-label="Name" readonly required disabled>
+                                            <input type="hidden" class="form-control" id="GetServiceDetailsID" aria-label="ID" readonly required disabled>
                                         </div>
                                         <div class="col-sm-6">
                                             <label class="" for="GetServiceDetailsTeamNumber">Team Name</label>
-                                            <select class="form-select" name="ServiceTypeNumber" id="GetServiceDetailsTeamNumber" required>
+                                            <select class="form-select" name="ServiceTypeNumber" id="GetServiceDetailsTeamNumber" name="GetServiceDetailsTeamNumber" required>
                                                 <option value="">Choose Service Details Team Name </option>
 
                                             </select>
                                         </div>
                                         <div class="col-sm-10  mt-4">
-                                            <button class="btn btn-success button width-75" id="AddNewServiceDetailsTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
+                                            <button type="submit" class="btn btn-success button width-75" id="AddNewServiceDetailsTeam" data-bs-toggle='tooltip' data-bs-placement='top' title='Create New Service Details'>
                                                 <span>Save</span>
                                             </button>
                                         </div>
-                                    </div>
+                                    </form>
                                 </div>
                             </div>
                         </div><!-- Container-fluid Div End  -->
