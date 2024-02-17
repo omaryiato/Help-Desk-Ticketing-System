@@ -1,9 +1,10 @@
 <?php
 
 session_start();
+
+
 $no_sidebar = '';
 $pageTitle = 'Login';
-
 
 // Oracle database connection settings
 $host = '192.168.15.245';
@@ -26,7 +27,7 @@ if (!$conn) {
 }
 
 if (isset($_SESSION['user'])) {
-    header('Location: TicketTransaction.php');  // Redirect To Home Page
+    header('Location: home.php');  // Redirect To Home Page
 }
 
 include 'init.php';
@@ -77,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['user'] = $UserSessionID; // Register Session Name
             // $_SESSION['ID'] = $row['ID'];  // Register Session ID
             http_response_code(200);
-            header('Location: TicketTransaction.php'); // Redirect To Dashboard Page
+            header('Location: home.php'); // Redirect To Dashboard Page
             echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
             exit();
         } else {
@@ -121,9 +122,3 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 include $inc . 'footer.php';
 ?>
-
-
-
-
-
-

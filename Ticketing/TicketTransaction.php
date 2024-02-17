@@ -1,5 +1,5 @@
 <?php
-set_time_limit(500);
+set_time_limit(2000);
 $startTime = microtime(true);
 
 /*
@@ -13,10 +13,11 @@ ob_start(); // Output Buffering Start
 
 session_start();
 
+
 if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Ticket Transation';
-    // Oracle database connection settings
+    // // Oracle database connection settings
     $host = '192.168.15.245';
     $port = '1521';
     $sid = 'ARCHDEV';
@@ -36,7 +37,9 @@ if (isset($_SESSION['user'])) {
         echo "Connectoin to Oracle Database Failed!<br>";
     }
 
-    include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function) File
+    // include 'connect.php';  // Connection Database File 
+
+    include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
     // Select UserID bsed on Username To return User Roles
     $userNamePre = "SELECT USER_ID FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $_SESSION["user"] . "'";
@@ -61,6 +64,7 @@ if (isset($_SESSION['user'])) {
     $run = oci_execute($insertValue);
 
 ?>
+
     <!-- Main Table Start -->
     <input type="hidden" id="UserSessionID" value="<?php echo $userNamePreResault ?>" disabled readonly>
     <main class="content px-3 py-2">
@@ -772,10 +776,94 @@ if (isset($_SESSION['user'])) {
     <!-- Add New Ticket Pop Up Form Start -->
 
 
-<?php
-
+    <?php
 
     include $inc . 'footer.php';
+
+    ?>
+    <script>
+        $(function() {
+
+            var UserSessionID = $('#UserSessionID').val(); // User Who Logged In To The System
+            var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
+            var Filter = 0;
+            $('.tran').hide(100);
+            $('#mainTableTicketTransation').empty();
+            $('#mainTableTicketTransation').append('Loading....');
+
+            var startTime = new Date().getTime();
+            $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                data: {
+                    userNamePreResault: 'USER_ID',
+                    userIDPreResault: UserSessionID,
+                    Filter: Filter,
+                    action: 'TicketTransation'
+                },
+                success: function(data) {
+                    var tableDBody = $('#mainTableTicketTransation');
+                    // Parse the returned JSON data
+                    var jsonData = JSON.parse(data);
+                    // Clear existing rows
+                    tableDBody.empty();
+                    jsonData.forEach(function(row) {
+                        var newDRow = $('<tr>');
+                        // Populate each cell with data
+                        if (row.TICKET_STATUS == '70') {
+                            newDRow.addClass('canceled-row');
+                        }
+                        newDRow.html(`
+                    <td >${row.TICKET_NO}</td>
+                    <td>${row.SERVICE_TYPE}</td>
+                    <td>${row.SERVICE_DETAIL}</td>
+                    <td>${row.TICKET_PERIORITY_MEANING}</td>
+                    <td>${
+                            row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                            row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                            row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                            row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                            row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                            row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                            row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                            row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                            row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                            row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                            ''
+                        }</td>
+                    <td hidden>${row.REQUEST_TYPE_NO}</td>
+                    <td hidden>${row.SERVICE_DETAIL_NO}</td>
+                    <td hidden>${row.TICKET_PERIORITY}</td>
+                    <td>${row.ISSUE_DESCRIPTION}</td>
+                    <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                    <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+                    <td>${row.USERNAME}</td>
+                    <td>${row.DEPARTMENT_NAME}</td>
+                    <td>${row.TICKET_START_DATE}</td>
+                    <td>${row.BRANCH_CODE}</td>
+                    <td>${row.ASSIGNED_TO}</td>
+                    <td>${row.TICKET_END_DATE}</td>
+                    <td>${row.TTOTAL_TIME}</td>
+                    <td>${row.TOTAL_TIME}</td>
+                `);
+                        // Append the new row to the table body
+                        tableDBody.append(newDRow);
+                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                    });
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                },
+                error: function(data) {
+                    console.log(data);
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                }
+            });
+        });
+    </script>
+<?php
 } else {
     header('Location: index.php');
     exit();

@@ -4,13 +4,13 @@
 
 // Include The Important Files
 
-// include 'connect.php';  // Connection Database File 
+
 
 $inc = 'include/'; // Functions Directory
 $css = 'layout/css/';      // Css Directory 
 $js = 'layout/js/';       // Js Directory 
 
-include 'function.php'; // All Function You Need In This Project
+// include 'function.php'; // All Function You Need In This Project
 include $inc . 'header.php'; // Header File For This Project 
 // include $inc . 'footer.php';
 
@@ -18,4 +18,15 @@ include $inc . 'header.php'; // Header File For This Project
 
 if (!isset($no_sidebar)) {
     include $inc . 'sidebar.php';
+}
+
+function getTitle()
+{
+    global $pageTitle;
+
+    if (isset($pageTitle)) {
+        echo $pageTitle;
+    } else {
+        echo 'Ticketing System';
+    }
 }

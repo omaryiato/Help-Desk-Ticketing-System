@@ -90,44 +90,6 @@ $(function () {
 
     'use strict';
 
-    /*
-        ** All Ticket Function That Retrive All Ticket 
-        ** Has Three Paramters (USER_ID = 'USER_ID', UserSessionID = ' User Who Logged In' , Filter = 0 meaning All Ticket Otheerwise Each Number Meaning Ine Status)
-        to display All Ticket With Their Information
-    */
-        var USER_ID = 'USER_ID'; 
-        var UserSessionID = $('#UserSessionID').val(); 
-        var Filter = 0;
-        getTicketTransaction(USER_ID, UserSessionID, Filter);
-
-    /*
-        ** Count Function That Echo The Numbers of  Ticket in differnt Status
-        ** Has one Paramter $status to display number of rows for each status
-    */
-
-    $('.tickets').each(function() {
-        var filter = $(this).data('filter');
-        getCount(filter);
-    });
-
-    function getCount(filter) {
-        $.ajax({
-            type: 'POST',
-            url: 'function.php', // Replace with the URL of your PHP file to get the count
-            data: { 
-                filter: filter,
-                USER_ID: USER_ID,
-                UserSessionID: UserSessionID
-            },
-            success: function(response) {
-                $('#count-' + filter).text(response);
-            },
-            error: function() {
-                $('#count-' + filter).text('Error fetching count');
-            }
-        });
-    }
-
     // Hide Placeholder On Form Focus
 
     $('[placeholder]').focus(function () {
@@ -1288,35 +1250,7 @@ $(function () {
         e.preventDefault();
         // Get the filter value from the 'data-filter' attribute of the clicked button
         var filter = $(this).data('filter');
-        // Call the getTicketTransaction function with the filter value
-        getTicketTransaction(USER_ID, UserSessionID, filter);
-    });
 
-    $('#TicketTransationTable').on('click', function(e) {               // Fetch Ticket Transaction Data From DB Based On User Session When Click On Ticket Transaction  Button 
-        e.preventDefault();
-
-        window.location.href = 'TicketTransaction.php'; // Replace 'your_other_page.php' with the URL of the page you want to navigate to
-        // Call the function after navigating to the page
-        $(window).on('load', function() {
-            getTicketTransaction(USER_ID, UserSessionID, Filter);
-        });
-        // getTicketTransaction(USER_ID, UserSessionID, Filter);
-    });
-
-    $('#refreshTicketTransation').on('click', function(e) {             // Fetch Ticket Transaction Data From DB Based On User Session When Click On Home Button  
-        e.preventDefault();
-
-        window.location.href = 'TicketTransaction.php'; // Replace 'your_other_page.php' with the URL of the page you want to navigate to
-        // Call the function after navigating to the page
-        $(window).on('load', function() {
-            getTicketTransaction(USER_ID, UserSessionID, Filter);
-        });
-        // getTicketTransaction(USER_ID, UserSessionID, Filter);
-    });
-
-    function getTicketTransaction(USER_ID, UserSessionID, Filter) {      // Fetch Ticket Transaction Data From DB Based On User Session
-
-        $('.tran').hide(100);
         $('#mainTableTicketTransation').empty();
         $('#mainTableTicketTransation').append('Loading....');
 
@@ -1327,7 +1261,7 @@ $(function () {
             data: {
                 userNamePreResault:     'USER_ID',
                 userIDPreResault:       UserSessionID,
-                Filter:                 Filter,
+                Filter:                 filter,
                 action:                 'TicketTransation'
             },
             success: function(data) {
@@ -1392,7 +1326,28 @@ $(function () {
                 console.log(data);
             }
         });
-    }
+
+        
+    });
+
+    $('.tickets').each(function() {
+        var filter = $(this).data('filter');
+        $.ajax({
+            type: 'POST',
+            url: 'function.php', // Replace with the URL of your PHP file to get the count
+            data: { 
+                filter: filter,
+                USER_ID: USER_ID,
+                UserSessionID: UserSessionID
+            },
+            success: function(response) {
+                $('#count-' + filter).text(response);
+            },
+            error: function() {
+                $('#count-' + filter).text('Error fetching count');
+            }
+        });
+    });
 
     var ticketNumber;
     var requestedBy;
@@ -1564,12 +1519,11 @@ $(function () {
             `);
         }
 
-
+        // Technichin Permission
         if (UserRole == 4) {
-            
             $('#actionTicketTransactionList').append(`
                 <li>
-                    <a href="newTicket.php" class="item"  data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
+                    <a href="newTicket.php" class="item" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
                         <i class="fa-solid fa-folder-open"></i>
                         <span>New Ticket</span>
                     </a>
@@ -1580,21 +1534,9 @@ $(function () {
                 // Additional content for status code 10
                 $('#actionTicketTransactionList').append(`
                     <li>
-                        <a class="item" style='margin-right: 5px;' id='editTicketInformation' data-bs-toggle='modal' data-bs-target="#EditTicketPopup" data-bs-whatever="EditTicketPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Edit Ticket'>
-                            <i class="fa-solid fa-pen-to-square"></i>
-                            <span>Edit Ticket</span>
-                        </a>
-                    </li>
-                    <li>
                         <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
                             <i class="fa-solid fa-ban"></i>
                             <span>Cancel</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="item " id='assign' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#assignPopup" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Ticket'>
-                            <i class='fa-solid fa-at'></i>
-                            <span>Assign</span>
                         </button>
                     </li>
                 `);
@@ -1604,21 +1546,9 @@ $(function () {
                 // Additional content for status code 20
                 $('#actionTicketTransactionList').append(`
                     <li>
-                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                            <i class="fa-solid fa-share"></i>
-                            <span>Forword</span>
-                        </button>
-                    </li>
-                    <li>
                         <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
                             <i class="fa-solid fa-play"></i>
                             <span>Start</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="item " id='change' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#changePopup" data-bs-whatever="changePopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                            <i class="fa-solid fa-pen"></i>
-                            <span>Change</span>
                         </button>
                     </li>
                     <li>
@@ -1633,18 +1563,6 @@ $(function () {
             if (ticketStatus == 'Started') {
                 // Additional content for status code 30
                 $('#actionTicketTransactionList').append(`
-                    <li>
-                        <button class="item " id='change' style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#changePopup" data-bs-whatever="changePopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Change Ticket'>
-                            <i class="fa-solid fa-pen"></i>
-                            <span>Change</span>
-                        </button>
-                    </li>
-                    <li>
-                        <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Forword Ticket'>
-                            <i class="fa-solid fa-share"></i>
-                            <span>Forword</span>
-                        </button>
-                    </li>
                     <li>
                         <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
                             <i class="fa-solid fa-wrench"></i>
@@ -1683,115 +1601,17 @@ $(function () {
                     </li>
                 `);
             }
+
             // Add common HTML content for all roles
             $('#actionTicketTransactionList').append(`
-                <li>
-                    <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
-                        <i class="fa-solid fa-clock-rotate-left"></i>
-                        <span>Action History</span>
-                    </button>
-                </li>
-                <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
-                        <i class="fa-solid fa-comments"></i>
-                        <span>Chat</span>
-                    </button>
-                </li>
+            <li>
+                <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Action History</span>
+                </button>
+            </li>
             `);
         }
-        // Technichin Permission
-        // if (UserRole == 4) {
-        //     $('#actionTicketTransactionList').append(`
-        //         <li>
-        //             <a href="newTicket.php" class="item" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
-        //                 <i class="fa-solid fa-folder-open"></i>
-        //                 <span>New Ticket</span>
-        //             </a>
-        //         </li>
-        //     `);
-
-        //     if (ticketStatus == 'New') {
-        //         // Additional content for status code 10
-        //         $('#actionTicketTransactionList').append(`
-        //             <li>
-        //                 <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-        //                     <i class="fa-solid fa-ban"></i>
-        //                     <span>Cancel</span>
-        //                 </button>
-        //             </li>
-        //         `);
-        //     }
-
-        //     if (ticketStatus == 'Assign') {
-        //         // Additional content for status code 20
-        //         $('#actionTicketTransactionList').append(`
-        //             <li>
-        //                 <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
-        //                     <i class="fa-solid fa-play"></i>
-        //                     <span>Start</span>
-        //                 </button>
-        //             </li>
-        //             <li>
-        //                 <button class="item" id='cancelTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Cancel Ticket'>
-        //                     <i class="fa-solid fa-ban"></i>
-        //                     <span>Cancel</span>
-        //                 </button>
-        //             </li>
-        //         `);
-        //     }
-
-        //     if (ticketStatus == 'Started') {
-        //         // Additional content for status code 30
-        //         $('#actionTicketTransactionList').append(`
-        //             <li>
-        //                 <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Update Out Service'>
-        //                     <i class="fa-solid fa-wrench"></i>
-        //                     <span>Update Out Service</span>
-        //                 </button>
-        //             </li>
-        //             <li>
-        //                 <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Received From Out'>
-        //                     <i class="fa-solid fa-inbox"></i>
-        //                     <span>Received From Out</span>
-        //                 </button>
-        //             </li>
-        //             <li>
-        //                 <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='SendOut Service'>
-        //                     <i class="fa-solid fa-paper-plane"></i>
-        //                     <span>SendOut Service</span>
-        //                 </button>
-        //             </li>
-        //             <li>
-        //                 <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#solvePopup" data-bs-whatever="User" data-bs-toggle='tooltip' data-bs-placement='top' title='Solve Ticket'>
-        //                     <i class="fa-solid fa-circle-check"></i>
-        //                     <span>Complete</span>
-        //                 </button>
-        //             </li>
-        //         `);
-        //     }
-
-        //     if (ticketStatus == 'Solved') {
-        //         // Additional content for status code 30
-        //         $('#actionTicketTransactionList').append(`
-        //             <li>
-        //                 <button class="item" style='margin-right: 5px;'  data-bs-toggle='modal' data-bs-target="#finishPopup" data-bs-whatever="finishPopup" data-bs-toggle='tooltip' data-bs-placement='top' title='Finish Ticket'>
-        //                     <i class="fa-solid fa-circle-check"></i>
-        //                     <span>Confirm</span>
-        //                 </button>
-        //             </li>
-        //         `);
-        //     }
-
-        //     // Add common HTML content for all roles
-        //     $('#actionTicketTransactionList').append(`
-        //     <li>
-        //         <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
-        //             <i class="fa-solid fa-clock-rotate-left"></i>
-        //             <span>Action History</span>
-        //         </button>
-        //     </li>
-        //     `);
-        // }
 
         // List Action For End User
         if (UserRole == 2) {
@@ -2084,9 +1904,6 @@ $(function () {
             success: function (response) {
                 $('#assignPopup').modal('hide');
                 Swal.fire("Ticket Assigned Successfully... ");
-                // setTimeout(function() { 
-                //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                // }, 0);
                 var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                 row.find('td:eq(4)').html('<span class="badge bg-warning">Assigned</span>');
                 $('#memberAssigned').empty();
@@ -2100,9 +1917,6 @@ $(function () {
                     title: "Oops...",
                     text: JSON.stringify(response),
                 });
-                // setTimeout(function() {
-                //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                // }, 0);
                 $('#memberAssigned').empty();
                 $('#ticketWeight').val(" ");
                 $('#ticketPeriority').val(" ");
@@ -2127,9 +1941,6 @@ $(function () {
                     Swal.fire("Ticket Started Successfully... ");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-info">Started</span>');
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
                 },
                 error: function (response) {
                     Swal.fire({
@@ -2137,9 +1948,6 @@ $(function () {
                         title: "Oops...",
                         text: JSON.stringify(response),
                     });
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
                 }
             
         });
@@ -2519,9 +2327,6 @@ $(function () {
             success: function (response) {
                 $('#changePopup').modal('hide');
                 Swal.fire("Assign Changed Successfully... ");
-                setTimeout(function() { 
-                    getTicketTransaction(USER_ID, UserSessionID, Filter);
-                }, 0);
                 $('#memberAssignedChange').empty();
                 $('#ticketWeightChange').val(" ");
                 $('#ticketPeriorityChange').val(" ");
@@ -2533,9 +2338,6 @@ $(function () {
                     title: "Oops...",
                     text: JSON.stringify(response),
                 });
-                setTimeout(function() {
-                    getTicketTransaction(USER_ID, UserSessionID, Filter);
-                }, 0);
                 $('#memberAssignedChange').empty();
                 $('#ticketWeightChange').val(" ");
                 $('#ticketPeriorityChange').val(" ");
@@ -2563,9 +2365,6 @@ $(function () {
                     Swal.fire("Ticket Solved Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-success">Solved</span>');
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
             },
             error: function (response){
                 $('#solvePopup').modal('hide');
@@ -2574,9 +2373,6 @@ $(function () {
                         title: "Oops...",
                         text: JSON.stringify(response),
                     });
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
             }
         });
     });
@@ -2597,9 +2393,6 @@ $(function () {
                     Swal.fire("Ticket Canceled Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-danger">Canceled</span>');
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
             },
             error: function (response){
                 Swal.fire({
@@ -2607,9 +2400,6 @@ $(function () {
                     title: "Oops...",
                     text: "Something went wrong!",
                 });    
-                // setTimeout(function() {
-                //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                // }, 0);
             }
         });
     });
@@ -2656,9 +2446,8 @@ $(function () {
             success: function (data) {
                 $('#EditTicketPopup').modal('hide');
                 Swal.fire("Ticket Information Updated Successfully ");
-                setTimeout(function() {
-                    getTicketTransaction(USER_ID, UserSessionID, Filter);
-                }, 0);
+                var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
+                row.find('td:eq(2)').html('<span>' + $('#EditServiceDetails').find('option:selected').text() + '</span>');
             },
             error: function () {
                 $('#EditTicketPopup').modal('hide');
@@ -2667,9 +2456,6 @@ $(function () {
                     title: "Oops...",
                     text: "Somthing Went Wrong!!",
                 });
-                setTimeout(function() {
-                    getTicketTransaction(USER_ID, UserSessionID, Filter);
-                }, 0);
             }
         });
         
@@ -2706,9 +2492,6 @@ $(function () {
                     Swal.fire("Ticket Confirmed Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-success">Confirmed</span>');
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
                 },
                 error: function(error){
                     $('#finishPopup').modal('hide');
@@ -2717,9 +2500,6 @@ $(function () {
                         title: "Oops...",
                         text: JSON.stringify(error),
                     });
-                    // setTimeout(function() {
-                    //     getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    // }, 0);
                 }
             });
         
@@ -2769,7 +2549,8 @@ $(function () {
 
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
 
-    
+
+
 
 ///////////////////////////////////////////***************** Add New Ticket Page Start  *************************/////////////////////////////////////////
 
@@ -2861,9 +2642,6 @@ $(document).on('click', '#addTicket', function(e) {         // Add New Ticket To
                 $('#details').val('');
                 $('#device').val('');
                 $('#description').val('');
-                setTimeout(function() {
-                    getTicketTransaction(USER_ID, UserSessionID, Filter);
-                }, 0);
             },
             error: function(response) {
                 $('#AddNewTicketPopup').modal('hide');
@@ -2876,9 +2654,6 @@ $(document).on('click', '#addTicket', function(e) {         // Add New Ticket To
                     $('#details').val('');
                     $('#device').val('');
                     $('#description').val('');
-                    setTimeout(function() {
-                        getTicketTransaction(USER_ID, UserSessionID, Filter);
-                    }, 0);
             }
         });
     }

@@ -3,8 +3,6 @@
 
 //   ********************  This Page Contain All Function and Ajax Function ***************************
 
-// session_start();
-
 // Oracle database connection settings
 $host = '192.168.15.245';
 $port = '1521';
@@ -19,11 +17,13 @@ $password = 'selfticket';
 // Establish a connection to the Oracle database
 $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
 
+
 if (!$conn) {
     $e = oci_error();
     trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
     echo "Connectoin to Oracle Database Failed!<br>";
 }
+
 
 if (isset($_POST['action'])) {
 
@@ -1618,16 +1618,3 @@ if (isset($_POST['GetTeamID'])) {   // Add New Team Member To The Team Based On 
     ** Title Function That Echo The Page Title In Case The Page
     ** Has The Variable $pageTitle And Echo Default Title For Other Pages
 */
-
-
-
-function getTitle()
-{
-    global $pageTitle;
-
-    if (isset($pageTitle)) {
-        echo $pageTitle;
-    } else {
-        echo 'Ticketing System';
-    }
-}

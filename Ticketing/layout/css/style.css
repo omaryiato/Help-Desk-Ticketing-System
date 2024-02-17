@@ -744,3 +744,23 @@ input[type="radio"] {
 #bad:checked:checked~.bad span {
   color: #fff;
 }
+
+.home {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.homeMenu { margin-top: 50px; max-width: 500px; }
+.homeMenu button {
+  background-color:  transparent;
+  border: #0069d9  solid 2px;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px;
+  transition: all ease-in-out 0.5s;
+}
+
+.homeMenu button:hover { background-color: #0069d9; color: white !important;}
+
+.homeMenu button:hover a { color: white !important;}
