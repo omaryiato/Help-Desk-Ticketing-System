@@ -26,6 +26,8 @@ if (isset($_SESSION['user'])) {
     $password = 'selfticket';
 
     // Establish a connection to the Oracle database
+
+    putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
     $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
 
     if (!$conn) {

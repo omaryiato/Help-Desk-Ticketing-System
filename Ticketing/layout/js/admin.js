@@ -1330,6 +1330,84 @@ $(function () {
         
     });
 
+    $(document).on('click', '#orderBy', function(e) {          // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+        e.preventDefault();
+        // Get the filter value from the 'data-filter' attribute of the clicked button
+        var filter = $(this).data('filter');
+
+        $('#mainTableTicketTransation').empty();
+        $('#mainTableTicketTransation').append('Loading....');
+
+        var startTime = new Date().getTime();
+        $.ajax({
+            type: 'POST',
+            url: 'function.php',
+            data: {
+                userNamePreResault:     'USER_ID',
+                userIDPreResault:       UserSessionID,
+                Filter:                 filter,
+                action:                 'OrderTicketTransation'
+            },
+            success: function(data) {
+                var tableDBody = $('#mainTableTicketTransation');
+                    // Parse the returned JSON data
+                var jsonData = JSON.parse(data);
+                    // Clear existing rows
+                tableDBody.empty();
+                jsonData.forEach(function(row) {
+                    var newDRow = $('<tr>');
+                        // Populate each cell with data
+                        if (row.TICKET_STATUS == '70') {
+                            newDRow.addClass('canceled-row');
+                        }
+                    newDRow.html(`
+                        <td >${row.TICKET_NO}</td>
+                        <td>${row.SERVICE_TYPE}</td>
+                        <td>${row.SERVICE_DETAIL}</td>
+                        <td>${row.TICKET_PERIORITY_MEANING}</td>
+                        <td>${
+                                row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                                row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                                row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                                row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                                row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                                row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                                row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                                row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                                row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                                row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                                ''
+                            }</td>
+                        <td hidden>${row.REQUEST_TYPE_NO}</td>
+                        <td hidden>${row.SERVICE_DETAIL_NO}</td>
+                        <td hidden>${row.TICKET_PERIORITY}</td>
+                        <td>${row.ISSUE_DESCRIPTION}</td>
+                        <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                        <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+                        <td>${row.USERNAME}</td>
+                        <td>${row.DEPARTMENT_NAME}</td>
+                        <td>${row.TICKET_START_DATE}</td>
+                        <td>${row.BRANCH_CODE}</td>
+                        <td>${row.ASSIGNED_TO}</td>
+                        <td>${row.TICKET_END_DATE}</td>
+                        <td>${row.TTOTAL_TIME}</td>
+                        <td>${row.TOTAL_TIME}</td>
+                    `);
+
+                        // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                });
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+            },
+            error: function (data) {
+                console.log(data);
+            }
+        });
+    });
+
     $('.tickets').each(function() {
         var filter = $(this).data('filter');
         $.ajax({
@@ -2740,6 +2818,98 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
     });
 
     ///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button End  *************************/////////////////////////////////////////
+    
+    
+    ///////////////////////////////////////////***************** Search Ticket Start  *************************/////////////////////////////////////////
+
+    $(document).on('click', '#SearchTicketButton' , function (e) { 
+        e.preventDefault();
+
+        var nonEmptyFields = {};
+
+    $('#SearchTicketForm input[type="text"], #SearchTicketForm input[type="number"],  #SearchTicketForm select').each(function() {
+        var fieldID = $(this).attr('id'); // Change to fieldID
+        var fieldValue = $(this).val().trim();
+
+        if (fieldValue !== '') {
+            nonEmptyFields[fieldID] = fieldValue; // Change to fieldID
+        }
+    });
+
+            $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                dataType: 'json',
+                data: {
+                    searchField:            nonEmptyFields,
+                    userIDPreResault:       UserSessionID,
+                    USER_ID:                'USER_ID',
+                    action:                 'search'
+                },
+                success: function(data) {
+                    $('#SearchTicket').modal('hide');
+                    $('#mainTableTicketTransation').empty();
+                    $('#mainTableTicketTransation').append('Loading....');
+                    var tableDBody = $('#mainTableTicketTransation');
+                        // Parse the returned JSON data
+                    var jsonData = JSON.parse(data);
+                        // Clear existing rows
+                    tableDBody.empty();
+                    jsonData.forEach(function(row) {
+                        var newDRow = $('<tr>');
+                            // Populate each cell with data
+                            if (row.TICKET_STATUS == '70') {
+                                newDRow.addClass('canceled-row');
+                            }
+                        newDRow.html(`
+                            <td >${row.TICKET_NO}</td>
+                            <td>${row.SERVICE_TYPE}</td>
+                            <td>${row.SERVICE_DETAIL}</td>
+                            <td>${row.TICKET_PERIORITY_MEANING}</td>
+                            <td>${
+                                    row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                                    row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                                    row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                                    row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                                    row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                                    row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                                    row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                                    row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                                    row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                                    row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                                    ''
+                                }</td>
+                            <td hidden>${row.REQUEST_TYPE_NO}</td>
+                            <td hidden>${row.SERVICE_DETAIL_NO}</td>
+                            <td hidden>${row.TICKET_PERIORITY}</td>
+                            <td>${row.ISSUE_DESCRIPTION}</td>
+                            <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                            <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+                            <td>${row.USERNAME}</td>
+                            <td>${row.DEPARTMENT_NAME}</td>
+                            <td>${row.TICKET_START_DATE}</td>
+                            <td>${row.BRANCH_CODE}</td>
+                            <td>${row.ASSIGNED_TO}</td>
+                            <td>${row.TICKET_END_DATE}</td>
+                            <td>${row.TTOTAL_TIME}</td>
+                            <td>${row.TOTAL_TIME}</td>
+                        `);
+    
+                            // Append the new row to the table body
+                        tableDBody.append(newDRow);
+                            // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                    });
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                },
+                error: function () { 
+                    alert("Error Fetching Data"); 
+                }
+            });
+    });
+    
+    ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
 
 });
 

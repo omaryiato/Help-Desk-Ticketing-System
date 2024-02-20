@@ -50,6 +50,9 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#">Help</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"  data-bs-toggle='modal' data-bs-target="#SearchTicket" data-bs-whatever="SearchTicket"><i class="fa-solid fa-magnifying-glass px-2"></i>Search</a>
+                </li>
                 <li class="nav-item ms-auto wel">
                     <a class="nav-link users " href="#"><i class="fa-solid fa-user pe-2"></i><span>Welcome: <?php echo $_SESSION['user'] ?></span><i class="fa-solid fa-caret-down ps-2"></i></a>
                     <ul class="userno">

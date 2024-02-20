@@ -441,31 +441,31 @@ a.sidebar-link {
 .content .scro th:nth-child(2),
 .content .scro td:nth-child(2) {
   position: sticky;
-  left: 100px;
+  left: 150px;
 }
 
 .content .scro th:nth-child(3),
 .content .scro td:nth-child(3) {
   position: sticky;
-  left: 250px;
+  left: 300px;
 }
 
 .content .scro th:nth-child(4),
 .content .scro td:nth-child(4) {
   position: sticky;
-  left: 400px;
+  left: 450px;
 }
 
 .content .scro th:nth-child(5),
 .content .scro td:nth-child(5) {
   position: sticky;
-  left: 425px;
+  left: 500px;
 }
 
 .content .scro th:nth-child(18),
 .content .scro td:nth-child(18) {
   position: sticky;
-  right: 100px;
+  right: 150px;
 }
 
 .content .scro th:nth-child(19),
@@ -527,7 +527,11 @@ a.sidebar-link {
   white-space: nowrap;
   overflow: hidden;
 }
+.content .scro th {
+  min-width: 150px;
+}
 
+.content .scro th:nth-child(1),
 .content .scro th:nth-child(2),
 .content .scro td:nth-child(2),
 .content .scro th:nth-child(3),
@@ -539,7 +543,7 @@ a.sidebar-link {
 
 .content .scro th:nth-child(4),
 .content .scro td:nth-child(4) {
-  min-width: 25px;
+  min-width: 50px;
 }
 
 .content .scro th:nth-child(5),

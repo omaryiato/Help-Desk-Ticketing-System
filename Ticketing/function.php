@@ -15,6 +15,8 @@ $username = 'selfticket';
 $password = 'selfticket';
 
 // Establish a connection to the Oracle database
+
+putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
 $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
 
 
@@ -116,6 +118,59 @@ if (isset($_POST['action'])) {
                 }
                 echo json_encode($data);
             }
+        } else {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
+        }
+    } elseif ($action == 'OrderTicketTransation') {                        // Fetch All Ticket From  DB Based On User ID
+
+        $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
+        $userIDPreResault           = $_POST['userIDPreResault'];
+        $Filter                     = $_POST['Filter']; // In this Case Its Equal 0
+
+        // Insert UserID Into global_temp_table Table After Returned From User Table
+        $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
+                            VALUES ('$userNamePreResault', $userIDPreResault)";
+        $insertValue = oci_parse($conn, $ticketTransation);
+        $run = oci_execute($insertValue);
+
+        if ($run) {
+            // Fetch All Ticket From  DB Based On User ID
+            $allTicket = 'SELECT TICKET_NO, SERVICE_TYPE, SERVICE_DETAIL, TICKET_PERIORITY_MEANING, 
+                                TICKET_STATUS, REQUEST_TYPE_NO, SERVICE_DETAIL_NO, TICKET_PERIORITY,
+                                ISSUE_DESCRIPTION, TECHNICAL_ISSUE_DESCRIPTION, TECHNICAL_ISSUE_RESOLUTION,
+                                USERNAME, DEPARTMENT_NAME, TICKET_START_DATE, BRANCH_CODE,  ASSIGNED_TO ,
+                                TICKET_END_DATE,  TTOTAL_TIME, TOTAL_TIME
+                            FROM TICKETING.TICKETS_TRANSACTIONS_V ORDER BY ' . "$Filter"  . ' DESC';
+            $all = oci_parse($conn, $allTicket);
+            // Execute the query
+            oci_execute($all);
+
+            $data = array();
+            while ($row = oci_fetch_assoc($all)) {
+                $data[] = array(
+                    'TICKET_NO'                     => $row['TICKET_NO'],
+                    'SERVICE_TYPE'                  => $row['SERVICE_TYPE'],
+                    'SERVICE_DETAIL'                => $row['SERVICE_DETAIL'],
+                    'TICKET_PERIORITY_MEANING'      => $row['TICKET_PERIORITY_MEANING'],
+                    'TICKET_STATUS'                 => $row['TICKET_STATUS'],
+                    'REQUEST_TYPE_NO'               => $row['REQUEST_TYPE_NO'],
+                    'SERVICE_DETAIL_NO'             => $row['SERVICE_DETAIL_NO'],
+                    'TICKET_PERIORITY'              => $row['TICKET_PERIORITY'],
+                    'ISSUE_DESCRIPTION'             => $row['ISSUE_DESCRIPTION'],
+                    'TECHNICAL_ISSUE_DESCRIPTION'   => $row['TECHNICAL_ISSUE_DESCRIPTION'],
+                    'TECHNICAL_ISSUE_RESOLUTION'    => $row['TECHNICAL_ISSUE_RESOLUTION'],
+                    'USERNAME'                      => $row['USERNAME'],
+                    'DEPARTMENT_NAME'               => $row['DEPARTMENT_NAME'],
+                    'TICKET_START_DATE'             => $row['TICKET_START_DATE'],
+                    'BRANCH_CODE'                   => $row['BRANCH_CODE'],
+                    'ASSIGNED_TO'                   => $row['ASSIGNED_TO'],
+                    'TICKET_END_DATE'               => $row['TICKET_END_DATE'],
+                    'TTOTAL_TIME'                   => $row['TTOTAL_TIME'],
+                    'TOTAL_TIME'                    => $row['TOTAL_TIME']
+                );
+            }
+            echo json_encode($data);
         } else {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
@@ -903,8 +958,80 @@ if (isset($_POST['action'])) {
         // Send a success response with HTTP status 200
         http_response_code(200);
         echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
-    }  ////////////////////////////////////////////////////////////   Team & Team Member Page Request Functions End
+    }
+    ////////////////////////////////////////////////////////////   Team & Team Member Page Request Functions End
+    elseif ($action == 'search') {                        // Fetch All Ticket From  DB Based On User ID
 
+        $userIDPreResault           =  $_POST['userIDPreResault']; // User Who Logged In 
+        $USER_ID                    = $_POST['USER_ID'];
+        $searchField                = $_POST['searchField']; // In this Case Its Equal 0
+
+        $_POST['searchField']['Totol'] =      $_POST['searchField']['t1_sec'] + $_POST['searchField']['t1_hiu'];
+
+
+        // Insert UserID Into global_temp_table Table After Returned From User Table
+        $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
+                            VALUES ('$USER_ID', $userIDPreResault)";
+        $insertValue = oci_parse($conn, $ticketTransation);
+        $run = oci_execute($insertValue);
+
+        if ($run) {
+
+            $query = '';
+
+            if (!empty($searchField)) {
+
+                $query = 'WHERE ';
+
+                foreach ($searchField as $field => $value) {
+                    $query .= "$field = '$value' AND ";
+                }
+                // Remove the last 'AND' from the query
+                $query = rtrim($query, "AND ");
+            }
+
+            // Construct the full SQL query
+            $allTicket = "SELECT TICKET_NO, SERVICE_TYPE, SERVICE_DETAIL, TICKET_PERIORITY_MEANING, 
+                    TICKET_STATUS, REQUEST_TYPE_NO, SERVICE_DETAIL_NO, TICKET_PERIORITY,
+                    ISSUE_DESCRIPTION, TECHNICAL_ISSUE_DESCRIPTION, TECHNICAL_ISSUE_RESOLUTION,
+                    USERNAME, DEPARTMENT_NAME, TICKET_START_DATE, BRANCH_CODE,  ASSIGNED_TO ,
+                    TICKET_END_DATE,  TTOTAL_TIME, TOTAL_TIME
+                FROM TICKETING.TICKETS_TRANSACTIONS_V $query
+                ORDER BY TICKET_NO DESC";
+
+            $all = oci_parse($conn, $allTicket);
+            // Execute the query
+            oci_execute($all);
+            $data = array();
+            while ($row = oci_fetch_assoc($all)) {
+                $data[] = array(
+                    'TICKET_NO'                     => $row['TICKET_NO'],
+                    'SERVICE_TYPE'                  => $row['SERVICE_TYPE'],
+                    'SERVICE_DETAIL'                => $row['SERVICE_DETAIL'],
+                    'TICKET_PERIORITY_MEANING'      => $row['TICKET_PERIORITY_MEANING'],
+                    'TICKET_STATUS'                 => $row['TICKET_STATUS'],
+                    'REQUEST_TYPE_NO'               => $row['REQUEST_TYPE_NO'],
+                    'SERVICE_DETAIL_NO'             => $row['SERVICE_DETAIL_NO'],
+                    'TICKET_PERIORITY'              => $row['TICKET_PERIORITY'],
+                    'ISSUE_DESCRIPTION'             => $row['ISSUE_DESCRIPTION'],
+                    'TECHNICAL_ISSUE_DESCRIPTION'   => $row['TECHNICAL_ISSUE_DESCRIPTION'],
+                    'TECHNICAL_ISSUE_RESOLUTION'    => $row['TECHNICAL_ISSUE_RESOLUTION'],
+                    'USERNAME'                      => $row['USERNAME'],
+                    'DEPARTMENT_NAME'               => $row['DEPARTMENT_NAME'],
+                    'TICKET_START_DATE'             => $row['TICKET_START_DATE'],
+                    'BRANCH_CODE'                   => $row['BRANCH_CODE'],
+                    'ASSIGNED_TO'                   => $row['ASSIGNED_TO'],
+                    'TICKET_END_DATE'               => $row['TICKET_END_DATE'],
+                    'TTOTAL_TIME'                   => $row['TTOTAL_TIME'],
+                    'TOTAL_TIME'                    => $row['TOTAL_TIME']
+                );
+            }
+            echo json_encode($data);
+        } else {
+            http_response_code(400);
+            echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
+        }
+    }
 }
 
 
