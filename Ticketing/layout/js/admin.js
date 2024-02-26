@@ -2720,6 +2720,9 @@ $(document).on('click', '#addTicket', function(e) {         // Add New Ticket To
                 $('#details').val('');
                 $('#device').val('');
                 $('#description').val('');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 0);
             },
             error: function(response) {
                 $('#AddNewTicketPopup').modal('hide');
@@ -2839,69 +2842,37 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
             $.ajax({
                 type: 'POST',
                 url: 'function.php',
-                dataType: 'json',
                 data: {
-                    searchField:            nonEmptyFields,
-                    userIDPreResault:       UserSessionID,
-                    USER_ID:                'USER_ID',
-                    action:                 'search'
+                    SearchTicketNumber:             $('#SearchTicketNumber').val(),
+                    SearchTicketStatus:             $('#SearchTicketStatus').val(),
+                    SearchTicketBranch:             $('#SearchTicketBranch').val(),
+                    SearchTicketPriority:           $('#SearchTicketPriority').val(),
+                    SearchITTime:                   $('#SearchITTime').val(),
+                    SearchITTimePerHour:            $('#SearchITTimePerHour').val(),
+                    SearchITTimePerMin:             $('#SearchITTimePerMin').val(),
+                    SearchITTimePerSec:             $('#SearchITTimePerSec').val(),
+                    SearchITTimePerSec:             $('#SearchITTimePerSec').val(),
+                    SearchTotalTime:                $('#SearchTotalTime').val(),
+                    SearchTotalTimePerHour:         $('#SearchTotalTimePerHour').val(),
+                    SearchTotalTimePerMin:          $('#SearchTotalTimePerMin').val(),
+                    SearchTotalTimePerSec:          $('#SearchTotalTimePerSec').val(),
+                    SearchTicketAssignedTo:         $('#SearchTicketAssignedTo').val(),
+                    SearchTecIssueDiscription:      $('#SearchTecIssueDiscription').val(),
+                    SearchTecIssueResolution:       $('#SearchTecIssueResolution').val(),
+                    SearchResponsibleDept:          $('#SearchResponsibleDept').val(),
+                    SearchServiceType:              $('#SearchServiceType').val(),
+                    SearchServiceDetails:           $('#SearchServiceDetails').val(),
+                    SearchCreatedBy:                $('#SearchCreatedBy').val(),
+                    SearchDepartment:               $('#SearchDepartment').val(),
+                    SearchUserIsseDescription:      $('#SearchUserIsseDescription').val(),
+                    SearchFromDate:                 $('#SearchFromDate').val(),
+                    SearchToDate:                   $('#SearchToDate').val(),
+                    userIDPreResault:               UserSessionID,
+                    USER_ID:                        'USER_ID',
+                    action:                         'search'
                 },
-                success: function(data) {
-                    $('#SearchTicket').modal('hide');
-                    $('#mainTableTicketTransation').empty();
-                    $('#mainTableTicketTransation').append('Loading....');
-                    var tableDBody = $('#mainTableTicketTransation');
-                        // Parse the returned JSON data
-                    var jsonData = JSON.parse(data);
-                        // Clear existing rows
-                    tableDBody.empty();
-                    jsonData.forEach(function(row) {
-                        var newDRow = $('<tr>');
-                            // Populate each cell with data
-                            if (row.TICKET_STATUS == '70') {
-                                newDRow.addClass('canceled-row');
-                            }
-                        newDRow.html(`
-                            <td >${row.TICKET_NO}</td>
-                            <td>${row.SERVICE_TYPE}</td>
-                            <td>${row.SERVICE_DETAIL}</td>
-                            <td>${row.TICKET_PERIORITY_MEANING}</td>
-                            <td>${
-                                    row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                                    row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
-                                    row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                                    row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                                    row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                                    row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                                    row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                                    row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                                    row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                                    row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                                    ''
-                                }</td>
-                            <td hidden>${row.REQUEST_TYPE_NO}</td>
-                            <td hidden>${row.SERVICE_DETAIL_NO}</td>
-                            <td hidden>${row.TICKET_PERIORITY}</td>
-                            <td>${row.ISSUE_DESCRIPTION}</td>
-                            <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                            <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
-                            <td>${row.USERNAME}</td>
-                            <td>${row.DEPARTMENT_NAME}</td>
-                            <td>${row.TICKET_START_DATE}</td>
-                            <td>${row.BRANCH_CODE}</td>
-                            <td>${row.ASSIGNED_TO}</td>
-                            <td>${row.TICKET_END_DATE}</td>
-                            <td>${row.TTOTAL_TIME}</td>
-                            <td>${row.TOTAL_TIME}</td>
-                        `);
-    
-                            // Append the new row to the table body
-                        tableDBody.append(newDRow);
-                            // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
-                    });
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                success: function (data) {
+
                 },
                 error: function () { 
                     alert("Error Fetching Data"); 

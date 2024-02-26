@@ -43,6 +43,42 @@ if (isset($_POST['action'])) {
         $insertValue = oci_parse($conn, $ticketTransation);
         $run = oci_execute($insertValue);
 
+        $getActionDate = "SELECT TICKET_NO, TICKET_STATUS, ACTION_DATE FROM TICKETING.TICKETS";
+        $actionDateForCalTimeUpdate = oci_parse($conn, $getActionDate);
+        oci_execute($actionDateForCalTimeUpdate);
+
+        while ($actionDate = oci_fetch_assoc($actionDateForCalTimeUpdate)) {
+            if ($actionDate['ACTION_DATE'] !== null) {
+                $actionDateData = json_decode($actionDate['ACTION_DATE'], true);
+
+                // Check if the key "Confirmed By User" exists and if its value is in the expected format
+                if (isset($actionDateData['Confirmed By User'])) {
+                    $lastValue = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Confirmed By User']);
+                } else {
+                    // If the key doesn't exist or the value is not in the expected format, set $dateOne to null
+                    $lastValue =  new DateTime();
+                }
+
+                // // Create a DateTime object from the first value
+                $firstDateTime = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Creation Date']);
+                // // Calculate the difference between the two DateTime objects
+                $interval = $firstDateTime->diff($lastValue);
+
+                $DaysDifference = $interval->format('%a');
+                $HoursDifference = $interval->format('%h');
+                $MinDifference = $interval->format('%i');
+                $SecDifference = $interval->format('%s');
+
+                $difference = $DaysDifference . " Day " . $HoursDifference .  " Hours " .  $MinDifference . " Minutes " . $SecDifference . " Sec ";
+
+                // // Update the TOTAL_TIME column for this specific row
+                $updateActionDate = "UPDATE TICKETING.TICKETS SET TOTAL_TIME = '$difference' WHERE TICKET_NO = " . $actionDate['TICKET_NO'];
+                $up = oci_parse($conn, $updateActionDate);
+
+                oci_execute($up);
+            }
+        }
+
         if ($run) {
             if ($Filter == 0) { // Fetch All Ticket From  DB Based On User ID
                 $allTicket = "SELECT TICKET_NO, SERVICE_TYPE, SERVICE_DETAIL, TICKET_PERIORITY_MEANING, 
@@ -236,6 +272,8 @@ if (isset($_POST['action'])) {
                     $run = oci_execute($newTeamMembreAssigned);
 
                     if ($run) {
+                        actionDate('Assigned By Supervisor', date("d/m/y H:i:s"), $ticketNumber);
+                        CalTime('Creation Date', "Assigned By Supervisor",  $ticketNumber, 'Assigned By Supervisor After');
                         http_response_code(200);
                         echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
                     } else {
@@ -364,6 +402,8 @@ if (isset($_POST['action'])) {
             $resault = oci_execute($newHistory);
 
             if ($resault) {
+                actionDate('Start By Tech', date("d/m/y H:i:s"), $ticketid);
+                CalTime('Assigned By Supervisor', "Start By Tech",  $ticketid, 'Started By Tech After');
                 http_response_code(200);
                 echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
             } else {
@@ -413,6 +453,8 @@ if (isset($_POST['action'])) {
             $resault = oci_execute($newHistory);
 
             if ($resault) {
+                actionDate('Solved By Tech', date("d/m/y H:i:s"), $ticketid);
+                CalTime('Start By Tech', "Solved By Tech",  $ticketid, 'Solved By Tech After');
                 http_response_code(200);
                 echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
             } else {
@@ -492,6 +534,7 @@ if (isset($_POST['action'])) {
             $resualt = oci_execute($action);
 
             if ($resualt) {
+                actionDate('Creation Date', date("d/m/y H:i:s"), $ticketNO);
                 echo $ticketNO;
             } else {
                 http_response_code(500); // Internal Server Error
@@ -566,6 +609,8 @@ if (isset($_POST['action'])) {
                 $newEvaluation = oci_parse($conn, $addTicketEvaluation);
                 $eva = oci_execute($newEvaluation);
                 if ($eva) {
+                    actionDate('Confirmed By User', date("d/m/y H:i:s"), $returnedTicketNumber);
+                    CalTime('Solved By Tech', "Confirmed By User",  $ticketid, 'User Confirmed After');
                     http_response_code(200);
                     echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
                 } else {
@@ -616,6 +661,7 @@ if (isset($_POST['action'])) {
             $newHistory = oci_parse($conn, $addTicketHistory);
             $resault = oci_execute($newHistory);
             if ($resault) {
+                actionDate('Ticket Canceled In ', date("d/m/y H:i:s"), $ticketid);
                 http_response_code(200);
                 echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
             } else {
@@ -962,11 +1008,33 @@ if (isset($_POST['action'])) {
     ////////////////////////////////////////////////////////////   Team & Team Member Page Request Functions End
     elseif ($action == 'search') {                        // Fetch All Ticket From  DB Based On User ID
 
-        $userIDPreResault           =  $_POST['userIDPreResault']; // User Who Logged In 
-        $USER_ID                    = $_POST['USER_ID'];
-        $searchField                = $_POST['searchField']; // In this Case Its Equal 0
-
-        $_POST['searchField']['Totol'] =      $_POST['searchField']['t1_sec'] + $_POST['searchField']['t1_hiu'];
+        $conditions  = [];
+        $SearchTicketNumber             = $_POST['SearchTicketNumber'];
+        $SearchTicketStatus             = $_POST['SearchTicketStatus'];
+        $SearchTicketBranch             = $_POST['SearchTicketBranch'];
+        $SearchTicketPriority           = $_POST['SearchTicketPriority'];
+        $SearchITTime                   = $_POST['SearchITTime'];
+        $SearchITTimePerHour            = $_POST['SearchITTimePerHour'];
+        $SearchITTimePerMin             = $_POST['SearchITTimePerMin'];
+        $SearchITTimePerSec             = $_POST['SearchITTimePerSec'];
+        $SearchITTimePerSec             = $_POST['SearchITTimePerSec'];
+        $SearchTotalTime                = $_POST['SearchTotalTime'];
+        $SearchTotalTimePerHour         = $_POST['SearchTotalTimePerHour'];
+        $SearchTotalTimePerMin          = $_POST['SearchTotalTimePerMin'];
+        $SearchTotalTimePerSec          = $_POST['SearchTotalTimePerSec'];
+        $SearchTicketAssignedTo         = $_POST['SearchTicketAssignedTo'];
+        $SearchTecIssueDiscription      = $_POST['SearchTecIssueDiscription'];
+        $SearchTecIssueResolution       = $_POST['SearchTecIssueResolution'];
+        $SearchResponsibleDept          = $_POST['SearchResponsibleDept'];
+        $SearchServiceType              = $_POST['SearchServiceType'];
+        $SearchServiceDetails           = $_POST['SearchServiceDetails'];
+        $SearchCreatedBy                = $_POST['SearchCreatedBy'];
+        $SearchDepartment               = $_POST['SearchDepartment'];
+        $SearchUserIsseDescription      = $_POST['SearchUserIsseDescription'];
+        $SearchFromDate                 = $_POST['SearchFromDate'];
+        $SearchToDate                   = $_POST['SearchToDate'];
+        $userIDPreResault               =  $_POST['userIDPreResault']; // User Who Logged In 
+        $USER_ID                        = $_POST['USER_ID'];
 
 
         // Insert UserID Into global_temp_table Table After Returned From User Table
@@ -1741,7 +1809,120 @@ if (isset($_POST['GetTeamID'])) {   // Add New Team Member To The Team Based On 
 
 
 /*********************************************************** End  ***********************************************************************/
+
 /*
-    ** Title Function That Echo The Page Title In Case The Page
-    ** Has The Variable $pageTitle And Echo Default Title For Other Pages
+    ** actionDate Function That Update Action Date Column Debends On The Action
+    ** Has Three Parameter  First Is Key Of Value (Action Name) Second Is Value Of That Key (Action Date) And Third Is Ticket Number 
 */
+
+function actionDate($actionName, $actionDate, $ticketNumber)
+{
+    // Oracle database connection settings
+    $host = '192.168.15.245';
+    $port = '1521';
+    $sid = 'ARCHDEV';
+    //old
+    // $username = 'ticketing';
+    // $password = 'ticketing';
+    //new
+    $username = 'selfticket';
+    $password = 'selfticket';
+
+    // Establish a connection to the Oracle database
+
+    putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
+    $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
+
+
+    if (!$conn) {
+        $e = oci_error();
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        echo "Connectoin to Oracle Database Failed!<br>";
+    }
+
+    $getActionDate = "SELECT ACTION_DATE FROM TICKETING.TICKETS WHERE TICKET_NO = " . $ticketNumber;
+    $actionDateTime = oci_parse($conn, $getActionDate);
+    oci_execute($actionDateTime);
+    $row = oci_fetch_assoc($actionDateTime);
+
+    $actionDateData = json_decode($row['ACTION_DATE'], true);
+
+    $actionDateData[$actionName] = $actionDate;
+
+    $newActionDate = json_encode($actionDateData);
+
+    $updateActionDate = "UPDATE TICKETING.TICKETS SET ACTION_DATE='$newActionDate' WHERE TICKET_NO = " . $ticketNumber;
+    $up = oci_parse($conn, $updateActionDate);
+    oci_execute($up);
+}
+
+
+/*
+    ** CalTime Function That Update Cal_Time Column in Tickets Table By Calculate  Time From Action Date column Between Two Action 
+    ** Has Three Parameter  First Is Key Of Value (Action Name) Second Is Value Of That Key (Action Date) And Third Is Ticket Number 
+*/
+
+function CalTime($firstDate, $secDate, $ticketNumber,  $calTimeKey)
+{
+    // Oracle database connection settings
+    $host = '192.168.15.245';
+    $port = '1521';
+    $sid = 'ARCHDEV';
+    //old
+    // $username = 'ticketing';
+    // $password = 'ticketing';
+    //new
+    $username = 'selfticket';
+    $password = 'selfticket';
+
+    // Establish a connection to the Oracle database
+
+    putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
+    $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
+
+
+    if (!$conn) {
+        $e = oci_error();
+        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
+        echo "Connectoin to Oracle Database Failed!<br>";
+    }
+
+    $getActionDate = "SELECT ACTION_DATE FROM TICKETING.TICKETS WHERE TICKET_NO = " . $ticketNumber;
+    $actionDateForCalTimeUpdate = oci_parse($conn, $getActionDate);
+    oci_execute($actionDateForCalTimeUpdate);
+    $actionDate = oci_fetch_assoc($actionDateForCalTimeUpdate);
+
+    $actionDateData = json_decode($actionDate['ACTION_DATE'], true);
+
+    $dateOne = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData[$firstDate]);
+    $dateTwo = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData[$secDate]);
+
+
+    $interval = $dateOne->diff($dateTwo);
+
+    $DaysDifference = $interval->format('%a');
+    $HoursDifference = $interval->format('%h');
+    $MinDifference = $interval->format('%i');
+    $SecDifference = $interval->format('%s');
+
+    $difference = $DaysDifference . "Day " . $HoursDifference .  "Hours " .  $MinDifference . "Minutes " . $SecDifference . "Sec ";
+
+    $getCalTime = "SELECT CAL_TIME FROM TICKETING.TICKETS WHERE TICKET_NO =" . $ticketNumber;
+    $cal_time = oci_parse($conn, $getCalTime);
+    oci_execute($cal_time);
+    $calTime = oci_fetch_assoc($cal_time);
+
+    $calTimeData = json_decode($calTime['CAL_TIME'], true);
+
+    $calTimeData[$calTimeKey] = $difference;
+
+
+    // Encode the updated data array into JSON format
+    $diffTime = json_encode($calTimeData);
+
+    $updateCalTime = "UPDATE TICKETING.TICKETS SET CAL_TIME='$diffTime' WHERE TICKET_NO = " . $ticketNumber;
+    //echo "$update_query \
+    $up = oci_parse($conn, $updateCalTime);
+
+    oci_execute($up);
+}

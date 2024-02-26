@@ -795,14 +795,14 @@ if (isset($_SESSION['user'])) {
                                             <div class="row">
                                                 <!-- Start Ticket Number Field -->
                                                 <div class='col-sm-5 my-1'>
-                                                    <label class="" for="TICKET_NO">Ticket #</label>
-                                                    <input type="text" class="form-control" id="TICKET_NO" aria-label="TICKET_NO">
+                                                    <label class="" for="SearchTicketNumber">Ticket #</label>
+                                                    <input type="text" class="form-control" id="SearchTicketNumber" name="TICKET_NO" aria-label="SearchTicketNumber">
                                                 </div>
                                                 <!-- End  Ticket Number Field -->
                                                 <!-- Start Ticket Status Field -->
                                                 <div class='col-sm-5 my-1'>
-                                                    <label class="" for="TICKET_STATUS">Status</label>
-                                                    <select class="form-select" id="TICKET_STATUS">
+                                                    <label class="" for="SearchTicketStatus">Status</label>
+                                                    <select class="form-select" id="SearchTicketStatus">
                                                         <?php
                                                         $ticketStatus = "SELECT CODE, MEANING FROM TICKETING.LOOKUP_VALUES WHERE lookup_type_id = 1 ";
                                                         $status = oci_parse($conn, $ticketStatus);
@@ -817,8 +817,8 @@ if (isset($_SESSION['user'])) {
                                                 <!-- End Ticket Status Field -->
                                                 <!-- Start Ticket Branch Field-->
                                                 <div class='col-sm-5 my-1'>
-                                                    <label class="" for="BRANCH_CODE">Branch</label>
-                                                    <select class="form-select" id="BRANCH_CODE">
+                                                    <label class="" for="SearchTicketBranch">Branch</label>
+                                                    <select class="form-select" id="SearchTicketBranch">
                                                         <option></option>
                                                         <option value="RYD">RYD</option>
                                                         <option value="HUF">HUF</option>
@@ -828,8 +828,8 @@ if (isset($_SESSION['user'])) {
                                                 <!-- End Ticket Branch Field -->
                                                 <!-- Start Ticket Priority Field-->
                                                 <div class='col-sm-5 my-1'>
-                                                    <label class="" for="TICKET_PERIORITY">Priority</label>
-                                                    <select class="form-select" id="TICKET_PERIORITY">
+                                                    <label class="" for="SearchTicketPriority">Priority</label>
+                                                    <select class="form-select" id="SearchTicketPriority">
                                                         <?php
                                                         $ticketStatus = "SELECT CODE, MEANING FROM TICKETING.LOOKUP_VALUES WHERE lookup_type_id = 4 ";
                                                         $status = oci_parse($conn, $ticketStatus);
@@ -846,67 +846,67 @@ if (isset($_SESSION['user'])) {
                                                 <!-- Start Ticket IT Time Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchITTime">IT Time</label>
-                                                    <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime" disabled>
+                                                    <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime">
                                                 </div>
                                                 <!-- End Ticket IT Time Field -->
                                                 <!-- Start Ticket IT Time Per Hour Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchITTimePerHour">Hour</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour" disabled>
+                                                    <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour">
                                                 </div>
                                                 <!-- End Ticket IT Time Per Hour Field -->
                                                 <!-- Start Ticket IT Time Per Min Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchITTimePerMin">Min</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin" disabled>
+                                                    <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin">
                                                 </div>
                                                 <!-- End Ticket IT Time Per Min Field -->
                                                 <!-- Start Ticket IT Time Per Sec Field -->
                                                 <div class='col-sm-3  my-1'>
                                                     <label class="" for="SearchITTimePerSec">Sec</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec" disabled>
+                                                    <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec">
                                                 </div>
                                                 <!-- End Ticket IT Time Per Sec Field -->
                                                 <!-- Start Ticket Total Time Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTime">Total Time</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime" disabled>
+                                                    <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime">
                                                 </div>
                                                 <!-- End Ticket Total Time Field -->
                                                 <!-- Start Ticket Total Time Per Hour Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTimePerHour">Hour</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour" disabled>
+                                                    <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour">
                                                 </div>
                                                 <!-- End Ticket Total Time Per Hour Field -->
                                                 <!-- Start Ticket Total Time Per Min Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTimePerMin">Min</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin" disabled>
+                                                    <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin">
                                                 </div>
                                                 <!-- End Ticket Total Time Per Min Field -->
                                                 <!-- Start Ticket Total Time Per Sec Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTimePerSec">Sec</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec" disabled>
+                                                    <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec">
                                                 </div>
                                                 <!-- End Ticket Total Time Per Sec Field -->
                                                 <!-- Start Ticket Assigned To Field -->
                                                 <div class='col-sm-10 my-1'>
-                                                    <label class="" for="ASSIGNED_TO">Assigned To</label>
-                                                    <input type="text" class="form-control" id="ASSIGNED_TO" aria-label="ASSIGNED_TO">
+                                                    <label class="" for="SearchTicketAssignedTo">Assigned To</label>
+                                                    <input type="text" class="form-control" id="SearchTicketAssignedTo" aria-label="SearchTicketAssignedTo">
                                                 </div>
                                                 <!-- End Ticket Assigned To Field -->
                                                 <!-- Start Ticket Tec Issue Discription Field -->
                                                 <div class='col-sm-10 my-1'>
-                                                    <label class="" for="TECHNICAL_ISSUE_DESCRIPTION">Tec Issue Discription</label>
-                                                    <input type="text" class="form-control" id="TECHNICAL_ISSUE_DESCRIPTION" aria-label="TECHNICAL_ISSUE_DESCRIPTION">
+                                                    <label class="" for="SearchTecIssueDiscription">Tec Issue Discription</label>
+                                                    <input type="text" class="form-control" id="SearchTecIssueDiscription" aria-label="SearchTecIssueDiscription">
                                                 </div>
                                                 <!-- End Ticket Tec Issue Discription Field -->
                                                 <!-- Start Ticket Tec Issue Resolution Field -->
                                                 <div class='col-sm-10 my-1'>
-                                                    <label class="" for="TECHNICAL_ISSUE_RESOLUTION">Tec Issue Resolution</label>
-                                                    <input type="text" class="form-control" id="TECHNICAL_ISSUE_RESOLUTION" aria-label="TECHNICAL_ISSUE_RESOLUTION">
+                                                    <label class="" for="SearchTecIssueResolution">Tec Issue Resolution</label>
+                                                    <input type="text" class="form-control" id="SearchTecIssueResolution" aria-label="SearchTecIssueResolution">
                                                 </div>
                                                 <!-- End Ticket Tec Issue Resolution Field -->
                                             </div>
@@ -915,49 +915,49 @@ if (isset($_SESSION['user'])) {
                                             <!-- Start Ticket Responsible Dept Field -->
                                             <div class='col-sm-10 my-1'>
                                                 <label class="" for="SearchResponsibleDept">Responsible Dept</label>
-                                                <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept" disabled>
+                                                <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept">
                                             </div>
                                             <!-- End Ticket Responsible Dept Field -->
                                             <!-- Start Ticket Service Type Field -->
                                             <div class='col-sm-10 my-1'>
-                                                <label class="" for="SERVICE_TYPE">Service Type</label>
-                                                <input type="text" class="form-control" id="SERVICE_TYPE" aria-label="SERVICE_TYPE">
+                                                <label class="" for="SearchServiceType">Service Type</label>
+                                                <input type="text" class="form-control" id="SearchServiceType" aria-label="SearchServiceType">
                                             </div>
                                             <!-- End Ticket Service Type Field -->
                                             <!-- Start Ticket Service Details Field -->
                                             <div class='col-sm-10 my-1'>
-                                                <label class="" for="SERVICE_DETAIL">Service Details</label>
-                                                <input type="text" class="form-control" id="SERVICE_DETAIL" aria-label="SERVICE_DETAIL">
+                                                <label class="" for="SearchServiceDetails">Service Details</label>
+                                                <input type="text" class="form-control" id="SearchServiceDetails" aria-label="SearchServiceDetails">
                                             </div>
                                             <!-- End Ticket Service Details Field -->
                                             <!-- Start Ticket Created By Field -->
                                             <div class='col-sm-10 my-1'>
-                                                <label class="" for="USERNAME">Created By</label>
-                                                <input type="text" class="form-control" id="USERNAME" aria-label="USERNAME">
+                                                <label class="" for="SearchCreatedBy">Created By</label>
+                                                <input type="text" class="form-control" id="SearchCreatedBy" aria-label="SearchCreatedBy">
                                             </div>
                                             <!-- End Ticket Created By Field -->
                                             <!-- Start Ticket Department Field -->
                                             <div class='col-sm-10 my-1'>
-                                                <label class="" for="DEPARTMENT_NAME">Department</label>
-                                                <input type="text" class="form-control" id="DEPARTMENT_NAME" aria-label="DEPARTMENT_NAME">
+                                                <label class="" for="SearchDepartment">Department</label>
+                                                <input type="text" class="form-control" id="SearchDepartment" aria-label="SearchDepartment">
                                             </div>
                                             <!-- End Ticket Department Field -->
                                             <!-- Start Ticket User Issue Description Field -->
                                             <div class='col-sm-10 my-1'>
-                                                <label class="" for="ISSUE_DESCRIPTION">User Issue Description</label>
-                                                <input type="text" class="form-control" id="ISSUE_DESCRIPTION" aria-label="ISSUE_DESCRIPTION">
+                                                <label class="" for="SearchUserIsseDescription">User Issue Description</label>
+                                                <input type="text" class="form-control" id="SearchUserIsseDescription" aria-label="SearchUserIsseDescription">
                                             </div>
                                             <!-- End Ticket User Issue Description Field -->
                                             <!-- Start Ticket From Date Field -->
                                             <div class='col-sm-10 my-1'>
                                                 <label class="" for="SearchFromDate">From Date</label>
-                                                <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate" disabled>
+                                                <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate">
                                             </div>
                                             <!-- End Ticket From Date Field -->
                                             <!-- Start Ticket To Date Field -->
                                             <div class='col-sm-10 my-1'>
                                                 <label class="" for="SearchToDate">To Date</label>
-                                                <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate" disabled>
+                                                <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate">
                                             </div>
                                             <!-- End Ticket To Date Field -->
                                         </div>
