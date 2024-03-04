@@ -768,3 +768,15 @@ input[type="radio"] {
 .homeMenu button:hover { background-color: #0069d9; color: white !important;}
 
 .homeMenu button:hover a { color: white !important;}
+
+
+#paginationContainer .pagination {
+  color: #0069d9;  
+  background-color: white;
+  transition: all ease-in 0.3s;
+}
+
+#paginationContainer .pagination:hover {
+  background-color: #008dde;
+  color: white;
+}

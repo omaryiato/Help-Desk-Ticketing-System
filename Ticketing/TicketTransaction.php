@@ -99,10 +99,123 @@ if (isset($_SESSION['user'])) {
                                 </tr>
                             </thead>
                             <tbody id="mainTableTicketTransation">
+                                <?php
 
+                                // //     $userNamePreResault         =  'USER_ID'; // User Who Logged In 
+                                // //     $userIDPreResault           = $_POST['userIDPreResault'];
+                                $page                     = isset($_GET['page']) ? $_GET['page'] : 1; // In this Case Its Equal 0
+                                $recordPerPage = 10;
+
+                                // //     // Insert UserID Into global_temp_table Table After Returned From User Table
+                                // //     $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
+                                // // VALUES ('$userNamePreResault', $userIDPreResault)";
+                                // //     $insertValue = oci_parse($conn, $ticketTransation);
+                                // //     $run = oci_execute($insertValue);
+
+
+                                // $getActionDate = "SELECT TICKET_NO, TICKET_STATUS, ACTION_DATE FROM TICKETING.TICKETS";
+                                // $actionDateForCalTimeUpdate = oci_parse($conn, $getActionDate);
+                                // oci_execute($actionDateForCalTimeUpdate);
+
+                                // while ($actionDate = oci_fetch_assoc($actionDateForCalTimeUpdate)) {
+                                //     if ($actionDate['ACTION_DATE'] !== null) {
+                                //         $actionDateData = json_decode($actionDate['ACTION_DATE'], true);
+
+                                //         // Check if the key "Confirmed By User" exists and if its value is in the expected format
+                                //         if (isset($actionDateData['Confirmed By User'])) {
+                                //             $lastValue = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Confirmed By User']);
+                                //         } else {
+                                //             // If the key doesn't exist or the value is not in the expected format, set $dateOne to null
+                                //             $lastValue =  new DateTime();
+                                //         }
+
+                                //         // // Create a DateTime object from the first value
+                                //         $firstDateTime = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Creation Date']);
+                                //         // // Calculate the difference between the two DateTime objects
+                                //         $interval = $firstDateTime->diff($lastValue);
+
+                                //         $DaysDifference = $interval->format('%a');
+                                //         $HoursDifference = $interval->format('%h');
+                                //         $MinDifference = $interval->format('%i');
+                                //         $SecDifference = $interval->format('%s');
+
+                                //         $difference = $DaysDifference . " Day " . $HoursDifference .  " Hours " .  $MinDifference . " Minutes " . $SecDifference . " Sec ";
+
+                                //         // // Update the TOTAL_TIME column for this specific row
+                                //         $updateActionDate = "UPDATE TICKETING.TICKETS SET TOTAL_TIME = '$difference' ";
+                                //         $up = oci_parse($conn, $updateActionDate);
+
+                                //         oci_execute($up);
+                                //     }
+                                // }
+
+
+                                $startFrom = ($page - 1) * $recordPerPage;
+
+                                $endAt = $page * $recordPerPage;
+
+                                $allTicket = "SELECT *
+                                FROM TICKETING.TICKETS
+                                WHERE TICKETING.TICKETS.TICKET_NO IN (
+                                        SELECT TICKET_NO
+                                        FROM TICKETING.ticket_team_members
+                                        WHERE TICKETING.ticket_team_members.TEAM_MEMBER = 10003
+                                        UNION
+                                        SELECT TICKET_NO
+                                        FROM TICKETING.TICKETS
+                                        WHERE REQUEST_TYPE_NO = 1
+                                )";
+                                $all = oci_parse($conn, $allTicket);
+                                // Execute the query
+                                oci_execute($all);
+
+                                while ($row = oci_fetch_assoc($all)) {
+                                    echo "<tr>";
+                                    echo "<td>{$row['TICKET_NO']}</td>";
+                                    echo "<td>{$row['SERVICE_TYPE']}</td>";
+                                    echo "<td>{$row['SERVICE_DETAIL']}</td>";
+                                    echo "<td>{$row['TICKET_PERIORITY_MEANING']}</td>";
+                                    echo "<td>{$row['TICKET_STATUS']}</td>";
+                                    echo "<td>{$row['REQUEST_TYPE_NO']}</td>";
+                                    echo "<td>{$row['SERVICE_DETAIL_NO']}</td>";
+                                    echo "<td>{$row['TICKET_PERIORITY']}</td>";
+                                    echo "<td>{$row['ISSUE_DESCRIPTION']}</td>";
+                                    echo "<td>{$row['TECHNICAL_ISSUE_DESCRIPTION']}</td>";
+                                    echo "<td>{$row['TECHNICAL_ISSUE_RESOLUTION']}</td>";
+                                    echo "<td>{$row['USERNAME']}</td>";
+                                    echo "<td>{$row['DEPARTMENT_NAME']}</td>";
+                                    echo "<td>{$row['TICKET_START_DATE']}</td>";
+                                    echo "<td>{$row['BRANCH_CODE']}</td>";
+                                    echo "<td>{$row['ASSIGNED_TO']}</td>";
+                                    echo "<td>{$row['TICKET_END_DATE']}</td>";
+                                    echo "<td>{$row['ACTION_DATE']}</td>";
+                                    echo "<td>{$row['CAL_TIME']}</td>";
+                                    echo "<td>{$row['TOTAL_TIME']}</td>";
+                                    echo "</tr>";
+                                };
+
+                                $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V";
+                                $noRecord = oci_parse($conn, $numberOfRecord);
+                                oci_execute($noRecord);
+                                $num = oci_fetch_assoc($noRecord);
+                                $NoPage = ceil($num['COUNTS'] / $recordPerPage);
+                                $pagination = '';
+
+                                ?>
                             </tbody>
                         </table>
                     </div>
+                    <?php
+
+                    echo '<div class="d-flex justify-content-center align-center mt-2 mb-2" id="paginationContainer">';
+                    for ($i = 1; $i <= $NoPage; $i++) {
+                        $pagination .= "<a  href='?page=$i' class='pagination_link pagination' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</a>";
+                    };
+                    echo $pagination;
+                    echo '</div>';
+
+                    ?>
+                    <div class="d-flex justify-content-center align-center mt-2 mb-2" id="paginationContainer"></div>
                 </div>
                 <!-- Ticket Filtering Section Start ( Filter Ticket Based On Ticket Status)-->
                 <div class="container-fluid mt-5 m-auto" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
@@ -989,40 +1102,58 @@ if (isset($_SESSION['user'])) {
     include $inc . 'footer.php';
 
     ?>
-    <script>
+    <!-- <script>
         $(function() {
 
             var UserSessionID = $('#UserSessionID').val(); // User Who Logged In To The System
             var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
             var Filter = 0;
-            $('.tran').hide(100);
-            $('#mainTableTicketTransation').empty();
-            $('#mainTableTicketTransation').append('Loading....');
 
-            var startTime = new Date().getTime();
-            $.ajax({
-                type: 'POST',
-                url: 'function.php',
-                data: {
-                    userNamePreResault: 'USER_ID',
-                    userIDPreResault: UserSessionID,
-                    Filter: Filter,
-                    action: 'TicketTransation'
-                },
-                success: function(data) {
-                    var tableDBody = $('#mainTableTicketTransation');
-                    // Parse the returned JSON data
-                    var jsonData = JSON.parse(data);
-                    // Clear existing rows
-                    tableDBody.empty();
-                    jsonData.forEach(function(row) {
-                        var newDRow = $('<tr>');
-                        // Populate each cell with data
-                        if (row.TICKET_STATUS == '70') {
-                            newDRow.addClass('canceled-row');
-                        }
-                        newDRow.html(`
-                    <td >${row.TICKET_NO}</td>
+            loadPage(1);
+
+            $(document).on('click', '.pagination_link', function(e) {
+                e.preventDefault();
+                var page = $(this).attr("id");
+                loadPage(page);
+            });
+
+            function loadPage(page) {
+
+                $('.tran').hide(100);
+                $('#mainTableTicketTransation').empty();
+                $('#mainTableTicketTransation').append('Loading....');
+
+                var startTime = new Date().getTime();
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php',
+                    data: {
+                        userNamePreResault: 'USER_ID',
+                        userIDPreResault: UserSessionID,
+                        Filter: Filter,
+                        page: page,
+                        action: 'TicketTransation'
+                    },
+                    success: function(data) {
+                        var tableDBody = $('#mainTableTicketTransation');
+                        // Parse the returned JSON data
+                        var jsonData = JSON.parse(data);
+
+                        var responseData = JSON.parse(data);
+
+                        // Access the mainTableData and pagination properties
+                        var mainTableData = responseData.mainTableData;
+                        var pagination = responseData.pagination;
+                        // Clear existing rows
+                        tableDBody.empty();
+                        mainTableData.forEach(function(row) {
+                            var newDRow = $('<tr>');
+                            // Populate each cell with data
+                            if (row.TICKET_STATUS == '70') {
+                                newDRow.addClass('canceled-row');
+                            }
+                            newDRow.html(`
+                        <td >${row.TICKET_NO}</td>
                     <td>${row.SERVICE_TYPE}</td>
                     <td>${row.SERVICE_DETAIL}</td>
                     <td>${row.TICKET_PERIORITY_MEANING}</td>
@@ -1051,26 +1182,32 @@ if (isset($_SESSION['user'])) {
                     <td>${row.BRANCH_CODE}</td>
                     <td>${row.ASSIGNED_TO}</td>
                     <td>${row.TICKET_END_DATE}</td>
-                    <td>${row.TTOTAL_TIME}</td>
+                    <td>${row.ACTION_DATE}</td>
+                    <td>${row.CAL_TIME}</td>
                     <td>${row.TOTAL_TIME}</td>
                 `);
-                        // Append the new row to the table body
-                        tableDBody.append(newDRow);
-                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
-                    });
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-                },
-                error: function(data) {
-                    console.log(data);
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-                }
-            });
+                            // Append the new row to the table body
+                            tableDBody.append(newDRow);
+                            // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                        });
+
+                        $('#paginationContainer').html(pagination);
+                        console.log('from success case');
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                    },
+                    error: function(data) {
+                        console.log('from error case' + data);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                    }
+                });
+            }
+
         });
-    </script>
+    </script> -->
 <?php
 } else {
     header('Location: index.php');

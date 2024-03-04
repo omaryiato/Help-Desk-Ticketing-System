@@ -1246,10 +1246,17 @@ $(function () {
     var USER_ID = 'USER_ID';                        //  Add To Global Table To Fetch User Ticket Data 
     var Filter = 0;
 
+    
+    var filter;
+
     $(document).on('click', '#ticketButton', function(e) {          // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
         e.preventDefault();
         // Get the filter value from the 'data-filter' attribute of the clicked button
-        var filter = $(this).data('filter');
+        filter = $(this).data('filter');
+        loadFilterPage(1, filter);
+    });
+
+    function loadFilterPage(page, filter) { 
 
         $('#mainTableTicketTransation').empty();
         $('#mainTableTicketTransation').append('Loading....');
@@ -1262,73 +1269,81 @@ $(function () {
                 userNamePreResault:     'USER_ID',
                 userIDPreResault:       UserSessionID,
                 Filter:                 filter,
-                action:                 'TicketTransation'
+                page:                   page,
+                action:                 'TicketTransactionFilter'
             },
-            success: function(data) {
-                
-                
+            success: function(data) {                
                 var tableDBody = $('#mainTableTicketTransation');
-                    // Parse the returned JSON data
-                var jsonData = JSON.parse(data);
-                    // Clear existing rows
-                tableDBody.empty();
-                jsonData.forEach(function(row) {
-                    var newDRow = $('<tr>');
-                        // Populate each cell with data
-                        if (row.TICKET_STATUS == '70') {
-                            newDRow.addClass('canceled-row');
-                        }
-                    newDRow.html(`
+                        // Parse the returned JSON data
+                        var responseData = JSON.parse(data);
+
+                        // Access the mainTableData and pagination properties
+                        var mainTableData = responseData.mainTableData;
+                        var pagination = responseData.pagination;
+                        // Clear existing rows
+                        tableDBody.empty();
+                        mainTableData.forEach(function(row) {
+                            var newDRow = $('<tr>');
+                            // Populate each cell with data
+                            if (row.TICKET_STATUS == '70') {
+                                newDRow.addClass('canceled-row');
+                            }
+                            newDRow.html(`
                         <td >${row.TICKET_NO}</td>
-                        <td>${row.SERVICE_TYPE}</td>
-                        <td>${row.SERVICE_DETAIL}</td>
-                        <td>${row.TICKET_PERIORITY_MEANING}</td>
-                        <td>${
-                                row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                                row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
-                                row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                                row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                                row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                                row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                                row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                                row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                                row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                                row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                                ''
-                            }</td>
-                        <td hidden>${row.REQUEST_TYPE_NO}</td>
-                        <td hidden>${row.SERVICE_DETAIL_NO}</td>
-                        <td hidden>${row.TICKET_PERIORITY}</td>
-                        <td>${row.ISSUE_DESCRIPTION}</td>
-                        <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                        <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td>${row.USERNAME}</td>
-                        <td>${row.DEPARTMENT_NAME}</td>
-                        <td>${row.TICKET_START_DATE}</td>
-                        <td>${row.BRANCH_CODE}</td>
-                        <td>${row.ASSIGNED_TO}</td>
-                        <td>${row.TICKET_END_DATE}</td>
-                        <td>${row.TTOTAL_TIME}</td>
-                        <td>${row.TOTAL_TIME}</td>
-                    `);
+                    <td>${row.SERVICE_TYPE}</td>
+                    <td>${row.SERVICE_DETAIL}</td>
+                    <td>${row.TICKET_PERIORITY_MEANING}</td>
+                    <td>${
+                            row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                            row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                            row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                            row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                            row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                            row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                            row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                            row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                            row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                            row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                            ''
+                        }</td>
+                    <td hidden>${row.REQUEST_TYPE_NO}</td>
+                    <td hidden>${row.SERVICE_DETAIL_NO}</td>
+                    <td hidden>${row.TICKET_PERIORITY}</td>
+                    <td>${row.ISSUE_DESCRIPTION}</td>
+                    <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                    <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+                    <td>${row.USERNAME}</td>
+                    <td>${row.DEPARTMENT_NAME}</td>
+                    <td>${row.TICKET_START_DATE}</td>
+                    <td>${row.BRANCH_CODE}</td>
+                    <td>${row.ASSIGNED_TO}</td>
+                    <td>${row.TICKET_END_DATE}</td>
+                    <td>${row.TTOTAL_TIME}</td>
+                    <td>${row.TOTAL_TIME}</td>
+                `);
+                            // Append the new row to the table body
+                            tableDBody.append(newDRow);
+                            // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                        });
 
-                        // Append the new row to the table body
-                    tableDBody.append(newDRow);
-                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
-                });
-
-                var duration = new Date().getTime() - startTime;
-                var durationInSeconds = duration / 1000;
-                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                        $('#paginationContainer').html(pagination);
+                        console.log('from success case');
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
 
             },
             error: function (data) {
                 console.log(data);
             }
         });
+    }
 
-        
-    });
+    $(document).on('click', '.pagination_link', function(e) {
+        e.preventDefault();
+        var page = $(this).attr("id");
+        loadFilterPage(page, filter);
+    }); 
 
     $(document).on('click', '#orderBy', function(e) {          // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
         e.preventDefault();
@@ -2825,59 +2840,140 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
     
     ///////////////////////////////////////////***************** Search Ticket Start  *************************/////////////////////////////////////////
 
-    $(document).on('click', '#SearchTicketButton' , function (e) { 
+    $(document).on('click', '#SearchTicketButton', function(e) {
         e.preventDefault();
 
         var nonEmptyFields = {};
 
-    $('#SearchTicketForm input[type="text"], #SearchTicketForm input[type="number"],  #SearchTicketForm select').each(function() {
-        var fieldID = $(this).attr('id'); // Change to fieldID
-        var fieldValue = $(this).val().trim();
+        $('#SearchTicketForm input[type="text"], #SearchTicketForm input[type="number"],  #SearchTicketForm select').each(function() {
+            var fieldID = $(this).attr('id'); // Change to fieldID
+            var fieldValue = $(this).val().trim();
 
-        if (fieldValue !== '') {
-            nonEmptyFields[fieldID] = fieldValue; // Change to fieldID
-        }
-    });
+            if (fieldValue !== '') {
+                nonEmptyFields[fieldID] = fieldValue; // Change to fieldID
+            }
+        });
 
-            $.ajax({
-                type: 'POST',
-                url: 'function.php',
-                data: {
-                    SearchTicketNumber:             $('#SearchTicketNumber').val(),
-                    SearchTicketStatus:             $('#SearchTicketStatus').val(),
-                    SearchTicketBranch:             $('#SearchTicketBranch').val(),
-                    SearchTicketPriority:           $('#SearchTicketPriority').val(),
-                    SearchITTime:                   $('#SearchITTime').val(),
-                    SearchITTimePerHour:            $('#SearchITTimePerHour').val(),
-                    SearchITTimePerMin:             $('#SearchITTimePerMin').val(),
-                    SearchITTimePerSec:             $('#SearchITTimePerSec').val(),
-                    SearchITTimePerSec:             $('#SearchITTimePerSec').val(),
-                    SearchTotalTime:                $('#SearchTotalTime').val(),
-                    SearchTotalTimePerHour:         $('#SearchTotalTimePerHour').val(),
-                    SearchTotalTimePerMin:          $('#SearchTotalTimePerMin').val(),
-                    SearchTotalTimePerSec:          $('#SearchTotalTimePerSec').val(),
-                    SearchTicketAssignedTo:         $('#SearchTicketAssignedTo').val(),
-                    SearchTecIssueDiscription:      $('#SearchTecIssueDiscription').val(),
-                    SearchTecIssueResolution:       $('#SearchTecIssueResolution').val(),
-                    SearchResponsibleDept:          $('#SearchResponsibleDept').val(),
-                    SearchServiceType:              $('#SearchServiceType').val(),
-                    SearchServiceDetails:           $('#SearchServiceDetails').val(),
-                    SearchCreatedBy:                $('#SearchCreatedBy').val(),
-                    SearchDepartment:               $('#SearchDepartment').val(),
-                    SearchUserIsseDescription:      $('#SearchUserIsseDescription').val(),
-                    SearchFromDate:                 $('#SearchFromDate').val(),
-                    SearchToDate:                   $('#SearchToDate').val(),
-                    userIDPreResault:               UserSessionID,
-                    USER_ID:                        'USER_ID',
-                    action:                         'search'
-                },
-                success: function (data) {
+        var startTime = new Date().getTime();
+        $.ajax({
+            type: 'POST',
+            url: 'upload.php',
+            data: {
+                SearchTicketNumber: $('#SearchTicketNumber').val(),
+                SearchTicketStatus: $('#SearchTicketStatus').val(),
+                SearchTicketBranch: $('#SearchTicketBranch').val(),
+                SearchTicketPriority: $('#SearchTicketPriority').val(),
+                SearchITTime: $('#SearchITTime').val(),
+                SearchITTimePerHour: $('#SearchITTimePerHour').val(),
+                SearchITTimePerMin: $('#SearchITTimePerMin').val(),
+                SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+                SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+                SearchTotalTime: $('#SearchTotalTime').val(),
+                SearchTotalTimePerHour: $('#SearchTotalTimePerHour').val(),
+                SearchTotalTimePerMin: $('#SearchTotalTimePerMin').val(),
+                SearchTotalTimePerSec: $('#SearchTotalTimePerSec').val(),
+                SearchTicketAssignedTo: $('#SearchTicketAssignedTo').val(),
+                SearchTecIssueDiscription: $('#SearchTecIssueDiscription').val(),
+                SearchTecIssueResolution: $('#SearchTecIssueResolution').val(),
+                SearchResponsibleDept: $('#SearchResponsibleDept').val(),
+                SearchServiceType: $('#SearchServiceType').val(),
+                SearchServiceDetails: $('#SearchServiceDetails').val(),
+                SearchCreatedBy: $('#SearchCreatedBy').val(),
+                SearchDepartment: $('#SearchDepartment').val(),
+                SearchUserIsseDescription: $('#SearchUserIsseDescription').val(),
+                SearchFromDate: $('#SearchFromDate').val(),
+                SearchToDate: $('#SearchToDate').val(),
+                UserSessionID: UserSessionID,
+                USER_ID: 'USER_ID',
+                action: 'search'
+            },
+            success: function(data) {
+                console.log(data);
+                $('#SearchTicketNumber').val('');
+                $('#SearchServiceType').val('');
+                $('#SearchServiceDetails').val('');
+                $('#SearchCreatedBy').val('');
+                $('#SearchDepartment').val('');
+                $('#SearchTicketStatus').val('');
+                $('#SearchTicketBranch').val('');
+                $('#SearchTicketPriority').val('');
+                $('#SearchTicketAssignedTo').val('');
+                $('#SearchTecIssueDiscription').val('');
+                $('#SearchTecIssueResolution').val('');
+                $('#SearchResponsibleDept').val('');
+                $('#SearchUserIsseDescription').val('');
+                $('#mainTableTicketTransation').empty();
+                $('#mainTableTicketTransation').append('Loading....');
+                var tableDBody = $('#mainTableTicketTransation');
+                // Parse the returned JSON data
+                var jsonData = JSON.parse(data);
+                // Clear existing rows
+                tableDBody.empty();
+                jsonData.forEach(function(row) {
+                    var newDRow = $('<tr>');
+                    // Populate each cell with data
+                    if (row.TICKET_STATUS == '70') {
+                        newDRow.addClass('canceled-row');
+                    }
+                    newDRow.html(`
+            <td >${row.TICKET_NO}</td>
+            <td>${row.SERVICE_TYPE}</td>
+            <td>${row.SERVICE_DETAIL}</td>
+            <td>${row.TICKET_PERIORITY_MEANING}</td>
+            <td>${
+                    row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                    row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                    row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                    row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                    row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                    row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                    row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                    row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                    row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                    row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                    ''
+                }</td>
+            <td hidden>${row.REQUEST_TYPE_NO}</td>
+            <td hidden>${row.SERVICE_DETAIL_NO}</td>
+            <td hidden>${row.TICKET_PERIORITY}</td>
+            <td>${row.ISSUE_DESCRIPTION}</td>
+            <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+            <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+            <td>${row.USERNAME}</td>
+            <td>${row.DEPARTMENT_NAME}</td>
+            <td>${row.TICKET_START_DATE}</td>
+            <td>${row.BRANCH_CODE}</td>
+            <td>${row.ASSIGNED_TO}</td>
+            <td>${row.TICKET_END_DATE}</td>
+            <td>${row.TTOTAL_TIME}</td>
+            <td>${row.TOTAL_TIME}</td>
+        `);
+                    // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                    // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                });
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
 
-                },
-                error: function () { 
-                    alert("Error Fetching Data"); 
-                }
-            });
+            },
+            error: function() {
+                alert("Error Fetching Data");
+                $('#SearchTicketNumber').val('');
+                $('#SearchServiceType').val('');
+                $('#SearchServiceDetails').val('');
+                $('#SearchCreatedBy').val('');
+                $('#SearchDepartment').val('');
+                $('#SearchTicketStatus').val('');
+                $('#SearchTicketBranch').val('');
+                $('#SearchTicketPriority').val('');
+                $('#SearchTicketAssignedTo').val('');
+                $('#SearchTecIssueDiscription').val('');
+                $('#SearchTecIssueResolution').val('');
+                $('#SearchResponsibleDept').val('');
+                $('#SearchUserIsseDescription').val('');
+            }
+        });
     });
     
     ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
