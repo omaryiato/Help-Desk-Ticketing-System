@@ -34,9 +34,6 @@ if (isset($_POST['action'])) {
 
         $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
         $userIDPreResault           = $_POST['userIDPreResault'];
-        $page                       = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
-        $recordPerPage              = isset($_POST['recordPerPage']) ? $_POST['recordPerPage'] : 10;
-
         $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
         $sortOrder                  = $_POST['sortOrder'];
 
@@ -84,38 +81,30 @@ if (isset($_POST['action'])) {
         }
 
         if ($run) {
-            $startFrom = ($page - 1) * $recordPerPage;
 
-            $endAt = $page * $recordPerPage;
-
-            $allTicket = "SELECT * FROM (
-                SELECT 
-                    TICKET_NO, 
-                    SERVICE_TYPE, 
-                    SERVICE_DETAIL, 
-                    TICKET_PERIORITY_MEANING, 
-                    TICKET_STATUS, 
-                    REQUEST_TYPE_NO, 
-                    SERVICE_DETAIL_NO, 
-                    TICKET_PERIORITY,
-                    ISSUE_DESCRIPTION, 
-                    TECHNICAL_ISSUE_DESCRIPTION, 
-                    TECHNICAL_ISSUE_RESOLUTION,
-                    USERNAME, 
-                    DEPARTMENT_NAME, 
-                    TICKET_START_DATE, 
-                    BRANCH_CODE,  
-                    ASSIGNED_TO ,
-                    TICKET_END_DATE,  
-                    TTOTAL_TIME, 
-                    TOTAL_TIME,
-                    ROWNUM AS rn
-                FROM 
-                    TICKETING.TICKETS_TRANSACTIONS_V
-                ORDER BY $order  $sortOrder
-                ) 
-                WHERE 
-                    rn BETWEEN '$startFrom' AND '$endAt'";
+            $allTicket = "SELECT 
+                            TICKET_NO, 
+                            SERVICE_TYPE, 
+                            SERVICE_DETAIL, 
+                            TICKET_PERIORITY_MEANING, 
+                            TICKET_STATUS, 
+                            REQUEST_TYPE_NO, 
+                            SERVICE_DETAIL_NO, 
+                            TICKET_PERIORITY,
+                            ISSUE_DESCRIPTION, 
+                            TECHNICAL_ISSUE_DESCRIPTION, 
+                            TECHNICAL_ISSUE_RESOLUTION,
+                            USERNAME, 
+                            DEPARTMENT_NAME, 
+                            TICKET_START_DATE, 
+                            BRANCH_CODE,  
+                            ASSIGNED_TO ,
+                            TICKET_END_DATE,  
+                            TTOTAL_TIME, 
+                            TOTAL_TIME
+                        FROM 
+                            TICKETING.TICKETS_TRANSACTIONS_V
+                        ORDER BY $order  $sortOrder";
             $all = oci_parse($conn, $allTicket);
             // Execute the query
             oci_execute($all);
@@ -144,50 +133,7 @@ if (isset($_POST['action'])) {
                     'TOTAL_TIME'                    => $row['TOTAL_TIME']
                 );
             }
-            $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V";
-            $noRecord = oci_parse($conn, $numberOfRecord);
-            oci_execute($noRecord);
-            $num = oci_fetch_assoc($noRecord);
-            $NoPage = ceil($num['COUNTS'] / $recordPerPage);
-            $pagination = '';
-
-            $startPage = max(1, $page - 5); // Show 5 pages before current page
-            $endPage = min($NoPage, $page + 4); // Show 4 pages after current page
-
-            if ($page > 1) {
-                $previous = ($page - 1);
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . 1 . "'>First</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $previous . "'>Previous</span></li>";
-            } else {
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>First</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Previous</span></li>";
-            }
-
-            for ($i = 1; $i <= $NoPage; $i++) {
-                if ($i === $page) {
-                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link active' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
-                } else {
-                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
-                }
-            }
-
-            if ($page < $NoPage) {
-                $next = ($page + 1);
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $next . "'>Next</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $NoPage . "'>Last</span></li>";
-            } else {
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Next</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Last</span></li>";
-            }
-
-            $showing = '<span style="color: #0069d9;"> Showing <b> ' . $page . ' </b> of <b>' . $NoPage . ' </b> Pages : </span>';
-
-            $responseData = array(
-                'mainTableData'     => $data,
-                'pagination'        => $pagination,
-                'showing'           => $showing
-            );
-            echo json_encode($responseData);
+            echo json_encode($data);
         } else {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
@@ -197,8 +143,6 @@ if (isset($_POST['action'])) {
         $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
         $userIDPreResault           = $_POST['userIDPreResault'];
         $Filter                     = $_POST['Filter']; // In this Case Its Equal 0
-        $page                       = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
-        $recordPerPage              = isset($_POST['recordPerPage']) ? $_POST['recordPerPage'] : 10;
         $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
         $sortOrder                  = $_POST['sortOrder'];
 
@@ -211,12 +155,7 @@ if (isset($_POST['action'])) {
         if ($run) {
             // Fetch Ticket From  DB Based On User ID And Ticket Status
 
-            $startFrom = ($page - 1) * $recordPerPage;
-
-            $endAt = $page * $recordPerPage;
-
-            $allTicket = "SELECT * FROM (
-                    SELECT 
+            $allTicket = "SELECT 
                         TICKET_NO, 
                         SERVICE_TYPE, 
                         SERVICE_DETAIL, 
@@ -240,10 +179,7 @@ if (isset($_POST['action'])) {
                     FROM 
                         TICKETING.TICKETS_TRANSACTIONS_V
                         WHERE TICKET_STATUS = '$Filter'
-                        ORDER BY $order $sortOrder
-                ) 
-                WHERE 
-                    rn BETWEEN '$startFrom' AND '$endAt'";
+                        ORDER BY $order $sortOrder ";
             $all = oci_parse($conn, $allTicket);
             // Execute the query
             oci_execute($all);
@@ -272,99 +208,8 @@ if (isset($_POST['action'])) {
                     'TOTAL_TIME'                    => $row['TOTAL_TIME']
                 );
             }
-            $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V WHERE TICKET_STATUS = '$Filter'";
-            $noRecord = oci_parse($conn, $numberOfRecord);
-            oci_execute($noRecord);
-            $num = oci_fetch_assoc($noRecord);
-            $NoPage = ceil($num['COUNTS'] / $recordPerPage);
-            $pagination = '';
 
-            if ($page > 1) {
-                $previous = ($page - 1);
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . 1 . "'>First</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $previous . "'>Previous</span></li>";
-            } else {
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>First</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Previous</span></li>";
-            }
 
-            for ($i = 1; $i <= $NoPage; $i++) {
-                if ($i === $page) {
-                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link active' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
-                } else {
-                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
-                }
-            }
-
-            if ($page < $NoPage) {
-                $next = ($page + 1);
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $next . "'>Next</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $NoPage . "'>Last</span></li>";
-            } else {
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Next</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Last</span></li>";
-            }
-
-            $showing = '<span style="color: #0069d9;"> Showing <b> ' . $page . ' </b> of <b>' . $NoPage . ' </b> Pages : </span>';
-
-            $responseData = array(
-                'mainTableData'     => $data,
-                'pagination'        => $pagination,
-                'showing'           => $showing
-            );
-            echo json_encode($responseData);
-        } else {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
-        }
-    } elseif ($action == 'OrderTicketTransation') {                        // Reorder The main Table 
-
-        $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
-        $userIDPreResault           = $_POST['userIDPreResault'];
-        $order                     = $_POST['order']; // In this Case Its Equal 0
-
-        // Insert UserID Into global_temp_table Table After Returned From User Table
-        $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
-                            VALUES ('$userNamePreResault', $userIDPreResault)";
-        $insertValue = oci_parse($conn, $ticketTransation);
-        $run = oci_execute($insertValue);
-
-        if ($run) {
-            // Fetch All Ticket From  DB Based On User ID
-            $allTicket = 'SELECT TICKET_NO, SERVICE_TYPE, SERVICE_DETAIL, TICKET_PERIORITY_MEANING, 
-                                TICKET_STATUS, REQUEST_TYPE_NO, SERVICE_DETAIL_NO, TICKET_PERIORITY,
-                                ISSUE_DESCRIPTION, TECHNICAL_ISSUE_DESCRIPTION, TECHNICAL_ISSUE_RESOLUTION,
-                                USERNAME, DEPARTMENT_NAME, TICKET_START_DATE, BRANCH_CODE,  ASSIGNED_TO ,
-                                TICKET_END_DATE,  TTOTAL_TIME, TOTAL_TIME
-                            FROM TICKETING.TICKETS_TRANSACTIONS_V ORDER BY ' . "$order"  . ' DESC';
-            $all = oci_parse($conn, $allTicket);
-            // Execute the query
-            oci_execute($all);
-
-            $data = array();
-            while ($row = oci_fetch_assoc($all)) {
-                $data[] = array(
-                    'TICKET_NO'                     => $row['TICKET_NO'],
-                    'SERVICE_TYPE'                  => $row['SERVICE_TYPE'],
-                    'SERVICE_DETAIL'                => $row['SERVICE_DETAIL'],
-                    'TICKET_PERIORITY_MEANING'      => $row['TICKET_PERIORITY_MEANING'],
-                    'TICKET_STATUS'                 => $row['TICKET_STATUS'],
-                    'REQUEST_TYPE_NO'               => $row['REQUEST_TYPE_NO'],
-                    'SERVICE_DETAIL_NO'             => $row['SERVICE_DETAIL_NO'],
-                    'TICKET_PERIORITY'              => $row['TICKET_PERIORITY'],
-                    'ISSUE_DESCRIPTION'             => $row['ISSUE_DESCRIPTION'],
-                    'TECHNICAL_ISSUE_DESCRIPTION'   => $row['TECHNICAL_ISSUE_DESCRIPTION'],
-                    'TECHNICAL_ISSUE_RESOLUTION'    => $row['TECHNICAL_ISSUE_RESOLUTION'],
-                    'USERNAME'                      => $row['USERNAME'],
-                    'DEPARTMENT_NAME'               => $row['DEPARTMENT_NAME'],
-                    'TICKET_START_DATE'             => $row['TICKET_START_DATE'],
-                    'BRANCH_CODE'                   => $row['BRANCH_CODE'],
-                    'ASSIGNED_TO'                   => $row['ASSIGNED_TO'],
-                    'TICKET_END_DATE'               => $row['TICKET_END_DATE'],
-                    'TTOTAL_TIME'                   => $row['TTOTAL_TIME'],
-                    'TOTAL_TIME'                    => $row['TOTAL_TIME']
-                );
-            }
             echo json_encode($data);
         } else {
             http_response_code(400);
@@ -1201,11 +1046,7 @@ if (isset($_POST['action'])) {
 
         $UserSessionID              = $_POST['UserSessionID'];
         $USER_ID                    = $_POST['USER_ID'];
-
         $searchParams               = $_POST['searchParams'];
-        $page                       = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
-        $recordPerPage              = isset($_POST['recordPerPage']) ? $_POST['recordPerPage'] : 10;
-
         $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
         $sortOrder                  = $_POST['sortOrder'];
 
@@ -1216,13 +1057,8 @@ if (isset($_POST['action'])) {
 
         if ($run) {
 
-            $startFrom = ($page - 1) * $recordPerPage;
-
-            $endAt = $page * $recordPerPage;
-
             // Construct base SQL query
-            $sql = "SELECT * FROM (
-                SELECT 
+            $sql = "SELECT 
                     TICKET_NO, 
                     SERVICE_TYPE, 
                     SERVICE_DETAIL, 
@@ -1299,17 +1135,12 @@ if (isset($_POST['action'])) {
                 $conditions[] = "DEPARTMENT_NAME LIKE '%$SearchDepartment%'";
             }
 
-            $search = ' ';
             // Add WHERE clause if conditions exist
             if (!empty($conditions)) {
                 $sql .= " WHERE " . implode(" AND ", $conditions);
-                $search .= " WHERE " . implode(" AND ", $conditions);
             }
 
-            $sql .= "  ORDER BY $order  $sortOrder
-                ) 
-                WHERE 
-                    rn BETWEEN '$startFrom' AND '$endAt'";
+            $sql .= "  ORDER BY $order  $sortOrder";
 
             $all = oci_parse($conn, $sql);
             // Execute the query
@@ -1340,51 +1171,7 @@ if (isset($_POST['action'])) {
                 );
             }
 
-
-            $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V " . $search;
-            $noRecord = oci_parse($conn, $numberOfRecord);
-            oci_execute($noRecord);
-            $num = oci_fetch_assoc($noRecord);
-            $NoPage = ceil($num['COUNTS'] / $recordPerPage);
-            $pagination = '';
-
-            $startPage = max(1, $page - 5); // Show 5 pages before current page
-            $endPage = min($NoPage, $page + 4); // Show 4 pages after current page
-
-            if ($page > 1) {
-                $previous = ($page - 1);
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . 1 . "'>First</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $previous . "'>Previous</span></li>";
-            } else {
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>First</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Previous</span></li>";
-            }
-
-            for ($i = 1; $i <= $NoPage; $i++) {
-                if ($i === $page) {
-                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link active' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
-                } else {
-                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
-                }
-            }
-
-            if ($page < $NoPage) {
-                $next = ($page + 1);
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $next . "'>Next</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $NoPage . "'>Last</span></li>";
-            } else {
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Next</span></li>";
-                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Last</span></li>";
-            }
-
-            $showing = '<span style="color: #0069d9;"> Showing <b> ' . $page . ' </b> of <b>' . $NoPage . ' </b> Pages : </span>';
-
-            $responseData = array(
-                'mainTableData'     => $data,
-                'pagination'        => $pagination,
-                'showing'           => $showing
-            );
-            echo json_encode($responseData);
+            echo json_encode($data);
         } else {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'error Insert data']);

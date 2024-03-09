@@ -89,25 +89,25 @@ if (isset($_SESSION['user'])) {
                         <table class="hiddenList scro">
                             <thead>
                                 <tr>
-                                    <th id="orderBy" data-filter="TICKET_NO">Ticket NO <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="SERVICE_TYPE">Service Type <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="SERVICE_DETAIL">Service Details <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TICKET_PERIORITY_MEANING">! <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TICKET_STATUS">Status <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_NO">Ticket NO <i id="TICKET_NO" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="SERVICE_TYPE">Service Type <i id="SERVICE_TYPE" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="SERVICE_DETAIL">Service Details <i id="SERVICE_DETAIL" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_PERIORITY_MEANING">! <i id="TICKET_PERIORITY_MEANING" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_STATUS">Status <i id="TICKET_STATUS" class="fa-solid fa-arrow-up"></i></th>
                                     <th hidden>Request Type No</th>
                                     <th hidden>Service Detail No</th>
                                     <th hidden>Periority No</th>
-                                    <th id="orderBy" data-filter="ISSUE_DESCRIPTION">User Issue Description <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_DESCRIPTION">Tech Issue Description <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_RESOLUTION">Tech Issue Resolution <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="USERNAME">Created By <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="DEPARTMENT_NAME">Department <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TICKET_START_DATE">Creation Date <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="BRANCH_CODE">Branch <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="ASSIGNED_TO">Assigned To <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TICKET_END_DATE">End Date <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TTOTAL_TIME">Total IT Time <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
-                                    <th id="orderBy" data-filter="TOTAL_TIME">Total Time <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="ISSUE_DESCRIPTION">User Issue Description <i id="ISSUE_DESCRIPTION" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_DESCRIPTION">Tech Issue Description <i id="TECHNICAL_ISSUE_DESCRIPTION" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_RESOLUTION">Tech Issue Resolution <i id="TECHNICAL_ISSUE_RESOLUTION" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="USERNAME">Created By <i id="USERNAME" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="DEPARTMENT_NAME">Department <i id="DEPARTMENT_NAME" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_START_DATE">Creation Date <i id="TICKET_START_DATE" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="BRANCH_CODE">Branch <i id="BRANCH_CODE" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="ASSIGNED_TO">Assigned To <i id="ASSIGNED_TO" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_END_DATE">End Date <i id="TICKET_END_DATE" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TTOTAL_TIME">Total IT Time <i id="TTOTAL_TIME" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TOTAL_TIME">Total Time <i id="TOTAL_TIME" class="fa-solid fa-arrow-up"></i></th>
                                 </tr>
                             </thead>
                             <tbody id="mainTableTicketTransation">
@@ -1128,6 +1128,7 @@ if (isset($_SESSION['user'])) {
     include $inc . 'footer.php';
 
     ?>
+
     <script>
         $(function() {
 
@@ -1137,6 +1138,8 @@ if (isset($_SESSION['user'])) {
             var order = '';
             var sortOrder = 'ASC';
             var page = 1;
+            var filter = ' ';
+            var allData = [];
 
             $('.tran').hide(100);
             $('#mainTableTicketTransation').empty();
@@ -1149,73 +1152,15 @@ if (isset($_SESSION['user'])) {
                 data: {
                     userNamePreResault: 'USER_ID',
                     userIDPreResault: UserSessionID,
-                    page: page,
-                    recordPerPage: noRecord,
                     order: order,
                     sortOrder: sortOrder,
                     action: 'TicketTransation'
                 },
                 success: function(data) {
-                    var tableDBody = $('#mainTableTicketTransation');
 
-                    var responseData = JSON.parse(data);
-
-                    // Access the mainTableData and pagination properties
-                    var mainTableData = responseData.mainTableData;
-                    var pagination = responseData.pagination;
-                    var showing = responseData.showing;
-                    // Clear existing rows
-                    tableDBody.empty();
-                    mainTableData.forEach(function(row) {
-                        var newDRow = $('<tr>');
-                        // Populate each cell with data
-                        if (row.TICKET_STATUS == '70') {
-                            newDRow.addClass('canceled-row');
-                        }
-                        newDRow.html(`
-                            <td >${row.TICKET_NO}</td>
-                            <td>${row.SERVICE_TYPE}</td>
-                            <td>${row.SERVICE_DETAIL}</td>
-                            <td>${row.TICKET_PERIORITY_MEANING}</td>
-                            <td>${
-                                    row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                                    row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
-                                    row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                                    row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                                    row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                                    row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                                    row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                                    row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                                    row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                                    row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                                    ''
-                                }</td>
-                            <td hidden>${row.REQUEST_TYPE_NO}</td>
-                            <td hidden>${row.SERVICE_DETAIL_NO}</td>
-                            <td hidden>${row.TICKET_PERIORITY}</td>
-                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${row.ISSUE_DESCRIPTION}'>${row.ISSUE_DESCRIPTION}</td>
-                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${row.TECHNICAL_ISSUE_DESCRIPTION}'>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${row.TECHNICAL_ISSUE_RESOLUTION}'>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
-                            <td>${row.USERNAME}</td>
-                            <td>${row.DEPARTMENT_NAME}</td>
-                            <td>${row.TICKET_START_DATE}</td>
-                            <td>${row.BRANCH_CODE}</td>
-                            <td>${row.ASSIGNED_TO}</td>
-                            <td>${row.TICKET_END_DATE}</td>
-                            <td>${row.TTOTAL_TIME}</td>
-                            <td>${row.TOTAL_TIME}</td>
-                        `);
-                        // Append the new row to the table body
-                        tableDBody.append(newDRow);
-                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
-                    });
-
-                    $('#paginationContainer').html(pagination);
-                    $('#numberOfPages').html(showing);
-                    console.log('from success case');
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                    allData = JSON.parse(data);
+                    displayData(page, noRecord);
+                    // console.log(allData);
                 },
                 error: function(data) {
                     console.log('from error case' + data);
@@ -1224,6 +1169,498 @@ if (isset($_SESSION['user'])) {
                     $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
                 }
             });
+
+            function displayData(page, noRecord) {
+
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+
+                let startIndex = (page - 1) * noRecord;
+                let endIndex = page * noRecord;
+
+                let pageData = allData.slice(startIndex, endIndex);
+
+                var tableDBody = $('#mainTableTicketTransation');
+
+                // Clear existing rows
+                tableDBody.empty();
+
+                // Loop through the data and append rows to the table
+                pageData.forEach(function(ticket) {
+                    var newDRow = $('<tr>');
+
+                    if (ticket.TICKET_STATUS == '70') {
+                        newDRow.addClass('canceled-row');
+                    }
+
+                    // Populate each cell with data
+                    newDRow.html(`
+                        <td >${ticket.TICKET_NO}</td>
+                        <td>${ticket.SERVICE_TYPE}</td>
+                        <td>${ticket.SERVICE_DETAIL}</td>
+                        <td>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td>${
+                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                        ''
+                            }</td>
+                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                        <td hidden>${ticket.TICKET_PERIORITY}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                        <td>${ticket.USERNAME}</td>
+                        <td>${ticket.DEPARTMENT_NAME}</td>
+                        <td>${ticket.TICKET_START_DATE}</td>
+                        <td>${ticket.BRANCH_CODE}</td>
+                        <td>${ticket.ASSIGNED_TO}</td>
+                        <td>${ticket.TICKET_END_DATE}</td>
+                        <td>${ticket.TTOTAL_TIME}</td>
+                        <td>${ticket.TOTAL_TIME}</td>
+                    `);
+
+                    // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                });
+
+                let noPage = Math.ceil(allData.length / noRecord);
+
+                if (page > 1) {
+                    let previous = (page - 1);
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+                }
+
+                let count = 0;
+                for (let i = page; i <= noPage - 1; i++) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+                    count++;
+                    if (count == 3 || i == noPage) {
+                        break;
+                    }
+                }
+
+                if (noPage == page) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                } else {
+                    $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                }
+
+                if (page < noPage) {
+                    var next = parseInt(page) + 1;
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+                }
+
+                $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+                console.log('from success case');
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+            }
+
+            $(document).on('click', '#ticketButton', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+                e.preventDefault();
+                // Get the filter value from the 'data-filter' attribute of the clicked button
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+                $('#mainTableTicketTransation').empty();
+                $('#mainTableTicketTransation').append('Loading....');
+
+                filter = $(this).data('filter');
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php',
+                    data: {
+                        userNamePreResault: 'USER_ID',
+                        userIDPreResault: UserSessionID,
+                        Filter: filter,
+                        order: order,
+                        sortOrder: sortOrder,
+                        action: 'TicketTransactionFilter'
+                    },
+                    success: function(data) {
+                        allData = JSON.parse(data);
+                        displayFilterData(page, noRecord);
+                    },
+                    error: function(data) {
+                        console.log('from error case' + data);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                    }
+                });
+            });
+
+            function displayFilterData(page, noRecord) {
+
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+
+                let startIndex = (page - 1) * noRecord;
+                let endIndex = page * noRecord;
+
+                let pageData = allData.slice(startIndex, endIndex);
+                var tableDBody = $('#mainTableTicketTransation');
+
+                // Clear existing rows
+                tableDBody.empty();
+
+                // Loop through the data and append rows to the table
+                pageData.forEach(function(ticket) {
+                    var newDRow = $('<tr>');
+
+                    if (ticket.TICKET_STATUS == '70') {
+                        newDRow.addClass('canceled-row');
+                    }
+
+                    // Populate each cell with data
+                    newDRow.html(`
+                        <td >${ticket.TICKET_NO}</td>
+                        <td>${ticket.SERVICE_TYPE}</td>
+                        <td>${ticket.SERVICE_DETAIL}</td>
+                        <td>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td>${
+                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                        ''
+                            }</td>
+                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                        <td hidden>${ticket.TICKET_PERIORITY}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                        <td>${ticket.USERNAME}</td>
+                        <td>${ticket.DEPARTMENT_NAME}</td>
+                        <td>${ticket.TICKET_START_DATE}</td>
+                        <td>${ticket.BRANCH_CODE}</td>
+                        <td>${ticket.ASSIGNED_TO}</td>
+                        <td>${ticket.TICKET_END_DATE}</td>
+                        <td>${ticket.TTOTAL_TIME}</td>
+                        <td>${ticket.TOTAL_TIME}</td>
+                    `);
+
+                    // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                });
+
+                let noPage = Math.ceil(allData.length / noRecord);
+
+                if (page > 1) {
+                    let previous = (page - 1);
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+                }
+
+                let count = 0;
+                for (let i = page; i <= noPage - 1; i++) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+                    count++;
+                    if (count == 3 || i == noPage) {
+                        break;
+                    }
+                }
+
+                if (noPage == page) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                } else {
+                    $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                }
+
+                if (page < noPage) {
+                    var next = parseInt(page) + 1;
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+                }
+
+                $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+                console.log('from success case');
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+            }
+
+            $(document).on('click', '#orderBy', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+                e.preventDefault();
+                // Get the filter value from the 'data-filter' attribute of the clicked button
+                order = $(this).data('filter');
+                basedon = '#' + order;
+
+                if (sortOrder === 'ASC') {
+                    sortOrder = 'DESC';
+                    $(basedon).removeClass('fa-solid fa-arrow-up').addClass('fa-solid fa-arrow-down');
+                } else {
+                    sortOrder = 'ASC';
+                    $(basedon).removeClass('fa-solid fa-arrow-down').addClass('fa-solid fa-arrow-up');
+                }
+
+                var column = $(this).index(); // Get the index of the clicked column
+
+                // Sort the table rows based on the column data
+                $('#mainTableTicketTransation').each(function() {
+                    var rows = $(this).find('tr').get();
+                    rows.sort(function(a, b) {
+                        var aValue = $(a).children('td').eq(column).text();
+                        var bValue = $(b).children('td').eq(column).text();
+                        if (sortOrder === 'ASC') {
+                            return aValue.localeCompare(bValue);
+                        } else {
+                            return bValue.localeCompare(aValue);
+                        }
+                    });
+                    // Re-render the table rows with the sorted data
+                    $.each(rows, function(index, row) {
+                        $(this).parent().append(row);
+                    });
+                });
+
+            });
+
+            $('#recoredPerPage').on('change', function(e) { // Return Delegated Users Based On Team Number Function
+                e.preventDefault();
+                noRecord = $(this).val();
+                if (filter == ' ' && Object.keys(searchParams).length === 0) {
+                    displayData(page, noRecord);
+                } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
+                    displayFilterData(page, noRecord);
+                } else if (Object.keys(searchParams).length !== 0) {
+                    displaySearchData(page, noRecord);
+                }
+            });
+
+            $(document).on('click', '.pagination_link', function(e) {
+                e.preventDefault();
+                page = $(this).attr("id");
+
+                if (filter == ' ' && Object.keys(searchParams).length === 0) {
+                    displayData(page, noRecord);
+                } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
+                    displayFilterData(page, noRecord);
+                } else if (Object.keys(searchParams).length !== 0) {
+                    displaySearchData(page, noRecord);
+                }
+            });
+
+            ///////////////////////////////////////////***************** Search Ticket Start  *************************/////////////////////////////////////////
+
+            // Define a global object to store search parameters
+            var searchParams = {};
+
+            // Event listener for search button click
+            $(document).on('click', '#SearchTicketButton', function(e) {
+                e.preventDefault();
+                var startTime = new Date().getTime();
+                // Update search parameters from form inputs
+                searchParams = {
+                    SearchTicketNumber: $('#SearchTicketNumber').val(),
+                    SearchTicketStatus: $('#SearchTicketStatus').val(),
+                    SearchTicketBranch: $('#SearchTicketBranch').val(),
+                    SearchTicketPriority: $('#SearchTicketPriority').val(),
+                    SearchITTime: $('#SearchITTime').val(),
+                    SearchITTimePerHour: $('#SearchITTimePerHour').val(),
+                    SearchITTimePerMin: $('#SearchITTimePerMin').val(),
+                    SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+                    SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+                    SearchTotalTime: $('#SearchTotalTime').val(),
+                    SearchTotalTimePerHour: $('#SearchTotalTimePerHour').val(),
+                    SearchTotalTimePerMin: $('#SearchTotalTimePerMin').val(),
+                    SearchTotalTimePerSec: $('#SearchTotalTimePerSec').val(),
+                    SearchTicketAssignedTo: $('#SearchTicketAssignedTo').val(),
+                    SearchTecIssueDiscription: $('#SearchTecIssueDiscription').val(),
+                    SearchTecIssueResolution: $('#SearchTecIssueResolution').val(),
+                    SearchResponsibleDept: $('#SearchResponsibleDept').val(),
+                    SearchServiceType: $('#SearchServiceType').val(),
+                    SearchServiceDetails: $('#SearchServiceDetails').val(),
+                    SearchCreatedBy: $('#SearchCreatedBy').val(),
+                    SearchDepartment: $('#SearchDepartment').val(),
+                    SearchUserIsseDescription: $('#SearchUserIsseDescription').val(),
+                    SearchFromDate: $('#SearchFromDate').val(),
+                    SearchToDate: $('#SearchToDate').val()
+                };
+
+                $('#SearchTicket').modal('hide');
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+                $('#mainTableTicketTransation').empty();
+                $('#mainTableTicketTransation').append('Loading....');
+
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php',
+                    data: {
+                        // Include search parameters along with page number
+                        searchParams: searchParams,
+                        UserSessionID: UserSessionID,
+                        USER_ID: 'USER_ID',
+                        order: order,
+                        sortOrder: sortOrder,
+                        action: 'search'
+                    },
+                    success: function(data) {
+                        $('#SearchTicketNumber').val('');
+                        $('#SearchServiceType').val('');
+                        $('#SearchServiceDetails').val('');
+                        $('#SearchCreatedBy').val('');
+                        $('#SearchDepartment').val('');
+                        $('#SearchTicketStatus').val('');
+                        $('#SearchTicketBranch').val('');
+                        $('#SearchTicketPriority').val('');
+                        $('#SearchTicketAssignedTo').val('');
+                        $('#SearchTecIssueDiscription').val('');
+                        $('#SearchTecIssueResolution').val('');
+                        $('#SearchResponsibleDept').val('');
+                        $('#SearchUserIsseDescription').val('');
+
+                        allData = JSON.parse(data);
+                        displaySearchData(page, noRecord);
+                    },
+                    error: function() {
+                        alert("Error Fetching Data");
+                        $('#SearchTicketNumber').val('');
+                        $('#SearchServiceType').val('');
+                        $('#SearchServiceDetails').val('');
+                        $('#SearchCreatedBy').val('');
+                        $('#SearchDepartment').val('');
+                        $('#SearchTicketStatus').val('');
+                        $('#SearchTicketBranch').val('');
+                        $('#SearchTicketPriority').val('');
+                        $('#SearchTicketAssignedTo').val('');
+                        $('#SearchTecIssueDiscription').val('');
+                        $('#SearchTecIssueResolution').val('');
+                        $('#SearchResponsibleDept').val('');
+                        $('#SearchUserIsseDescription').val('');
+                    }
+                });
+            });
+
+            function displaySearchData(page, noRecord) {
+
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+
+                let startIndex = (page - 1) * noRecord;
+                let endIndex = page * noRecord;
+
+                let pageData = allData.slice(startIndex, endIndex);
+                var tableDBody = $('#mainTableTicketTransation');
+
+                // Clear existing rows
+                tableDBody.empty();
+
+                // Loop through the data and append rows to the table
+                pageData.forEach(function(ticket) {
+                    var newDRow = $('<tr>');
+
+                    if (ticket.TICKET_STATUS == '70') {
+                        newDRow.addClass('canceled-row');
+                    }
+
+                    // Populate each cell with data
+                    newDRow.html(`
+                        <td >${ticket.TICKET_NO}</td>
+                        <td>${ticket.SERVICE_TYPE}</td>
+                        <td>${ticket.SERVICE_DETAIL}</td>
+                        <td>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td>${
+                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                        ''
+                            }</td>
+                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                        <td hidden>${ticket.TICKET_PERIORITY}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                        <td>${ticket.USERNAME}</td>
+                        <td>${ticket.DEPARTMENT_NAME}</td>
+                        <td>${ticket.TICKET_START_DATE}</td>
+                        <td>${ticket.BRANCH_CODE}</td>
+                        <td>${ticket.ASSIGNED_TO}</td>
+                        <td>${ticket.TICKET_END_DATE}</td>
+                        <td>${ticket.TTOTAL_TIME}</td>
+                        <td>${ticket.TOTAL_TIME}</td>
+                    `);
+
+                    // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                });
+
+                let noPage = Math.ceil(allData.length / noRecord);
+
+                if (page > 1) {
+                    let previous = (page - 1);
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+                }
+
+                let count = 0;
+                for (let i = page; i <= noPage - 1; i++) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+                    count++;
+                    if (count == 3 || i == noPage) {
+                        break;
+                    }
+                }
+
+                if (noPage == page) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                } else {
+                    $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                }
+
+                if (page < noPage) {
+                    var next = parseInt(page) + 1;
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+                }
+
+                $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+                console.log('from success case');
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+            }
+
+            ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
+
         });
     </script>
 <?php
@@ -1241,3 +1678,40 @@ $timeTaken = $endTime - $startTime;
 
 echo "<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>Page Loaded In: " . round($timeTaken, 2)  . " Seconds</h5>";
 ob_end_flush(); // Release The Output
+
+
+
+
+
+// fetchData(UserSessionID, USER_ID, noRecord, order, sortOrder);
+
+//             function fetchData(UserSessionID, USER_ID, noRecord, order, sortOrder) {
+//                 $('.tran').hide(100);
+//                 $('#mainTableTicketTransation').empty();
+//                 $('#mainTableTicketTransation').append('Loading....');
+
+//                 var startTime = new Date().getTime();
+//                 $.ajax({
+//                     type: 'POST',
+//                     url: 'function.php',
+//                     data: {
+//                         userNamePreResault: 'USER_ID',
+//                         userIDPreResault: UserSessionID,
+//                         order: order,
+//                         sortOrder: sortOrder,
+//                         action: 'TicketTransation'
+//                     },
+//                     success: function(data) {
+
+//                         allData = JSON.parse(data);
+//                         displayData(page);
+//                         // console.log(allData);
+//                     },
+//                     error: function(data) {
+//                         console.log('from error case' + data);
+//                         var duration = new Date().getTime() - startTime;
+//                         var durationInSeconds = duration / 1000;
+//                         $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+//                     }
+//                 });
+//             }
