@@ -34,8 +34,11 @@ if (isset($_POST['action'])) {
 
         $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
         $userIDPreResault           = $_POST['userIDPreResault'];
-        $page                     = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
-        $recordPerPage = 10;
+        $page                       = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
+        $recordPerPage              = isset($_POST['recordPerPage']) ? $_POST['recordPerPage'] : 10;
+
+        $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
+        $sortOrder                  = $_POST['sortOrder'];
 
         // Insert UserID Into global_temp_table Table After Returned From User Table
         $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
@@ -86,44 +89,30 @@ if (isset($_POST['action'])) {
             $endAt = $page * $recordPerPage;
 
             $allTicket = "SELECT * FROM (
-                    SELECT   ttsv.TICKET_NO,
-                                ttsv.REQUEST_TYPE_NO,
-                                    ttsv.SERVICE_TYPE,
-                                    ttsv.SERVICE_DETAIL,
-                                    ttsv.SERVICE_DETAIL_NO,
-                                    ttsv.TICKET_PERIORITY,
-                                    ttsv.TICKET_PERIORITY_MEANING,
-                                    ttsv.TICKET_START_DATE,
-                                    ttsv.TICKET_END_DATE,
-                                    ttsv.TOTAL_TIME,
-                                    ttsv.ACTION_DATE,
-                                    ttsv.CAL_TIME,
-                                    ttsv.TICKET_STATUS,
-                                    ttsv.TICKET_STATUS_MEANING,
-                                    ttsv.DEPARTMENT_NO,
-                                    ttsv.DEPARTMENT_NAME,
-                                    ttsv.BRANCH_CODE,
-                                    ttsv.DEVICE_NO,
-                                    ttsv.CREATED_BY,
-                                    ttsv.USERNAME,
-                                    ttsv.USER_EN_NAME,
-                                    ttsv.EMP_DEPARTMENT,
-                                    ttsv.ISSUE_DESCRIPTION,
-                                    ttsv.TECHNICAL_ISSUE_DESCRIPTION,
-                                    ttsv.TECHNICAL_ISSUE_RESOLUTION,
-                                    ttsv.UNDER_MAINTENANCE,
-                                    ttsv.ASSIGNED_TO,
-                                    ttsv.LAST_UPDATED_BY,
-                                    ttsv.LAST_UPDATE_DATE,
-                                    ttsv.EMAIL,
-                                    ttsv.EBS_EMPLOYEE_ID,
-                                    ttsv.RESPONSE_TIME,
-                                    ttsv.TECHNICIAN_ATTITUDE,
-                                    ttsv.SERVICE_EVALUATION,
-                                    ttsv.EVALUATION_FLAG,
-                                    ROWNUM AS rn
-                            FROM   ticketing.tickets_transactions_sub_t ttsv 
-                            ORDER BY TICKET_NO DESC
+                SELECT 
+                    TICKET_NO, 
+                    SERVICE_TYPE, 
+                    SERVICE_DETAIL, 
+                    TICKET_PERIORITY_MEANING, 
+                    TICKET_STATUS, 
+                    REQUEST_TYPE_NO, 
+                    SERVICE_DETAIL_NO, 
+                    TICKET_PERIORITY,
+                    ISSUE_DESCRIPTION, 
+                    TECHNICAL_ISSUE_DESCRIPTION, 
+                    TECHNICAL_ISSUE_RESOLUTION,
+                    USERNAME, 
+                    DEPARTMENT_NAME, 
+                    TICKET_START_DATE, 
+                    BRANCH_CODE,  
+                    ASSIGNED_TO ,
+                    TICKET_END_DATE,  
+                    TTOTAL_TIME, 
+                    TOTAL_TIME,
+                    ROWNUM AS rn
+                FROM 
+                    TICKETING.TICKETS_TRANSACTIONS_V
+                ORDER BY $order  $sortOrder
                 ) 
                 WHERE 
                     rn BETWEEN '$startFrom' AND '$endAt'";
@@ -151,8 +140,7 @@ if (isset($_POST['action'])) {
                     'BRANCH_CODE'                   => $row['BRANCH_CODE'],
                     'ASSIGNED_TO'                   => $row['ASSIGNED_TO'],
                     'TICKET_END_DATE'               => $row['TICKET_END_DATE'],
-                    'ACTION_DATE'                   => $row['ACTION_DATE'],
-                    'CAL_TIME'                      => $row['CAL_TIME'],
+                    'TTOTAL_TIME'                   => $row['TTOTAL_TIME'],
                     'TOTAL_TIME'                    => $row['TOTAL_TIME']
                 );
             }
@@ -163,13 +151,41 @@ if (isset($_POST['action'])) {
             $NoPage = ceil($num['COUNTS'] / $recordPerPage);
             $pagination = '';
 
-            for ($i = 1; $i <= $NoPage; $i++) {
-                $pagination .= "<span class='pagination_link pagination' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span>";
+            $startPage = max(1, $page - 5); // Show 5 pages before current page
+            $endPage = min($NoPage, $page + 4); // Show 4 pages after current page
+
+            if ($page > 1) {
+                $previous = ($page - 1);
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . 1 . "'>First</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $previous . "'>Previous</span></li>";
+            } else {
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>First</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Previous</span></li>";
             }
+
+            for ($i = 1; $i <= $NoPage; $i++) {
+                if ($i === $page) {
+                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link active' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
+                } else {
+                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
+                }
+            }
+
+            if ($page < $NoPage) {
+                $next = ($page + 1);
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $next . "'>Next</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $NoPage . "'>Last</span></li>";
+            } else {
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Next</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Last</span></li>";
+            }
+
+            $showing = '<span style="color: #0069d9;"> Showing <b> ' . $page . ' </b> of <b>' . $NoPage . ' </b> Pages : </span>';
 
             $responseData = array(
                 'mainTableData'     => $data,
-                'pagination'        => $pagination
+                'pagination'        => $pagination,
+                'showing'           => $showing
             );
             echo json_encode($responseData);
         } else {
@@ -182,7 +198,9 @@ if (isset($_POST['action'])) {
         $userIDPreResault           = $_POST['userIDPreResault'];
         $Filter                     = $_POST['Filter']; // In this Case Its Equal 0
         $page                       = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
-        $recordPerPage              = 10;
+        $recordPerPage              = isset($_POST['recordPerPage']) ? $_POST['recordPerPage'] : 10;
+        $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
+        $sortOrder                  = $_POST['sortOrder'];
 
         // Insert UserID Into global_temp_table Table After Returned From User Table
         $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
@@ -222,6 +240,7 @@ if (isset($_POST['action'])) {
                     FROM 
                         TICKETING.TICKETS_TRANSACTIONS_V
                         WHERE TICKET_STATUS = '$Filter'
+                        ORDER BY $order $sortOrder
                 ) 
                 WHERE 
                     rn BETWEEN '$startFrom' AND '$endAt'";
@@ -260,13 +279,38 @@ if (isset($_POST['action'])) {
             $NoPage = ceil($num['COUNTS'] / $recordPerPage);
             $pagination = '';
 
-            for ($i = 1; $i <= $NoPage; $i++) {
-                $pagination .= "<span class='pagination_link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ;' id='" . $i . "'>" . $i . "</span>";
+            if ($page > 1) {
+                $previous = ($page - 1);
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . 1 . "'>First</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $previous . "'>Previous</span></li>";
+            } else {
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>First</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Previous</span></li>";
             }
+
+            for ($i = 1; $i <= $NoPage; $i++) {
+                if ($i === $page) {
+                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link active' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
+                } else {
+                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
+                }
+            }
+
+            if ($page < $NoPage) {
+                $next = ($page + 1);
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $next . "'>Next</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $NoPage . "'>Last</span></li>";
+            } else {
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Next</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Last</span></li>";
+            }
+
+            $showing = '<span style="color: #0069d9;"> Showing <b> ' . $page . ' </b> of <b>' . $NoPage . ' </b> Pages : </span>';
 
             $responseData = array(
                 'mainTableData'     => $data,
-                'pagination'        => $pagination
+                'pagination'        => $pagination,
+                'showing'           => $showing
             );
             echo json_encode($responseData);
         } else {
@@ -277,7 +321,7 @@ if (isset($_POST['action'])) {
 
         $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
         $userIDPreResault           = $_POST['userIDPreResault'];
-        $Filter                     = $_POST['Filter']; // In this Case Its Equal 0
+        $order                     = $_POST['order']; // In this Case Its Equal 0
 
         // Insert UserID Into global_temp_table Table After Returned From User Table
         $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
@@ -292,7 +336,7 @@ if (isset($_POST['action'])) {
                                 ISSUE_DESCRIPTION, TECHNICAL_ISSUE_DESCRIPTION, TECHNICAL_ISSUE_RESOLUTION,
                                 USERNAME, DEPARTMENT_NAME, TICKET_START_DATE, BRANCH_CODE,  ASSIGNED_TO ,
                                 TICKET_END_DATE,  TTOTAL_TIME, TOTAL_TIME
-                            FROM TICKETING.TICKETS_TRANSACTIONS_V ORDER BY ' . "$Filter"  . ' DESC';
+                            FROM TICKETING.TICKETS_TRANSACTIONS_V ORDER BY ' . "$order"  . ' DESC';
             $all = oci_parse($conn, $allTicket);
             // Execute the query
             oci_execute($all);
@@ -1155,33 +1199,15 @@ if (isset($_POST['action'])) {
     ////////////////////////////////////////////////////////////   Team & Team Member Page Request Functions End
     elseif ($action == 'search') {                              // Fetch Ticket From DB Based On Search Field 
 
-        // $SearchTicketNumber             = $_POST['SearchTicketNumber'];
-        // $SearchTicketStatus             = $_POST['SearchTicketStatus'];
-        // $SearchTicketBranch             = $_POST['SearchTicketBranch'];
-        // $SearchTicketPriority             = $_POST['SearchTicketPriority'];
-        // $SearchITTime             = $_POST['SearchITTime'];
-        // $SearchITTimePerHour             = $_POST['SearchITTimePerHour'];
-        // $SearchITTimePerMin             = $_POST['SearchITTimePerMin'];
-        // $SearchITTimePerSec             = $_POST['SearchITTimePerSec'];
-        // $SearchTotalTime             = $_POST['SearchTotalTime'];
-        // $SearchTotalTimePerHour             = $_POST['SearchTotalTimePerHour'];
-        // $SearchTotalTimePerMin             = $_POST['SearchTotalTimePerMin'];
-        // $SearchTotalTimePerSec             = $_POST['SearchTotalTimePerSec'];
-        // $SearchTicketAssignedTo             = $_POST['SearchTicketAssignedTo'];
-        // $SearchTecIssueDiscription             = $_POST['SearchTecIssueDiscription'];
-        // $SearchTecIssueResolution             = $_POST['SearchTecIssueResolution'];
-        // $SearchResponsibleDept             = $_POST['SearchResponsibleDept'];
-        // $SearchUserIsseDescription             = $_POST['SearchUserIsseDescription'];
-        // $SearchFromDate             = $_POST['SearchFromDate'];
-        // $SearchToDate             = $_POST['SearchToDate'];
-        // $SearchServiceType             = $_POST['SearchServiceType'];
-        // $SearchServiceDetails             = $_POST['SearchServiceDetails'];
-        // $SearchCreatedBy             = $_POST['SearchCreatedBy'];
-        // $SearchDepartment             = $_POST['SearchDepartment'];
+        $UserSessionID              = $_POST['UserSessionID'];
+        $USER_ID                    = $_POST['USER_ID'];
 
+        $searchParams               = $_POST['searchParams'];
+        $page                       = isset($_POST['page']) ? $_POST['page'] : 1; // In this Case Its Equal 0
+        $recordPerPage              = isset($_POST['recordPerPage']) ? $_POST['recordPerPage'] : 10;
 
-        $UserSessionID             = $_POST['UserSessionID'];
-        $USER_ID             = $_POST['USER_ID'];
+        $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
+        $sortOrder                  = $_POST['sortOrder'];
 
         $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
                             VALUES ('$USER_ID', $UserSessionID)";
@@ -1190,74 +1216,100 @@ if (isset($_POST['action'])) {
 
         if ($run) {
 
+            $startFrom = ($page - 1) * $recordPerPage;
+
+            $endAt = $page * $recordPerPage;
 
             // Construct base SQL query
-            $sql = "SELECT TICKET_NO, SERVICE_TYPE, SERVICE_DETAIL, TICKET_PERIORITY_MEANING, 
-                TICKET_STATUS, REQUEST_TYPE_NO, SERVICE_DETAIL_NO, TICKET_PERIORITY,
-                ISSUE_DESCRIPTION, TECHNICAL_ISSUE_DESCRIPTION, TECHNICAL_ISSUE_RESOLUTION,
-                USERNAME, DEPARTMENT_NAME, TICKET_START_DATE, BRANCH_CODE,  ASSIGNED_TO ,
-                TICKET_END_DATE,  TTOTAL_TIME, TOTAL_TIME
-            FROM TICKETING.TICKETS_TRANSACTIONS_V ";
+            $sql = "SELECT * FROM (
+                SELECT 
+                    TICKET_NO, 
+                    SERVICE_TYPE, 
+                    SERVICE_DETAIL, 
+                    TICKET_PERIORITY_MEANING, 
+                    TICKET_STATUS, 
+                    REQUEST_TYPE_NO, 
+                    SERVICE_DETAIL_NO, 
+                    TICKET_PERIORITY,
+                    ISSUE_DESCRIPTION, 
+                    TECHNICAL_ISSUE_DESCRIPTION, 
+                    TECHNICAL_ISSUE_RESOLUTION,
+                    USERNAME, 
+                    DEPARTMENT_NAME, 
+                    TICKET_START_DATE, 
+                    BRANCH_CODE,  
+                    ASSIGNED_TO ,
+                    TICKET_END_DATE,  
+                    TTOTAL_TIME, 
+                    TOTAL_TIME,
+                    ROWNUM AS rn
+                FROM  TICKETING.TICKETS_TRANSACTIONS_V ";
 
 
             // Initialize array to store conditions
             $conditions = array();
 
             // Build conditions based on user input
-            if (isset($_POST['SearchTicketNumber']) && !empty($_POST['SearchTicketNumber'])) {
-                $SearchTicketNumber = $_POST['SearchTicketNumber'];
+            if (isset($searchParams['SearchTicketNumber']) && !empty($searchParams['SearchTicketNumber'])) {
+                $SearchTicketNumber = $searchParams['SearchTicketNumber'];
                 $conditions[] = "TICKET_NO = " . $SearchTicketNumber;
             }
-            if (isset($_POST['SearchTicketStatus']) && !empty($_POST['SearchTicketStatus'])) {
-                $SearchTicketStatus             = $_POST['SearchTicketStatus'];
+            if (isset($searchParams['SearchTicketStatus']) && !empty($searchParams['SearchTicketStatus'])) {
+                $SearchTicketStatus             = $searchParams['SearchTicketStatus'];
                 $conditions[] = "TICKET_STATUS =" . $SearchTicketStatus;
             }
-            if (isset($_POST['SearchTicketBranch']) && !empty($_POST['SearchTicketBranch'])) {
-                $SearchTicketBranch             = $_POST['SearchTicketBranch'];
+            if (isset($searchParams['SearchTicketBranch']) && !empty($searchParams['SearchTicketBranch'])) {
+                $SearchTicketBranch             = $searchParams['SearchTicketBranch'];
                 $conditions[] = "BRANCH_CODE LIKE '%$SearchTicketBranch%'";
             }
-            if (isset($_POST['SearchTicketPriority']) && !empty($_POST['SearchTicketPriority'])) {
-                $SearchTicketPriority             = $_POST['SearchTicketPriority'];
+            if (isset($searchParams['SearchTicketPriority']) && !empty($searchParams['SearchTicketPriority'])) {
+                $SearchTicketPriority             = $searchParams['SearchTicketPriority'];
                 $conditions[] = "TICKET_PERIORITY = " . $SearchTicketPriority;
             }
-            if (isset($_POST['SearchTicketAssignedTo']) && !empty($_POST['SearchTicketAssignedTo'])) {
-                $SearchTicketAssignedTo             = $_POST['SearchTicketAssignedTo'];
+            if (isset($searchParams['SearchTicketAssignedTo']) && !empty($searchParams['SearchTicketAssignedTo'])) {
+                $SearchTicketAssignedTo             = $searchParams['SearchTicketAssignedTo'];
                 $conditions[] = "ASSIGNED_TO LIKE '%$SearchTicketAssignedTo%'";
             }
-            if (isset($_POST['SearchTecIssueDiscription']) && !empty($_POST['SearchTecIssueDiscription'])) {
-                $SearchTecIssueDiscription             = $_POST['SearchTecIssueDiscription'];
+            if (isset($searchParams['SearchTecIssueDiscription']) && !empty($searchParams['SearchTecIssueDiscription'])) {
+                $SearchTecIssueDiscription             = $searchParams['SearchTecIssueDiscription'];
                 $conditions[] = "TECHNICAL_ISSUE_DESCRIPTION LIKE '%$SearchTecIssueDiscription%'";
             }
-            if (isset($_POST['SearchTecIssueResolution']) && !empty($_POST['SearchTecIssueResolution'])) {
-                $SearchTecIssueResolution             = $_POST['SearchTecIssueResolution'];
+            if (isset($searchParams['SearchTecIssueResolution']) && !empty($searchParams['SearchTecIssueResolution'])) {
+                $SearchTecIssueResolution             = $searchParams['SearchTecIssueResolution'];
                 $conditions[] = "TECHNICAL_ISSUE_RESOLUTION LIKE '%$SearchTecIssueResolution%'";
             }
-            if (isset($_POST['SearchUserIsseDescription']) && !empty($_POST['SearchUserIsseDescription'])) {
-                $SearchUserIsseDescription             = $_POST['SearchUserIsseDescription'];
+            if (isset($searchParams['SearchUserIsseDescription']) && !empty($searchParams['SearchUserIsseDescription'])) {
+                $SearchUserIsseDescription             = $searchParams['SearchUserIsseDescription'];
                 $conditions[] = "ISSUE_DESCRIPTION LIKE '%$SearchUserIsseDescription%'";
             }
-            if (isset($_POST['SearchServiceType']) && !empty($_POST['SearchServiceType'])) {
-                $SearchServiceType = $_POST['SearchServiceType'];
+            if (isset($searchParams['SearchServiceType']) && !empty($searchParams['SearchServiceType'])) {
+                $SearchServiceType = $searchParams['SearchServiceType'];
                 $conditions[] = "SERVICE_TYPE LIKE '%$SearchServiceType%'";
             }
-            if (isset($_POST['SearchServiceDetails']) && !empty($_POST['SearchServiceDetails'])) {
-                $SearchServiceDetails = $_POST['SearchServiceDetails'];
+            if (isset($searchParams['SearchServiceDetails']) && !empty($searchParams['SearchServiceDetails'])) {
+                $SearchServiceDetails = $searchParams['SearchServiceDetails'];
                 $conditions[] = "SERVICE_DETAIL LIKE '%$SearchServiceDetails%'";
             }
-            if (isset($_POST['SearchCreatedBy']) && !empty($_POST['SearchCreatedBy'])) {
-                $SearchCreatedBy = $_POST['SearchCreatedBy'];
+            if (isset($searchParams['SearchCreatedBy']) && !empty($searchParams['SearchCreatedBy'])) {
+                $SearchCreatedBy = $searchParams['SearchCreatedBy'];
                 $conditions[] = "USERNAME LIKE '%$SearchCreatedBy%'";
             }
-            if (isset($_POST['SearchDepartment']) && !empty($_POST['SearchDepartment'])) {
-                $SearchDepartment = $_POST['SearchDepartment'];
+            if (isset($searchParams['SearchDepartment']) && !empty($searchParams['SearchDepartment'])) {
+                $SearchDepartment = $searchParams['SearchDepartment'];
                 $conditions[] = "DEPARTMENT_NAME LIKE '%$SearchDepartment%'";
             }
 
-
+            $search = ' ';
             // Add WHERE clause if conditions exist
             if (!empty($conditions)) {
                 $sql .= " WHERE " . implode(" AND ", $conditions);
+                $search .= " WHERE " . implode(" AND ", $conditions);
             }
+
+            $sql .= "  ORDER BY $order  $sortOrder
+                ) 
+                WHERE 
+                    rn BETWEEN '$startFrom' AND '$endAt'";
 
             $all = oci_parse($conn, $sql);
             // Execute the query
@@ -1287,7 +1339,52 @@ if (isset($_POST['action'])) {
                     'TOTAL_TIME'                    => $row['TOTAL_TIME']
                 );
             }
-            echo json_encode($data);
+
+
+            $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V " . $search;
+            $noRecord = oci_parse($conn, $numberOfRecord);
+            oci_execute($noRecord);
+            $num = oci_fetch_assoc($noRecord);
+            $NoPage = ceil($num['COUNTS'] / $recordPerPage);
+            $pagination = '';
+
+            $startPage = max(1, $page - 5); // Show 5 pages before current page
+            $endPage = min($NoPage, $page + 4); // Show 4 pages after current page
+
+            if ($page > 1) {
+                $previous = ($page - 1);
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . 1 . "'>First</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $previous . "'>Previous</span></li>";
+            } else {
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>First</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Previous</span></li>";
+            }
+
+            for ($i = 1; $i <= $NoPage; $i++) {
+                if ($i === $page) {
+                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link active' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
+                } else {
+                    $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</span></li>";
+                }
+            }
+
+            if ($page < $NoPage) {
+                $next = ($page + 1);
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $next . "'>Next</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $NoPage . "'>Last</span></li>";
+            } else {
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Next</span></li>";
+                $pagination .= "<li class='page-item'><span class='pagination_link pagination page-link' style=' padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; opacity: 0.5;  pointer-events: none; ' id=''>Last</span></li>";
+            }
+
+            $showing = '<span style="color: #0069d9;"> Showing <b> ' . $page . ' </b> of <b>' . $NoPage . ' </b> Pages : </span>';
+
+            $responseData = array(
+                'mainTableData'     => $data,
+                'pagination'        => $pagination,
+                'showing'           => $showing
+            );
+            echo json_encode($responseData);
         } else {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'error Insert data']);

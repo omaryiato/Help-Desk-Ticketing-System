@@ -72,30 +72,42 @@ if (isset($_SESSION['user'])) {
         <div class="container-fluid">
             <div class="mb-1">
                 <h2 class="text-center mt-2">Ticketing Transactions</h2>
-                <div class="scroll-wrapper">
+                <div class="scroll-wrapper mb-5 mt-3">
+                    <div class='my-2 '>
+                        <div class='col-sm-2 my-1  d-flex '>
+                            <label class="pe-1" for="recoredPerPage">No Of Recoed</label>
+                            <select class="form-select w-50" id="recoredPerPage">
+                                <option value="10" selected>10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="scroll">
                         <table class="hiddenList scro">
                             <thead>
                                 <tr>
-                                    <th id="orderBy" data-filter="TICKET_NO">Ticket NO <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="SERVICE_TYPE">Service Type <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="SERVICE_DETAIL">Service Details <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TICKET_PERIORITY_MEANING">! <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TICKET_STATUS">Status <i class="fa-solid fa-sort "></i></th>
+                                    <th id="orderBy" data-filter="TICKET_NO">Ticket NO <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="SERVICE_TYPE">Service Type <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="SERVICE_DETAIL">Service Details <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_PERIORITY_MEANING">! <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_STATUS">Status <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
                                     <th hidden>Request Type No</th>
                                     <th hidden>Service Detail No</th>
                                     <th hidden>Periority No</th>
-                                    <th id="orderBy" data-filter="ISSUE_DESCRIPTION">User Issue Description <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_DESCRIPTION">Tech Issue Description <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_RESOLUTION">Tech Issue Resolution <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="USERNAME">Created By <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="DEPARTMENT_NAME">Department <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TICKET_START_DATE">Creation Date <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="BRANCH_CODE">Branch <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="ASSIGNED_TO">Assigned To <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TICKET_END_DATE">End Date <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TTOTAL_TIME">Total IT Time <i class="fa-solid fa-sort "></i></th>
-                                    <th id="orderBy" data-filter="TOTAL_TIME">Total Time <i class="fa-solid fa-sort "></i></th>
+                                    <th id="orderBy" data-filter="ISSUE_DESCRIPTION">User Issue Description <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_DESCRIPTION">Tech Issue Description <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TECHNICAL_ISSUE_RESOLUTION">Tech Issue Resolution <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="USERNAME">Created By <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="DEPARTMENT_NAME">Department <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_START_DATE">Creation Date <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="BRANCH_CODE">Branch <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="ASSIGNED_TO">Assigned To <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TICKET_END_DATE">End Date <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TTOTAL_TIME">Total IT Time <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
+                                    <th id="orderBy" data-filter="TOTAL_TIME">Total Time <i id="sortIcon" class="fa-solid fa-arrow-up"></i></th>
                                 </tr>
                             </thead>
                             <tbody id="mainTableTicketTransation">
@@ -103,8 +115,8 @@ if (isset($_SESSION['user'])) {
 
                                 // //     $userNamePreResault         =  'USER_ID'; // User Who Logged In 
                                 // //     $userIDPreResault           = $_POST['userIDPreResault'];
-                                $page                     = isset($_GET['page']) ? $_GET['page'] : 1; // In this Case Its Equal 0
-                                $recordPerPage = 10;
+                                // $page                     = isset($_GET['page']) ? $_GET['page'] : 1; // In this Case Its Equal 0
+                                // $recordPerPage = 10;
 
                                 // //     // Insert UserID Into global_temp_table Table After Returned From User Table
                                 // //     $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
@@ -150,56 +162,63 @@ if (isset($_SESSION['user'])) {
                                 // }
 
 
-                                $startFrom = ($page - 1) * $recordPerPage;
+                                // $startFrom = ($page - 1) * $recordPerPage;
 
-                                $endAt = $page * $recordPerPage;
+                                // $endAt = $page * $recordPerPage;
 
-                                $allTicket = "SELECT *
-                                FROM TICKETING.TICKETS
-                                WHERE TICKETING.TICKETS.TICKET_NO IN (
-                                        SELECT TICKET_NO
-                                        FROM TICKETING.ticket_team_members
-                                        WHERE TICKETING.ticket_team_members.TEAM_MEMBER = 10003
-                                        UNION
-                                        SELECT TICKET_NO
-                                        FROM TICKETING.TICKETS
-                                        WHERE REQUEST_TYPE_NO = 1
-                                )";
-                                $all = oci_parse($conn, $allTicket);
-                                // Execute the query
-                                oci_execute($all);
+                                // $allTicket = "SELECT *
+                                // FROM (
+                                //     SELECT t.*, ROWNUM AS rn
+                                //     FROM (
+                                //         SELECT *
+                                //         FROM TICKETING.TICKETS
+                                //         WHERE TICKET_NO IN (
+                                //                 SELECT TICKET_NO
+                                //                 FROM TICKETING.ticket_team_members
+                                //                 WHERE TEAM_MEMBER = 10003
+                                //                 UNION
+                                //                 SELECT TICKET_NO
+                                //                 FROM TICKETING.TICKETS
+                                //                 WHERE REQUEST_TYPE_NO = 1
+                                //         ) 
+                                //     ) t
+                                // )
+                                // WHERE rn BETWEEN '$startFrom' AND '$endAt'";
+                                // $all = oci_parse($conn, $allTicket);
+                                // // Execute the query
+                                // oci_execute($all);
 
-                                while ($row = oci_fetch_assoc($all)) {
-                                    echo "<tr>";
-                                    echo "<td>{$row['TICKET_NO']}</td>";
-                                    echo "<td>{$row['SERVICE_TYPE']}</td>";
-                                    echo "<td>{$row['SERVICE_DETAIL']}</td>";
-                                    echo "<td>{$row['TICKET_PERIORITY_MEANING']}</td>";
-                                    echo "<td>{$row['TICKET_STATUS']}</td>";
-                                    echo "<td>{$row['REQUEST_TYPE_NO']}</td>";
-                                    echo "<td>{$row['SERVICE_DETAIL_NO']}</td>";
-                                    echo "<td>{$row['TICKET_PERIORITY']}</td>";
-                                    echo "<td>{$row['ISSUE_DESCRIPTION']}</td>";
-                                    echo "<td>{$row['TECHNICAL_ISSUE_DESCRIPTION']}</td>";
-                                    echo "<td>{$row['TECHNICAL_ISSUE_RESOLUTION']}</td>";
-                                    echo "<td>{$row['USERNAME']}</td>";
-                                    echo "<td>{$row['DEPARTMENT_NAME']}</td>";
-                                    echo "<td>{$row['TICKET_START_DATE']}</td>";
-                                    echo "<td>{$row['BRANCH_CODE']}</td>";
-                                    echo "<td>{$row['ASSIGNED_TO']}</td>";
-                                    echo "<td>{$row['TICKET_END_DATE']}</td>";
-                                    echo "<td>{$row['ACTION_DATE']}</td>";
-                                    echo "<td>{$row['CAL_TIME']}</td>";
-                                    echo "<td>{$row['TOTAL_TIME']}</td>";
-                                    echo "</tr>";
-                                };
+                                // while ($row = oci_fetch_assoc($all)) {
+                                //     echo "<tr>";
+                                //     echo "<td>{$row['t.TICKET_NO']}</td>";
+                                //     echo "<td>{$row['t.SERVICE_TYPE']}</td>";
+                                //     echo "<td>{$row['t.SERVICE_DETAIL']}</td>";
+                                //     echo "<td>{$row['t.TICKET_PERIORITY_MEANING']}</td>";
+                                //     echo "<td>{$row['t.TICKET_STATUS']}</td>";
+                                //     echo "<td>{$row['t.REQUEST_TYPE_NO']}</td>";
+                                //     echo "<td>{$row['t.SERVICE_DETAIL_NO']}</td>";
+                                //     echo "<td>{$row['t.TICKET_PERIORITY']}</td>";
+                                //     echo "<td>{$row['t.ISSUE_DESCRIPTION']}</td>";
+                                //     echo "<td>{$row['t.TECHNICAL_ISSUE_DESCRIPTION']}</td>";
+                                //     echo "<td>{$row['t.TECHNICAL_ISSUE_RESOLUTION']}</td>";
+                                //     echo "<td>{$row['t.USERNAME']}</td>";
+                                //     echo "<td>{$row['t.DEPARTMENT_NAME']}</td>";
+                                //     echo "<td>{$row['t.TICKET_START_DATE']}</td>";
+                                //     echo "<td>{$row['t.BRANCH_CODE']}</td>";
+                                //     echo "<td>{$row['t.ASSIGNED_TO']}</td>";
+                                //     echo "<td>{$row['t.TICKET_END_DATE']}</td>";
+                                //     echo "<td>{$row['t.ACTION_DATE']}</td>";
+                                //     echo "<td>{$row['t.CAL_TIME']}</td>";
+                                //     echo "<td>{$row['t.TOTAL_TIME']}</td>";
+                                //     echo "</tr>";
+                                // };
 
-                                $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V";
-                                $noRecord = oci_parse($conn, $numberOfRecord);
-                                oci_execute($noRecord);
-                                $num = oci_fetch_assoc($noRecord);
-                                $NoPage = ceil($num['COUNTS'] / $recordPerPage);
-                                $pagination = '';
+                                // $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V";
+                                // $noRecord = oci_parse($conn, $numberOfRecord);
+                                // oci_execute($noRecord);
+                                // $num = oci_fetch_assoc($noRecord);
+                                // $NoPage = ceil($num['COUNTS'] / $recordPerPage);
+                                // $pagination = '';
 
                                 ?>
                             </tbody>
@@ -207,18 +226,25 @@ if (isset($_SESSION['user'])) {
                     </div>
                     <?php
 
-                    echo '<div class="d-flex justify-content-center align-center mt-2 mb-2" id="paginationContainer">';
-                    for ($i = 1; $i <= $NoPage; $i++) {
-                        $pagination .= "<a  href='?page=$i' class='pagination_link pagination' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</a>";
-                    };
-                    echo $pagination;
-                    echo '</div>';
+                    // echo '<div class="d-flex justify-content-center align-center mt-2 mb-2" id="paginationContainer">';
+                    // for ($i = 1; $i <= $NoPage; $i++) {
+                    //     $pagination .= "<a  href='?page=$i' class='pagination_link pagination' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</a>";
+                    // };
+                    // echo $pagination;
+                    // echo '</div>';
 
                     ?>
-                    <div class="d-flex justify-content-center align-center mt-2 mb-2" id="paginationContainer"></div>
+                    <div class="d-flex justify-content-between mt-2 mb-3" id="paging">
+                        <div id="numberOfPages"></div>
+                        <nav aria-label="Page navigation example" class="d-flex justify-content-center align-items-center">
+                            <ul class="pagination" id="paginationContainer">
+                            </ul>
+                        </nav>
+                    </div>
+
                 </div>
                 <!-- Ticket Filtering Section Start ( Filter Ticket Based On Ticket Status)-->
-                <div class="container-fluid mt-5 m-auto" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                <div class="container-fluid  " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                     <div class="row">
                         <div class="col-2">
                             <div class="card text-bg-secondary text-white mb-3" style="max-width: 15rem;">
@@ -332,7 +358,7 @@ if (isset($_SESSION['user'])) {
 
             <div class="wrapper" id="wrapper">
                 <div class="contents">
-                    <span style="padding: 10px;">Ticket No#:</span>
+                    <span style="padding: 10px;"> Ticket No#:</span>
                     <span id="returnTicketNumber"></span>
                     <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>" disabled readonly>
                     <input type="hidden" id="UserRole" value="<?php echo  $roles['ROLE_ID'] ?>" disabled readonly>
@@ -959,49 +985,49 @@ if (isset($_SESSION['user'])) {
                                                 <!-- Start Ticket IT Time Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchITTime">IT Time</label>
-                                                    <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime">
+                                                    <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime" disabled>
                                                 </div>
                                                 <!-- End Ticket IT Time Field -->
                                                 <!-- Start Ticket IT Time Per Hour Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchITTimePerHour">Hour</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour">
+                                                    <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour" disabled>
                                                 </div>
                                                 <!-- End Ticket IT Time Per Hour Field -->
                                                 <!-- Start Ticket IT Time Per Min Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchITTimePerMin">Min</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin">
+                                                    <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin" disabled>
                                                 </div>
                                                 <!-- End Ticket IT Time Per Min Field -->
                                                 <!-- Start Ticket IT Time Per Sec Field -->
                                                 <div class='col-sm-3  my-1'>
                                                     <label class="" for="SearchITTimePerSec">Sec</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec">
+                                                    <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec" disabled>
                                                 </div>
                                                 <!-- End Ticket IT Time Per Sec Field -->
                                                 <!-- Start Ticket Total Time Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTime">Total Time</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime">
+                                                    <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime" disabled>
                                                 </div>
                                                 <!-- End Ticket Total Time Field -->
                                                 <!-- Start Ticket Total Time Per Hour Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTimePerHour">Hour</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour">
+                                                    <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour" disabled>
                                                 </div>
                                                 <!-- End Ticket Total Time Per Hour Field -->
                                                 <!-- Start Ticket Total Time Per Min Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTimePerMin">Min</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin">
+                                                    <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin" disabled>
                                                 </div>
                                                 <!-- End Ticket Total Time Per Min Field -->
                                                 <!-- Start Ticket Total Time Per Sec Field -->
                                                 <div class='col-sm-3 my-1'>
                                                     <label class="" for="SearchTotalTimePerSec">Sec</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec">
+                                                    <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec" disabled>
                                                 </div>
                                                 <!-- End Ticket Total Time Per Sec Field -->
                                                 <!-- Start Ticket Assigned To Field -->
@@ -1028,7 +1054,7 @@ if (isset($_SESSION['user'])) {
                                             <!-- Start Ticket Responsible Dept Field -->
                                             <div class='col-sm-10 my-1'>
                                                 <label class="" for="SearchResponsibleDept">Responsible Dept</label>
-                                                <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept">
+                                                <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept" disabled>
                                             </div>
                                             <!-- End Ticket Responsible Dept Field -->
                                             <!-- Start Ticket Service Type Field -->
@@ -1064,13 +1090,13 @@ if (isset($_SESSION['user'])) {
                                             <!-- Start Ticket From Date Field -->
                                             <div class='col-sm-10 my-1'>
                                                 <label class="" for="SearchFromDate">From Date</label>
-                                                <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate">
+                                                <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate" disabled>
                                             </div>
                                             <!-- End Ticket From Date Field -->
                                             <!-- Start Ticket To Date Field -->
                                             <div class='col-sm-10 my-1'>
                                                 <label class="" for="SearchToDate">To Date</label>
-                                                <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate">
+                                                <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate" disabled>
                                             </div>
                                             <!-- End Ticket To Date Field -->
                                         </div>
@@ -1079,7 +1105,7 @@ if (isset($_SESSION['user'])) {
                                                 <!-- Start Submit Button -->
                                                 <div class="form-group">
                                                     <div class="col-sm-offset-2 col-sm-10">
-                                                        <button type="submit" class="btn btn-primary btn-lg mt-3  " id="SearchTicketButton"> <i class="fa-solid fa-magnifying-glass px-2"></i> Search</button>
+                                                        <button type="submit" class="btn btn-primary btn-lg mt-3  " id="SearchTicketButton"> <i class="fa-solid fa-magnifying-glass px-1"></i> Search</button>
                                                     </div>
                                                 </div>
                                                 <!-- End Submit Button  -->
@@ -1102,112 +1128,104 @@ if (isset($_SESSION['user'])) {
     include $inc . 'footer.php';
 
     ?>
-    <!-- <script>
+    <script>
         $(function() {
 
             var UserSessionID = $('#UserSessionID').val(); // User Who Logged In To The System
             var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
-            var Filter = 0;
+            var noRecord = $('#recoredPerPage').val();
+            var order = '';
+            var sortOrder = 'ASC';
+            var page = 1;
 
-            loadPage(1);
+            $('.tran').hide(100);
+            $('#mainTableTicketTransation').empty();
+            $('#mainTableTicketTransation').append('Loading....');
 
-            $(document).on('click', '.pagination_link', function(e) {
-                e.preventDefault();
-                var page = $(this).attr("id");
-                loadPage(page);
+            var startTime = new Date().getTime();
+            $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                data: {
+                    userNamePreResault: 'USER_ID',
+                    userIDPreResault: UserSessionID,
+                    page: page,
+                    recordPerPage: noRecord,
+                    order: order,
+                    sortOrder: sortOrder,
+                    action: 'TicketTransation'
+                },
+                success: function(data) {
+                    var tableDBody = $('#mainTableTicketTransation');
+
+                    var responseData = JSON.parse(data);
+
+                    // Access the mainTableData and pagination properties
+                    var mainTableData = responseData.mainTableData;
+                    var pagination = responseData.pagination;
+                    var showing = responseData.showing;
+                    // Clear existing rows
+                    tableDBody.empty();
+                    mainTableData.forEach(function(row) {
+                        var newDRow = $('<tr>');
+                        // Populate each cell with data
+                        if (row.TICKET_STATUS == '70') {
+                            newDRow.addClass('canceled-row');
+                        }
+                        newDRow.html(`
+                            <td >${row.TICKET_NO}</td>
+                            <td>${row.SERVICE_TYPE}</td>
+                            <td>${row.SERVICE_DETAIL}</td>
+                            <td>${row.TICKET_PERIORITY_MEANING}</td>
+                            <td>${
+                                    row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                                    row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                                    row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                                    row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                                    row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                                    row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                                    row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                                    row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                                    row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                                    row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                                    ''
+                                }</td>
+                            <td hidden>${row.REQUEST_TYPE_NO}</td>
+                            <td hidden>${row.SERVICE_DETAIL_NO}</td>
+                            <td hidden>${row.TICKET_PERIORITY}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${row.ISSUE_DESCRIPTION}'>${row.ISSUE_DESCRIPTION}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${row.TECHNICAL_ISSUE_DESCRIPTION}'>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${row.TECHNICAL_ISSUE_RESOLUTION}'>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
+                            <td>${row.USERNAME}</td>
+                            <td>${row.DEPARTMENT_NAME}</td>
+                            <td>${row.TICKET_START_DATE}</td>
+                            <td>${row.BRANCH_CODE}</td>
+                            <td>${row.ASSIGNED_TO}</td>
+                            <td>${row.TICKET_END_DATE}</td>
+                            <td>${row.TTOTAL_TIME}</td>
+                            <td>${row.TOTAL_TIME}</td>
+                        `);
+                        // Append the new row to the table body
+                        tableDBody.append(newDRow);
+                        // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
+                    });
+
+                    $('#paginationContainer').html(pagination);
+                    $('#numberOfPages').html(showing);
+                    console.log('from success case');
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                },
+                error: function(data) {
+                    console.log('from error case' + data);
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                }
             });
-
-            function loadPage(page) {
-
-                $('.tran').hide(100);
-                $('#mainTableTicketTransation').empty();
-                $('#mainTableTicketTransation').append('Loading....');
-
-                var startTime = new Date().getTime();
-                $.ajax({
-                    type: 'POST',
-                    url: 'function.php',
-                    data: {
-                        userNamePreResault: 'USER_ID',
-                        userIDPreResault: UserSessionID,
-                        Filter: Filter,
-                        page: page,
-                        action: 'TicketTransation'
-                    },
-                    success: function(data) {
-                        var tableDBody = $('#mainTableTicketTransation');
-                        // Parse the returned JSON data
-                        var jsonData = JSON.parse(data);
-
-                        var responseData = JSON.parse(data);
-
-                        // Access the mainTableData and pagination properties
-                        var mainTableData = responseData.mainTableData;
-                        var pagination = responseData.pagination;
-                        // Clear existing rows
-                        tableDBody.empty();
-                        mainTableData.forEach(function(row) {
-                            var newDRow = $('<tr>');
-                            // Populate each cell with data
-                            if (row.TICKET_STATUS == '70') {
-                                newDRow.addClass('canceled-row');
-                            }
-                            newDRow.html(`
-                        <td >${row.TICKET_NO}</td>
-                    <td>${row.SERVICE_TYPE}</td>
-                    <td>${row.SERVICE_DETAIL}</td>
-                    <td>${row.TICKET_PERIORITY_MEANING}</td>
-                    <td>${
-                            row.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                            row.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
-                            row.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                            row.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                            row.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                            row.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                            row.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                            row.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                            row.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                            row.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                            ''
-                        }</td>
-                    <td hidden>${row.REQUEST_TYPE_NO}</td>
-                    <td hidden>${row.SERVICE_DETAIL_NO}</td>
-                    <td hidden>${row.TICKET_PERIORITY}</td>
-                    <td>${row.ISSUE_DESCRIPTION}</td>
-                    <td>${row.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                    <td>${row.TECHNICAL_ISSUE_RESOLUTION}</td>
-                    <td>${row.USERNAME}</td>
-                    <td>${row.DEPARTMENT_NAME}</td>
-                    <td>${row.TICKET_START_DATE}</td>
-                    <td>${row.BRANCH_CODE}</td>
-                    <td>${row.ASSIGNED_TO}</td>
-                    <td>${row.TICKET_END_DATE}</td>
-                    <td>${row.ACTION_DATE}</td>
-                    <td>${row.CAL_TIME}</td>
-                    <td>${row.TOTAL_TIME}</td>
-                `);
-                            // Append the new row to the table body
-                            tableDBody.append(newDRow);
-                            // Clear Existing Data In Table Service Details Team Member (tbody = serviceDetailsTeam) 
-                        });
-
-                        $('#paginationContainer').html(pagination);
-                        console.log('from success case');
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-                    },
-                    error: function(data) {
-                        console.log('from error case' + data);
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-                    }
-                });
-            }
-
         });
-    </script> -->
+    </script>
 <?php
 } else {
     header('Location: index.php');

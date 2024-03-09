@@ -780,3 +780,9 @@ input[type="radio"] {
   background-color: #008dde;
   color: white;
 }
+
+
+.paginationContainer .page-item .active {
+  background-color: #008dde;
+  color: white;
+}
