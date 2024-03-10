@@ -74,6 +74,15 @@ if (isset($_SESSION['user'])) {
     oci_execute($userPermission);
     $roles = oci_fetch_assoc($userPermission); // User Roles
 
+    if ($sid == 'ARCHDEV') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+    } elseif ($sid == 'ARCHPROD') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+    } else {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+    }
+
+
 ?>
 
     <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>" disabled readonly>
@@ -85,24 +94,75 @@ if (isset($_SESSION['user'])) {
                 <h2 class="text-center mt-3 ">Ticketing System</h2>
                 <div class="home">
                     <div class="homeMenu">
-                        <button><a href="TicketTransaction.php" id="TicketTransationTable" aria-label="Go To The User Profile"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions</a></button>
-                        <button><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account"><i class="fa-solid fa-plus pe-2"></i>New Tickets</a></button>
-                        <?php
-                        if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) {
-                        ?>
-                            <button><a href="delegate.php" aria-label="Logout From User Account"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</a></button>
-                        <?php
-                        }
-                        ?>
-                        <?php
-                        if ($roles['ROLE_ID'] == 1) {
-                        ?>
-                            <button><a href="teams.php" aria-label="Go To The User Orders"><i class="fa-solid fa-users pe-2"></i>Team Member</a></button>
-                            <button><a href="service.php" aria-label="Logout From User Account"><i class="fa-solid fa-headphones pe-2"></i>Services</a></button>
-                            <button><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</a></li>
+                        <div class="row d-flex justify-content-center align-items-center">
+                            <div class="col-sm-3 mb-3 mx-1 ">
+                                <div class="card" style="width: 15rem; height: 15rem;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions Page</h5>
+                                        <p class="card-text mt-2">Go To The Ticket TRansaction Page.</p>
+                                        <button class="mt-auto"><a href="TicketTransaction.php" id="TicketTransationTable" aria-label="Go To The User Profile" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-3 mb-3 mx-1">
+                                <div class="card" style="width: 15rem; height: 15rem;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title"><i class="fa-solid fa-plus pe-2"></i>Create New Tickets</h5>
+                                        <p class="card-text mt-2">Tell Us About Your Problem.</p>
+                                        <button class="mt-auto"><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                    </div>
+                                </div>
+                            </div>
                             <?php
-                        }
+                            if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) {
                             ?>
+                                <div class="col-sm-3 mb-3 mx-1">
+                                    <div class="card" style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</h5>
+                                            <p class="card-text mt-2">Delegate With Other Supervisors.</p>
+                                            <button class="mt-auto"><a href="delegate.php" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php
+                            }
+                            ?>
+                            <?php
+                            if ($roles['ROLE_ID'] == 1) {
+                            ?>
+
+                                <div class="col-sm-3 mb-3 mx-1">
+                                    <div class="card" style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-users pe-2"></i>Team Member</h5>
+                                            <p class="card-text mt-2">Go To The Manage Team Member Page.</p>
+                                            <button class="mt-auto"><a href="teams.php" aria-label="Go To The User Orders" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 mb-3 mx-1">
+                                    <div class="card" style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-headphones pe-2"></i>Services</h5>
+                                            <p class="card-text mt-2">Go To The Manage Service Page.</p>
+                                            <button class="mt-auto"><a href="service.php" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 mb-3 mx-1">
+                                    <div class="card " style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>
+                                            <p class="card-text mt-2">Confirm All Solved Tickets Thats Not Confirmeds.</p>
+                                            <button class="mt-auto"><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></li>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php
+                            }
+                            ?>
+                        </div>
                     </div>
                 </div>
             </div>

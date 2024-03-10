@@ -35,60 +35,59 @@ if (isset($_SESSION['user'])) {
 include 'init.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-
+    $UserSessionID = $_POST['UserSessionID'];
+    $password = $_POST['pass'];
 
     $sessionID = $_POST['sessionID'];
-    $UserSessionID = $_POST['UserSessionID'];
+
     $ARCHSTATUS = 'logon';
 
     $numericSessionID = preg_replace('/[^0-9]/', '', $sessionID);
 
-    // // Query to retrieve The User Who Trying To Log In
-    $loginInfo = "SELECT USERNAME FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $UserSessionID . "'";
-    $login = oci_parse($conn, $loginInfo);
+    if (!empty($UserSessionID) && !empty($password)) {
 
-    $resault = oci_execute($login);
+        // // Query to retrieve The User Who Trying To Log In
+        $loginInfo = "SELECT USERNAME, PASSWORD FROM DOCARCH.ACT_USERS_VW WHERE USERNAME = '" . $UserSessionID . "'";
+        $login = oci_parse($conn, $loginInfo);
 
-    // Get the number of rows returned by the query
+        $resault = oci_execute($login);
 
-    while ($row = oci_fetch_assoc($login)) {
-        // Process each row
-    }
+        $row = oci_fetch_assoc($login);
 
-    $numRows = oci_num_rows($login);
+        // Get the number of rows returned by the query
+        // If Count > 0 This Mean The Database Contain Record About This Username 
 
-    oci_free_statement($login);
+        if ($row['PASSWORD'] == $password) {
 
-    // If Count > 0 This Mean The Database Contain Record About This Username 
+            // Query to fetch Last History Login ID To Create The Next ID
+            $lastHistoryID = "SELECT MAX(HISTORY_ID) FROM DOCARCH.XX_LOGIN_HIST";
+            $historyNo     = oci_parse($conn, $lastHistoryID);
+            oci_execute($historyNo);
+            $result        = oci_fetch_array($historyNo);
+            $NewHistoryID  = ++$result['MAX(HISTORY_ID)'];
 
-    if ($numRows > 0) {
+            $NewLogin = "INSERT INTO DOCARCH.XX_LOGIN_HIST (HISTORY_ID, USERNAME, SESSIONID, 
+                                                        LOGIN_TIME, ARCH_STATUS)
+                                VALUES ($NewHistoryID, '$UserSessionID' , $numericSessionID, CURRENT_TIMESTAMP, '$ARCHSTATUS')";
+            $AddNewLogin = oci_parse($conn, $NewLogin);
+            $run = oci_execute($AddNewLogin);
 
-        // Query to fetch Last History Login ID To Create The Next ID
-        $lastHistoryID = "SELECT MAX(HISTORY_ID) FROM DOCARCH.XX_LOGIN_HIST";
-        $historyNo     = oci_parse($conn, $lastHistoryID);
-        oci_execute($historyNo);
-        $result        = oci_fetch_array($historyNo);
-        $NewHistoryID  = ++$result['MAX(HISTORY_ID)'];
-
-        $NewLogin = "INSERT INTO DOCARCH.XX_LOGIN_HIST (HISTORY_ID, USERNAME, SESSIONID, 
-                                                    LOGIN_TIME, ARCH_STATUS)
-                            VALUES ($NewHistoryID, '$UserSessionID' , $numericSessionID, CURRENT_TIMESTAMP, '$ARCHSTATUS')";
-        $AddNewLogin = oci_parse($conn, $NewLogin);
-        $run = oci_execute($AddNewLogin);
-
-        if ($run) {
-            $_SESSION['user'] = $UserSessionID; // Register Session Name
-            // $_SESSION['ID'] = $row['ID'];  // Register Session ID
-            http_response_code(200);
-            header('Location: home.php'); // Redirect To Dashboard Page
-            echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
-            exit();
+            if ($run) {
+                $_SESSION['user'] = $UserSessionID; // Register Session Name
+                // $_SESSION['ID'] = $row['ID'];  // Register Session ID
+                http_response_code(200);
+                header('Location: home.php'); // Redirect To Dashboard Page
+                echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
+                exit();
+            } else {
+                http_response_code(404); // Internal Server Error
+                echo json_encode(['status' => 'error', 'message' => oci_error($AddNewLogin)['message']]);
+            }
         } else {
-            http_response_code(404); // Internal Server Error
-            echo json_encode(['status' => 'error', 'message' => oci_error($AddNewLogin)['message']]);
+            echo "<div class=' d-flex justify-content-center mt-4'><div class='text-center alert alert-danger' style='max-width: 500px; '  >Incorrect Username or Password Please Try Again</div></div>";
         }
     } else {
-        echo "<div class=' d-flex justify-content-center mt-4'><div class='text-center alert alert-danger' style='max-width: 500px; '  >Incorrect Username or Password Please Try Again</div></div>";
+        echo "<div class=' d-flex justify-content-center mt-4'><div class='text-center alert alert-danger' style='max-width: 500px; '  >Please Enter Username and Password</div></div>";
     }
 }
 
@@ -110,11 +109,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <input type="hidden" id="sessionID" name="sessionID" value="<?php echo session_id() ?>" readonly />
                         <a href="validat.html" class="d-block mb-4 text-start text-decoration-underline" style="font-size: 15px;">Forget your password ?</a>
                         <input class="btn btn-primary btn-block " type="submit" value="Login" id="login">
+
                     </form>
                     <!-- Login Form End -->
+                    <?php
+                    if ($sid == 'ARCHDEV') {
+                        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+                    } elseif ($sid == 'ARCHPROD') {
+                        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+                    } else {
+                        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+                    }
+                    ?>
                 </div>
+
             </div>
+
         </div>
+
     </div> <!-- Row Div End -->
 </div> <!-- Container Div End -->
 

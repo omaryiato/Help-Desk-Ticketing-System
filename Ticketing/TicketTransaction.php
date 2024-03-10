@@ -64,6 +64,16 @@ if (isset($_SESSION['user'])) {
     $insertValue = oci_parse($conn, $ticketTransation);
     $run = oci_execute($insertValue);
 
+
+    if ($sid == 'ARCHDEV') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+    } elseif ($sid == 'ARCHPROD') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+    } else {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+    }
+
+
 ?>
 
     <!-- Main Table Start -->

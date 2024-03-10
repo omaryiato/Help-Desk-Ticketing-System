@@ -43,6 +43,14 @@ if (isset($_SESSION['user'])) {
     $info       = oci_parse($conn, $userInfo);
     oci_execute($info);
     $row        = oci_fetch_assoc($info);
+
+    if ($sid == 'ARCHDEV') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+    } elseif ($sid == 'ARCHPROD') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+    } else {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+    }
 ?>
 
     <input type="hidden" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>" disabled readonly>
