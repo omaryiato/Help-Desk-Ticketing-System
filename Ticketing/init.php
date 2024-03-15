@@ -5,12 +5,10 @@
 // Include The Important Files
 
 
-
 $inc = 'include/'; // Functions Directory
 $css = 'layout/css/';      // Css Directory 
 $js = 'layout/js/';       // Js Directory 
 
-// include 'function.php'; // All Function You Need In This Project
 include $inc . 'header.php'; // Header File For This Project 
 // include $inc . 'footer.php';
 

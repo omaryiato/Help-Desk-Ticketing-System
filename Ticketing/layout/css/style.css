@@ -287,7 +287,8 @@ a.sidebar-link {
   font-size: 1rem;
 }
 
-.tickets {
+.tickets,
+.Alltickets {
   color: white;
   font-size: 1rem;
   position: relative;
@@ -755,9 +756,7 @@ input[type="radio"] {
   align-items: center;
 }
 
-
-
-.homeMenu {  margin-top: 50px; max-width: 1000px; }
+.homeMenu { margin-top: 50px; max-width: 1000px; }
 .homeMenu button {
   background-color:  transparent;
   border: #0069d9  solid 2px;
@@ -770,6 +769,7 @@ input[type="radio"] {
 .homeMenu button:hover { background-color: #0069d9; color: white !important;}
 
 .homeMenu button:hover a { color: white !important;}
+
 
 #paginationContainer .pagination {
   color: #0069d9;  

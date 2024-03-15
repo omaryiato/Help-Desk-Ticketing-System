@@ -12,31 +12,32 @@ ob_start(); // Output Buffering Start
 session_start();
 
 // Check if the user is logged in and the session is active
-// if (isset($_SESSION['user'])) {
-//     // Check if the last activity time is set
-//     if (isset($_SESSION['LAST_ACTIVITY'])) {
-//         // Calculate the time difference since the last activity
-//         $elapsedTime = time() - $_SESSION['LAST_ACTIVITY'];
+if (isset($_SESSION['user'])) {
+    // Check if the last activity time is set
+    if (isset($_SESSION['LAST_ACTIVITY'])) {
+        // Calculate the time difference since the last activity
+        $elapsedTime = time() - $_SESSION['LAST_ACTIVITY'];
 
-//         // Check if the elapsed time exceeds 2 minutes (120 seconds)
-//         if ($elapsedTime > 120) {
-//             // Destroy the session
-//             session_unset(); // Unset all session variables
-//             session_destroy(); // Destroy the session
+        // Check if the elapsed time exceeds 2 minutes (120 seconds)
+        if ($elapsedTime > 3600) {
+            // Destroy the session
+            session_unset(); // Unset all session variables
+            session_destroy(); // Destroy the session
 
-//             // Redirect the user to the login page
-//             header("Location: login.php");
-//             exit(); // Ensure that no further code is executed
-//         }
-//     }
+            // Redirect the user to the login page
+            header("Location: index.php");
+            exit(); // Ensure that no further code is executed
+        }
+    }
 
-//     // Update the last activity time
-//     $_SESSION['LAST_ACTIVITY'] = time();
-// }
+    // Update the last activity time
+    $_SESSION['LAST_ACTIVITY'] = time();
+}
 
 if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Home Page';
+
     // Oracle database connection settings
     $host = '192.168.15.245';
     $port = '1521';
@@ -61,6 +62,7 @@ if (isset($_SESSION['user'])) {
 
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 
+
     $userSession = $_SESSION['user'];
     // Query to fetch users Information based on User Name
     $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
@@ -75,13 +77,12 @@ if (isset($_SESSION['user'])) {
     $roles = oci_fetch_assoc($userPermission); // User Roles
 
     if ($sid == 'ARCHDEV') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
     } else {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
     }
-
 
 ?>
 
@@ -95,16 +96,16 @@ if (isset($_SESSION['user'])) {
                 <div class="home">
                     <div class="homeMenu">
                         <div class="row d-flex justify-content-center align-items-center">
-                            <div class="col-sm-3 mb-3 mx-1 ">
+                            <div class="col-sm-3 mb-3 mx-3 ">
                                 <div class="card" style="width: 15rem; height: 15rem;">
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions Page</h5>
-                                        <p class="card-text mt-2">Go To The Ticket TRansaction Page.</p>
+                                        <p class="card-text mt-2">Go To The Ticket Transaction Page.</p>
                                         <button class="mt-auto"><a href="TicketTransaction.php" id="TicketTransationTable" aria-label="Go To The User Profile" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3 mb-3 mx-1">
+                            <div class="col-sm-3 mb-3 mx-3">
                                 <div class="card" style="width: 15rem; height: 15rem;">
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title"><i class="fa-solid fa-plus pe-2"></i>Create New Tickets</h5>
@@ -116,7 +117,7 @@ if (isset($_SESSION['user'])) {
                             <?php
                             if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) {
                             ?>
-                                <div class="col-sm-3 mb-3 mx-1">
+                                <div class="col-sm-3 mb-3 mx-3">
                                     <div class="card" style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</h5>
@@ -131,8 +132,7 @@ if (isset($_SESSION['user'])) {
                             <?php
                             if ($roles['ROLE_ID'] == 1) {
                             ?>
-
-                                <div class="col-sm-3 mb-3 mx-1">
+                                <div class="col-sm-3 mb-3 mx-3">
                                     <div class="card" style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-users pe-2"></i>Team Member</h5>
@@ -141,7 +141,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-3 mb-3 mx-1">
+                                <div class="col-sm-3 mb-3 mx-3">
                                     <div class="card" style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-headphones pe-2"></i>Services</h5>
@@ -150,7 +150,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-3 mb-3 mx-1">
+                                <div class="col-sm-3 mb-3 mx-3">
                                     <div class="card " style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>

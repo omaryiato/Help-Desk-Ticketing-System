@@ -14,10 +14,35 @@ ob_start(); // Output Buffering Start
 session_start();
 
 
+// Check if the user is logged in and the session is active
+if (isset($_SESSION['user'])) {
+    // Check if the last activity time is set
+    if (isset($_SESSION['LAST_ACTIVITY'])) {
+        // Calculate the time difference since the last activity
+        $elapsedTime = time() - $_SESSION['LAST_ACTIVITY'];
+
+        // Check if the elapsed time exceeds 2 minutes (120 seconds)
+        if ($elapsedTime > 3600) {
+            // Destroy the session
+            session_unset(); // Unset all session variables
+            session_destroy(); // Destroy the session
+
+            // Redirect the user to the login page
+            header("Location: index.php");
+            exit(); // Ensure that no further code is executed
+        }
+    }
+
+    // Update the last activity time
+    $_SESSION['LAST_ACTIVITY'] = time();
+}
+
 if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Ticket Transation';
-    // // Oracle database connection settings
+
+
+    // Oracle database connection settings
     $host = '192.168.15.245';
     $port = '1521';
     $sid = 'ARCHDEV';
@@ -37,8 +62,6 @@ if (isset($_SESSION['user'])) {
         trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
         echo "Connectoin to Oracle Database Failed!<br>";
     }
-
-    // include 'connect.php';  // Connection Database File 
 
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
@@ -64,15 +87,13 @@ if (isset($_SESSION['user'])) {
     $insertValue = oci_parse($conn, $ticketTransation);
     $run = oci_execute($insertValue);
 
-
     if ($sid == 'ARCHDEV') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
     } else {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
     }
-
 
 ?>
 
@@ -83,8 +104,9 @@ if (isset($_SESSION['user'])) {
             <div class="mb-1">
                 <h2 class="text-center mt-2">Ticketing Transactions</h2>
                 <div class="scroll-wrapper mb-5 mt-3">
-                    <div class='my-2 '>
-                        <div class='col-sm-2 my-1  d-flex '>
+
+                    <div class='my-2 d-flex justify-content-between'>
+                        <div class='my-1  d-flex '>
                             <label class="pe-1" for="recoredPerPage">No Of Recoed</label>
                             <select class="form-select w-50" id="recoredPerPage">
                                 <option value="10" selected>10</option>
@@ -92,6 +114,11 @@ if (isset($_SESSION['user'])) {
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
+                        </div>
+                        <div class='my-2 d-flex justify-content-end '>
+                            <div class='my-1'>
+                                <span id="activeUsers" style="cursor: pointer;">Active Users: 800</span>
+                            </div>
                         </div>
                     </div>
 
@@ -118,132 +145,21 @@ if (isset($_SESSION['user'])) {
                                     <th id="orderBy" data-filter="TICKET_END_DATE">End Date <i id="TICKET_END_DATE" class="fa-solid fa-arrow-up"></i></th>
                                     <th id="orderBy" data-filter="TTOTAL_TIME">Total IT Time <i id="TTOTAL_TIME" class="fa-solid fa-arrow-up"></i></th>
                                     <th id="orderBy" data-filter="TOTAL_TIME">Total Time <i id="TOTAL_TIME" class="fa-solid fa-arrow-up"></i></th>
+                                    <th hidden>Ticket Status Meaning</th>
+                                    <th hidden>Requestor Dept</th>
+                                    <th hidden>Requestor Email</th>
+                                    <th hidden>Requsetor Full Name</th>
+                                    <th hidden>Response Time</th>
+                                    <th hidden>Technician Attitude</th>
+                                    <th hidden>Service Evaluation</th>
+                                    <th hidden>Requestor Comment</th>
                                 </tr>
                             </thead>
                             <tbody id="mainTableTicketTransation">
-                                <?php
 
-                                // //     $userNamePreResault         =  'USER_ID'; // User Who Logged In 
-                                // //     $userIDPreResault           = $_POST['userIDPreResault'];
-                                // $page                     = isset($_GET['page']) ? $_GET['page'] : 1; // In this Case Its Equal 0
-                                // $recordPerPage = 10;
-
-                                // //     // Insert UserID Into global_temp_table Table After Returned From User Table
-                                // //     $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
-                                // // VALUES ('$userNamePreResault', $userIDPreResault)";
-                                // //     $insertValue = oci_parse($conn, $ticketTransation);
-                                // //     $run = oci_execute($insertValue);
-
-
-                                // $getActionDate = "SELECT TICKET_NO, TICKET_STATUS, ACTION_DATE FROM TICKETING.TICKETS";
-                                // $actionDateForCalTimeUpdate = oci_parse($conn, $getActionDate);
-                                // oci_execute($actionDateForCalTimeUpdate);
-
-                                // while ($actionDate = oci_fetch_assoc($actionDateForCalTimeUpdate)) {
-                                //     if ($actionDate['ACTION_DATE'] !== null) {
-                                //         $actionDateData = json_decode($actionDate['ACTION_DATE'], true);
-
-                                //         // Check if the key "Confirmed By User" exists and if its value is in the expected format
-                                //         if (isset($actionDateData['Confirmed By User'])) {
-                                //             $lastValue = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Confirmed By User']);
-                                //         } else {
-                                //             // If the key doesn't exist or the value is not in the expected format, set $dateOne to null
-                                //             $lastValue =  new DateTime();
-                                //         }
-
-                                //         // // Create a DateTime object from the first value
-                                //         $firstDateTime = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Creation Date']);
-                                //         // // Calculate the difference between the two DateTime objects
-                                //         $interval = $firstDateTime->diff($lastValue);
-
-                                //         $DaysDifference = $interval->format('%a');
-                                //         $HoursDifference = $interval->format('%h');
-                                //         $MinDifference = $interval->format('%i');
-                                //         $SecDifference = $interval->format('%s');
-
-                                //         $difference = $DaysDifference . " Day " . $HoursDifference .  " Hours " .  $MinDifference . " Minutes " . $SecDifference . " Sec ";
-
-                                //         // // Update the TOTAL_TIME column for this specific row
-                                //         $updateActionDate = "UPDATE TICKETING.TICKETS SET TOTAL_TIME = '$difference' ";
-                                //         $up = oci_parse($conn, $updateActionDate);
-
-                                //         oci_execute($up);
-                                //     }
-                                // }
-
-
-                                // $startFrom = ($page - 1) * $recordPerPage;
-
-                                // $endAt = $page * $recordPerPage;
-
-                                // $allTicket = "SELECT *
-                                // FROM (
-                                //     SELECT t.*, ROWNUM AS rn
-                                //     FROM (
-                                //         SELECT *
-                                //         FROM TICKETING.TICKETS
-                                //         WHERE TICKET_NO IN (
-                                //                 SELECT TICKET_NO
-                                //                 FROM TICKETING.ticket_team_members
-                                //                 WHERE TEAM_MEMBER = 10003
-                                //                 UNION
-                                //                 SELECT TICKET_NO
-                                //                 FROM TICKETING.TICKETS
-                                //                 WHERE REQUEST_TYPE_NO = 1
-                                //         ) 
-                                //     ) t
-                                // )
-                                // WHERE rn BETWEEN '$startFrom' AND '$endAt'";
-                                // $all = oci_parse($conn, $allTicket);
-                                // // Execute the query
-                                // oci_execute($all);
-
-                                // while ($row = oci_fetch_assoc($all)) {
-                                //     echo "<tr>";
-                                //     echo "<td>{$row['t.TICKET_NO']}</td>";
-                                //     echo "<td>{$row['t.SERVICE_TYPE']}</td>";
-                                //     echo "<td>{$row['t.SERVICE_DETAIL']}</td>";
-                                //     echo "<td>{$row['t.TICKET_PERIORITY_MEANING']}</td>";
-                                //     echo "<td>{$row['t.TICKET_STATUS']}</td>";
-                                //     echo "<td>{$row['t.REQUEST_TYPE_NO']}</td>";
-                                //     echo "<td>{$row['t.SERVICE_DETAIL_NO']}</td>";
-                                //     echo "<td>{$row['t.TICKET_PERIORITY']}</td>";
-                                //     echo "<td>{$row['t.ISSUE_DESCRIPTION']}</td>";
-                                //     echo "<td>{$row['t.TECHNICAL_ISSUE_DESCRIPTION']}</td>";
-                                //     echo "<td>{$row['t.TECHNICAL_ISSUE_RESOLUTION']}</td>";
-                                //     echo "<td>{$row['t.USERNAME']}</td>";
-                                //     echo "<td>{$row['t.DEPARTMENT_NAME']}</td>";
-                                //     echo "<td>{$row['t.TICKET_START_DATE']}</td>";
-                                //     echo "<td>{$row['t.BRANCH_CODE']}</td>";
-                                //     echo "<td>{$row['t.ASSIGNED_TO']}</td>";
-                                //     echo "<td>{$row['t.TICKET_END_DATE']}</td>";
-                                //     echo "<td>{$row['t.ACTION_DATE']}</td>";
-                                //     echo "<td>{$row['t.CAL_TIME']}</td>";
-                                //     echo "<td>{$row['t.TOTAL_TIME']}</td>";
-                                //     echo "</tr>";
-                                // };
-
-                                // $numberOfRecord = "SELECT count(*) AS COUNTS FROM TICKETING.TICKETS_TRANSACTIONS_V";
-                                // $noRecord = oci_parse($conn, $numberOfRecord);
-                                // oci_execute($noRecord);
-                                // $num = oci_fetch_assoc($noRecord);
-                                // $NoPage = ceil($num['COUNTS'] / $recordPerPage);
-                                // $pagination = '';
-
-                                ?>
                             </tbody>
                         </table>
                     </div>
-                    <?php
-
-                    // echo '<div class="d-flex justify-content-center align-center mt-2 mb-2" id="paginationContainer">';
-                    // for ($i = 1; $i <= $NoPage; $i++) {
-                    //     $pagination .= "<a  href='?page=$i' class='pagination_link pagination' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" . $i . "'>" . $i . "</a>";
-                    // };
-                    // echo $pagination;
-                    // echo '</div>';
-
-                    ?>
                     <div class="d-flex justify-content-between mt-2 mb-3" id="paging">
                         <div id="numberOfPages"></div>
                         <nav aria-label="Page navigation example" class="d-flex justify-content-center align-items-center">
@@ -330,31 +246,8 @@ if (isset($_SESSION['user'])) {
 
                         <div class="col-2">
                             <div class="card text-bg-light mb-3" style="max-width: 15rem;">
-                                <?php
-
-                                $allTicket = "SELECT * FROM TICKETING.TICKETS_TRANSACTIONS_V ";
-
-                                $alltick = oci_parse($conn, $allTicket);
-                                // oci_bind_by_name($alltick, ":t_service", $user['DEPARTMENT']);
-
-                                // Execute the query
-                                oci_execute($alltick);
-
-                                // Fetch the result
-                                $row = oci_fetch_assoc($alltick);
-
-                                // Close the connection
-                                oci_close($conn);
-
-                                while ($row = oci_fetch_assoc($alltick)) {
-                                    // Process each row
-                                }
-
-                                $allRows = oci_num_rows($alltick);
-                                ?>
-
                                 <div class="card-header">
-                                    <button class="tickets" style="color: black;" id="ticketButton" data-filter="0"><i class="fa-solid fa-layer-group pe-2"></i>Total: <?php echo $allRows ?></button>
+                                    <button class="Alltickets" style="color: black;"><i class="fa-solid fa-layer-group pe-2"></i><span id="allRows">Loading...</span></button>
                                 </div>
                             </div>
                         </div>
@@ -561,11 +454,7 @@ if (isset($_SESSION['user'])) {
                                 <div class="container-fluid ">
                                     <div class="row d-flex justify-content-center"> <!-- Container Div Start  -->
                                         <div class="col-sm-6 ">
-                                            <div class=" text-center mt-5" id="waitingMessageForTeamAssignMember">
-                                                <div class="alert alert-primary" role="alert">
-                                                    There Is No Data You Can See It Yet.
-                                                </div>
-                                            </div>
+
                                             <h3 class="text-start mt-3 text-dark">Team Member</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3 ">
@@ -579,6 +468,7 @@ if (isset($_SESSION['user'])) {
                                                         </tr>
                                                     </thead>
                                                     <tbody id="teamMember">
+
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -604,7 +494,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div> <!-- Container Div End  -->
                                     <div class="col-sm-4 mt-4">
-                                        <button class="btn btn-success button" id="assignTicket" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                        <button class="btn btn-success button" id="assignTicket" data-bs-toggle='tooltip' data-bs-placement='top' title='Assign Team Member'>
                                             <i class='fa-solid fa-at'></i>
                                             <span>Assign</span>
                                         </button>
@@ -820,7 +710,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div> <!-- Container Div End  -->
                                     <div class="col-sm-4 mt-4">
-                                        <button class="btn btn-success button" id="assignTicketChange" data-bs-toggle='tooltip' data-bs-placement='top' title='Add New Team'>
+                                        <button class="btn btn-success button" id="assignTicketChange" data-bs-toggle='tooltip' data-bs-placement='top' title='Change Assigned Team Member'>
                                             <i class="fa-solid fa-pen"></i>
                                             <span>Change</span>
                                         </button>
@@ -1133,6 +1023,226 @@ if (isset($_SESSION['user'])) {
     <!-- Search Ticket Pop Up Form Start -->
 
 
+    <!-- Ticket Details Pop Up Form Start -->
+    <div class="modal fade" id="TicketDetailsPopup" tabindex="-1" aria-labelledby="TicketDetailsPopupLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <main class="content px-3 py-2"> <!-- Main Start -->
+                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                            <div class="mb-1">
+                                <h2 class="text-center" id="TicketDetailsPopupLabel">Ticket Details</h2>
+                                <div class="container  mt-1">
+                                    <h3 class="text-start mt-3 mb-4 text-dark">Ticket Information</h3>
+                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class="col-sm-4">
+                                            <label class="" for="TicketNumberDetails">Ticket #</label>
+                                            <input type="text" class="form-control" id="TicketNumberDetails" aria-label="City" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="BranchCodeDetails">Branch</label>
+                                            <input type="text" class="form-control" id="BranchCodeDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="TicketPeriorityDetails">Periority</label>
+                                            <input type="text" class="form-control" id="TicketPeriorityDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="ServiceTypeDetails">Service Type</label>
+                                            <input type="text" class="form-control" id="ServiceTypeDetails" aria-label="City" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="ServiceDetailsDetails">Service Details</label>
+                                            <input type="text" class="form-control" id="ServiceDetailsDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="TicketStatusDetails">Ticket Status</label>
+                                            <input type="text" class="form-control" id="TicketStatusDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="StartDateDetails">Start Date</label>
+                                            <input type="text" class="form-control" id="StartDateDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="EndDateDetails">End Date</label>
+                                            <input type="text" class="form-control" id="EndDateDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="ITTotaleTimeDetails">IT Totale Time</label>
+                                            <input type="text" class="form-control" id="ITTotaleTimeDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container  mt-1">
+                                    <h3 class="text-start mt-3 mb-4 text-dark">Requestor Information</h3>
+                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class="col-sm-4">
+                                            <label class="" for="RequestorNameDetails">Name</label>
+                                            <input type="text" class="form-control" id="RequestorNameDetails" aria-label="City" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="RequestorDepartmentDetails">Department</label>
+                                            <input type="text" class="form-control" id="RequestorDepartmentDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="RequestorEmailDetails">Email</label>
+                                            <input type="text" class="form-control" id="RequestorEmailDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="RequestorIssueDiscriptionDetails">Issue Discription</label>
+                                            <input type="text" class="form-control" id="RequestorIssueDiscriptionDetails" aria-label="City" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="RequestorCommentDetails">Comment</label>
+                                            <textarea type="text" class="form-control" id="RequestorCommentDetails" cols="30" rows="10" style="overflow: scroll; height: 100px;"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container  mt-1">
+                                    <h3 class="text-start mt-3 mb-4 text-dark">Technician Information</h3>
+                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianNameDetails">Name</label>
+                                            <input type="text" class="form-control" id="TechnicianNameDetails" aria-label="City" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianIssueDiscriptionDetails">Issue Discription</label>
+                                            <textarea type="text" class="form-control" id="TechnicianIssueDiscriptionDetails" cols="30" rows="10" style="overflow: scroll; height: 100px;"></textarea>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianDepartmentDetails">Department</label>
+                                            <input type="text" class="form-control" id="TechnicianDepartmentDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianIssueResolutionDetails">Issue Resolution</label>
+                                            <textarea type="text" class="form-control" id="TechnicianIssueResolutionDetails" cols="30" rows="10" style="overflow: scroll; height: 100px;"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container  mt-1">
+                                    <h3 class="text-start mt-3 mb-4 text-dark">Evaluation</h3>
+                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class="col-sm-4">
+                                            <label class="" for="ResponsTimeDetails">Respons Time</label>
+                                            <input type="text" class="form-control" id="ResponsTimeDetails" aria-label="City" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="TechnicianAttitudeDetails">Technician Attitude</label>
+                                            <input type="text" class="form-control" id="TechnicianAttitudeDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="ServiceEvaluationInGeneralDetails">Service Evaluation In General</label>
+                                            <input type="text" class="form-control" id="ServiceEvaluationInGeneralDetails" aria-label="State" disabled readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" col-sm-10 mx-1 ">
+                                    <div class="row">
+                                        <!-- Start Submit Button -->
+                                        <div class="form-group">
+                                            <div class="col-sm-offset-2 col-sm-10">
+                                                <button type="submit" class="btn btn-primary btn-lg mt-3  " id="SaveTicketDetailsInformation"> <i class="fa-solid fa-bookmark px-1"></i> Save</button>
+                                            </div>
+                                        </div>
+                                        <!-- End Submit Button  -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- Container-fluid Div End  -->
+                    </main> <!-- Main End -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Ticket Details Pop Up Form Start -->
+
+    <!-- Time Details Pop Up Form Start -->
+    <div class="modal fade" id="TimeDetails" tabindex="-1" aria-labelledby="TimeDetailsPopupLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h1 class="modal-title fs-5" id="assignPopupLabel">Any Comment For User</h1> -->
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Assign Ticket  Start -->
+                    <main class="content px-3 py-2"> <!-- Main Start -->
+                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                            <div class="row d-flex justify-content-center">
+                                <div class=" col-sm-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                    <div class=" d-flex justify-content-between">
+                                        <div class="">
+                                            <h3 class=" mt-3 mb-4 text-dark d-inline">Time Details</h3>
+                                        </div>
+                                    </div>
+                                    <div class="details">
+                                        <table class=" detailsTable  text-center table table-bordered mt-3 " id="TimeDetailsHistory">
+                                            <thead>
+                                                <tr>
+                                                    <th>Time (DD:HH:MM:SS)</th>
+                                                    <th>Discription</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="timeDetails" style="cursor: pointer;">
+
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div><!-- Container-fluid Div End  -->
+                    </main> <!-- Main End -->
+                    <!-- Assign Ticket Info End -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Time Details Pop Up Form Start -->
+
+
+    <!-- Behalf User Pop Up Form Start -->
+    <div class="modal fade" id="TicketBehalfUserPopup" tabindex="-1" aria-labelledby="TicketBehalfUserPopupLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <main class="content px-3 py-2"> <!-- Main Start -->
+                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                            <div class="mb-1">
+                                <h2 class="text-center" id="TicketBehalfUserPopupLabel">Employees Info</h2>
+                                <div>
+                                    <input type="text" class="form-control" id="userSearch" aria-label="City" >
+                                    <label class="" for="userSearch">Search</label>
+                                </div>
+                                <div class="scroll">
+                                    <table class="main-table text-center table table-bordered mt-3 ">
+                                        <thead>
+                                            <tr>
+                                                <th>File Num</th>
+                                                <th>Full Name</th>
+                                                <th>Branch</th>
+                                                <th>Emp Department</th>
+                                                <th>Email</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="allEmployee">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div><!-- Container-fluid Div End  -->
+                    </main> <!-- Main End -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Behalf User Pop Up Form Start -->
+
     <?php
 
     include $inc . 'footer.php';
@@ -1146,7 +1256,7 @@ if (isset($_SESSION['user'])) {
             var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
             var noRecord = $('#recoredPerPage').val();
             var order = '';
-            var sortOrder = 'ASC';
+            var sortOrder = 'DESC';
             var page = 1;
             var filter = ' ';
             var allData = [];
@@ -1164,13 +1274,17 @@ if (isset($_SESSION['user'])) {
                     userIDPreResault: UserSessionID,
                     order: order,
                     sortOrder: sortOrder,
-                    action: 'TicketTransation'
+                    Filter: 10,
+                    action: 'TicketTransactionFilter'
                 },
                 success: function(data) {
 
                     allData = JSON.parse(data);
-                    displayData(page, noRecord);
-                    // console.log(allData);
+                    displayFilterData(page, noRecord);
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
                 },
                 error: function(data) {
                     console.log('from error case' + data);
@@ -1205,11 +1319,11 @@ if (isset($_SESSION['user'])) {
 
                     // Populate each cell with data
                     newDRow.html(`
-                        <td >${ticket.TICKET_NO}</td>
-                        <td>${ticket.SERVICE_TYPE}</td>
-                        <td>${ticket.SERVICE_DETAIL}</td>
-                        <td>${ticket.TICKET_PERIORITY_MEANING}</td>
-                        <td>${
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
                         ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
                         ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
                         ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
@@ -1228,14 +1342,22 @@ if (isset($_SESSION['user'])) {
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td>${ticket.USERNAME}</td>
-                        <td>${ticket.DEPARTMENT_NAME}</td>
-                        <td>${ticket.TICKET_START_DATE}</td>
-                        <td>${ticket.BRANCH_CODE}</td>
-                        <td>${ticket.ASSIGNED_TO}</td>
-                        <td>${ticket.TICKET_END_DATE}</td>
-                        <td>${ticket.TTOTAL_TIME}</td>
-                        <td>${ticket.TOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                        <td hidden>${ticket.USER_EN_NAME}</td>
+                        <td hidden>${ticket.EMAIL}</td>
+                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                        <td hidden>${ticket.RESPONSE_TIME}</td>
+                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
                     `);
 
                     // Append the new row to the table body
@@ -1275,9 +1397,7 @@ if (isset($_SESSION['user'])) {
                 $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
 
                 console.log('from success case');
-                var duration = new Date().getTime() - startTime;
-                var durationInSeconds = duration / 1000;
-                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
 
             }
 
@@ -1291,6 +1411,7 @@ if (isset($_SESSION['user'])) {
 
                 filter = $(this).data('filter');
 
+                var startTime = new Date().getTime();
                 $.ajax({
                     type: 'POST',
                     url: 'function.php',
@@ -1304,7 +1425,11 @@ if (isset($_SESSION['user'])) {
                     },
                     success: function(data) {
                         allData = JSON.parse(data);
-                        displayFilterData(page, noRecord);
+                        displayFilterData(1, noRecord);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
                     },
                     error: function(data) {
                         console.log('from error case' + data);
@@ -1339,11 +1464,11 @@ if (isset($_SESSION['user'])) {
 
                     // Populate each cell with data
                     newDRow.html(`
-                        <td >${ticket.TICKET_NO}</td>
-                        <td>${ticket.SERVICE_TYPE}</td>
-                        <td>${ticket.SERVICE_DETAIL}</td>
-                        <td>${ticket.TICKET_PERIORITY_MEANING}</td>
-                        <td>${
+                    <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
                         ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
                         ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
                         ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
@@ -1362,14 +1487,22 @@ if (isset($_SESSION['user'])) {
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td>${ticket.USERNAME}</td>
-                        <td>${ticket.DEPARTMENT_NAME}</td>
-                        <td>${ticket.TICKET_START_DATE}</td>
-                        <td>${ticket.BRANCH_CODE}</td>
-                        <td>${ticket.ASSIGNED_TO}</td>
-                        <td>${ticket.TICKET_END_DATE}</td>
-                        <td>${ticket.TTOTAL_TIME}</td>
-                        <td>${ticket.TOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                        <td hidden>${ticket.USER_EN_NAME}</td>
+                        <td hidden>${ticket.EMAIL}</td>
+                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                        <td hidden>${ticket.RESPONSE_TIME}</td>
+                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
                     `);
 
                     // Append the new row to the table body
@@ -1409,10 +1542,6 @@ if (isset($_SESSION['user'])) {
                 $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
 
                 console.log('from success case');
-                var duration = new Date().getTime() - startTime;
-                var durationInSeconds = duration / 1000;
-                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
             }
 
             $(document).on('click', '#orderBy', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
@@ -1548,7 +1677,11 @@ if (isset($_SESSION['user'])) {
                         $('#SearchUserIsseDescription').val('');
 
                         allData = JSON.parse(data);
-                        displaySearchData(page, noRecord);
+                        displaySearchData(1, noRecord);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
                     },
                     error: function() {
                         alert("Error Fetching Data");
@@ -1593,11 +1726,11 @@ if (isset($_SESSION['user'])) {
 
                     // Populate each cell with data
                     newDRow.html(`
-                        <td >${ticket.TICKET_NO}</td>
-                        <td>${ticket.SERVICE_TYPE}</td>
-                        <td>${ticket.SERVICE_DETAIL}</td>
-                        <td>${ticket.TICKET_PERIORITY_MEANING}</td>
-                        <td>${
+                    <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
                         ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
                         ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
                         ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
@@ -1616,14 +1749,22 @@ if (isset($_SESSION['user'])) {
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td>${ticket.USERNAME}</td>
-                        <td>${ticket.DEPARTMENT_NAME}</td>
-                        <td>${ticket.TICKET_START_DATE}</td>
-                        <td>${ticket.BRANCH_CODE}</td>
-                        <td>${ticket.ASSIGNED_TO}</td>
-                        <td>${ticket.TICKET_END_DATE}</td>
-                        <td>${ticket.TTOTAL_TIME}</td>
-                        <td>${ticket.TOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                        <td hidden>${ticket.USER_EN_NAME}</td>
+                        <td hidden>${ticket.EMAIL}</td>
+                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                        <td hidden>${ticket.RESPONSE_TIME}</td>
+                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
                     `);
 
                     // Append the new row to the table body
@@ -1663,9 +1804,6 @@ if (isset($_SESSION['user'])) {
                 $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
 
                 console.log('from success case');
-                var duration = new Date().getTime() - startTime;
-                var durationInSeconds = duration / 1000;
-                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
 
             }
 
@@ -1688,40 +1826,3 @@ $timeTaken = $endTime - $startTime;
 
 echo "<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>Page Loaded In: " . round($timeTaken, 2)  . " Seconds</h5>";
 ob_end_flush(); // Release The Output
-
-
-
-
-
-// fetchData(UserSessionID, USER_ID, noRecord, order, sortOrder);
-
-//             function fetchData(UserSessionID, USER_ID, noRecord, order, sortOrder) {
-//                 $('.tran').hide(100);
-//                 $('#mainTableTicketTransation').empty();
-//                 $('#mainTableTicketTransation').append('Loading....');
-
-//                 var startTime = new Date().getTime();
-//                 $.ajax({
-//                     type: 'POST',
-//                     url: 'function.php',
-//                     data: {
-//                         userNamePreResault: 'USER_ID',
-//                         userIDPreResault: UserSessionID,
-//                         order: order,
-//                         sortOrder: sortOrder,
-//                         action: 'TicketTransation'
-//                     },
-//                     success: function(data) {
-
-//                         allData = JSON.parse(data);
-//                         displayData(page);
-//                         // console.log(allData);
-//                     },
-//                     error: function(data) {
-//                         console.log('from error case' + data);
-//                         var duration = new Date().getTime() - startTime;
-//                         var durationInSeconds = duration / 1000;
-//                         $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-//                     }
-//                 });
-//             }

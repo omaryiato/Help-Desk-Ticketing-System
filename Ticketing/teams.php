@@ -11,9 +11,35 @@ ob_start(); // Output Buffering Start
 
 session_start();
 
+// Check if the user is logged in and the session is active
+if (isset($_SESSION['user'])) {
+    // Check if the last activity time is set
+    if (isset($_SESSION['LAST_ACTIVITY'])) {
+        // Calculate the time difference since the last activity
+        $elapsedTime = time() - $_SESSION['LAST_ACTIVITY'];
+
+        // Check if the elapsed time exceeds 2 minutes (120 seconds)
+        if ($elapsedTime > 3600) {
+            // Destroy the session
+            session_unset(); // Unset all session variables
+            session_destroy(); // Destroy the session
+
+            // Redirect the user to the login page
+            header("Location: index.php");
+            exit(); // Ensure that no further code is executed
+        }
+    }
+
+    // Update the last activity time
+    $_SESSION['LAST_ACTIVITY'] = time();
+}
+
+
 if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Team Members Page';
+
+
     // Oracle database connection settings
     $host = '192.168.15.245';
     $port = '1521';
@@ -37,6 +63,7 @@ if (isset($_SESSION['user'])) {
     }
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 
+
     $userSession = $_SESSION['user'];
     // Query to fetch users Information based on User Name
     $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
@@ -45,9 +72,9 @@ if (isset($_SESSION['user'])) {
     $row        = oci_fetch_assoc($info);
 
     if ($sid == 'ARCHDEV') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Applecation</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Applecation</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
     } else {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
     }

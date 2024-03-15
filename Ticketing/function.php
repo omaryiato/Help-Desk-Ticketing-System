@@ -30,116 +30,7 @@ if (isset($_POST['action'])) {
 
     $action = $_POST['action'];
 
-    if ($action == 'TicketTransation') {                        // Fetch All Ticket From  DB Based On User ID
-
-        $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
-        $userIDPreResault           = $_POST['userIDPreResault'];
-        $order                      = !empty($_POST['order']) ? $_POST['order'] :  'TICKET_NO';
-        $sortOrder                  = $_POST['sortOrder'];
-
-        // Insert UserID Into global_temp_table Table After Returned From User Table
-        $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
-                            VALUES ('$userNamePreResault', $userIDPreResault)";
-        $insertValue = oci_parse($conn, $ticketTransation);
-        $run = oci_execute($insertValue);
-
-
-        $getActionDate = "SELECT TICKET_NO, TICKET_STATUS, ACTION_DATE FROM TICKETING.TICKETS";
-        $actionDateForCalTimeUpdate = oci_parse($conn, $getActionDate);
-        oci_execute($actionDateForCalTimeUpdate);
-
-        while ($actionDate = oci_fetch_assoc($actionDateForCalTimeUpdate)) {
-            if ($actionDate['ACTION_DATE'] !== null) {
-                $actionDateData = json_decode($actionDate['ACTION_DATE'], true);
-
-                // Check if the key "Confirmed By User" exists and if its value is in the expected format
-                if (isset($actionDateData['Confirmed By User'])) {
-                    $lastValue = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Confirmed By User']);
-                } else {
-                    // If the key doesn't exist or the value is not in the expected format, set $dateOne to null
-                    $lastValue =  new DateTime();
-                }
-
-                // // Create a DateTime object from the first value
-                $firstDateTime = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Creation Date']);
-                // // Calculate the difference between the two DateTime objects
-                $interval = $firstDateTime->diff($lastValue);
-
-                $DaysDifference = $interval->format('%a');
-                $HoursDifference = $interval->format('%h');
-                $MinDifference = $interval->format('%i');
-                $SecDifference = $interval->format('%s');
-
-                $difference = $DaysDifference . " Day " . $HoursDifference .  " Hours " .  $MinDifference . " Minutes " . $SecDifference . " Sec ";
-
-                // // Update the TOTAL_TIME column for this specific row
-                $updateActionDate = "UPDATE TICKETING.TICKETS SET TOTAL_TIME = '$difference' WHERE TICKET_NO = " . $actionDate['TICKET_NO'];
-                $up = oci_parse($conn, $updateActionDate);
-
-                oci_execute($up);
-            }
-        }
-
-        if ($run) {
-
-            $allTicket = "SELECT 
-                            TICKET_NO, 
-                            SERVICE_TYPE, 
-                            SERVICE_DETAIL, 
-                            TICKET_PERIORITY_MEANING, 
-                            TICKET_STATUS, 
-                            REQUEST_TYPE_NO, 
-                            SERVICE_DETAIL_NO, 
-                            TICKET_PERIORITY,
-                            ISSUE_DESCRIPTION, 
-                            TECHNICAL_ISSUE_DESCRIPTION, 
-                            TECHNICAL_ISSUE_RESOLUTION,
-                            USERNAME, 
-                            DEPARTMENT_NAME, 
-                            TICKET_START_DATE, 
-                            BRANCH_CODE,  
-                            ASSIGNED_TO ,
-                            TICKET_END_DATE,  
-                            TTOTAL_TIME, 
-                            TOTAL_TIME
-                        FROM 
-                            TICKETING.TICKETS_TRANSACTIONS_V
-                        ORDER BY $order  $sortOrder";
-            $all = oci_parse($conn, $allTicket);
-            // Execute the query
-            oci_execute($all);
-
-            $data = array();
-            while ($row = oci_fetch_assoc($all)) {
-                $data[] = array(
-                    'TICKET_NO'                     => $row['TICKET_NO'],
-                    'SERVICE_TYPE'                  => $row['SERVICE_TYPE'],
-                    'SERVICE_DETAIL'                => $row['SERVICE_DETAIL'],
-                    'TICKET_PERIORITY_MEANING'      => $row['TICKET_PERIORITY_MEANING'],
-                    'TICKET_STATUS'                 => $row['TICKET_STATUS'],
-                    'REQUEST_TYPE_NO'               => $row['REQUEST_TYPE_NO'],
-                    'SERVICE_DETAIL_NO'             => $row['SERVICE_DETAIL_NO'],
-                    'TICKET_PERIORITY'              => $row['TICKET_PERIORITY'],
-                    'ISSUE_DESCRIPTION'             => $row['ISSUE_DESCRIPTION'],
-                    'TECHNICAL_ISSUE_DESCRIPTION'   => $row['TECHNICAL_ISSUE_DESCRIPTION'],
-                    'TECHNICAL_ISSUE_RESOLUTION'    => $row['TECHNICAL_ISSUE_RESOLUTION'],
-                    'USERNAME'                      => $row['USERNAME'],
-                    'DEPARTMENT_NAME'               => $row['DEPARTMENT_NAME'],
-                    'TICKET_START_DATE'             => $row['TICKET_START_DATE'],
-                    'BRANCH_CODE'                   => $row['BRANCH_CODE'],
-                    'ASSIGNED_TO'                   => $row['ASSIGNED_TO'],
-                    'TICKET_END_DATE'               => $row['TICKET_END_DATE'],
-                    'TTOTAL_TIME'                   => $row['TTOTAL_TIME'],
-                    'TOTAL_TIME'                    => $row['TOTAL_TIME']
-                );
-            }
-            echo json_encode($data);
-        } else {
-            http_response_code(400);
-            echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
-        }
-    } elseif ($action == 'TicketTransactionFilter') {                        // Fetch All Ticket From  DB Based On User ID and Ticket Status
-
+    if ($action == 'TicketTransactionFilter') {                        // Fetch All Ticket From  DB Based On User ID and Ticket Status
         $userNamePreResault         =  $_POST['userNamePreResault']; // User Who Logged In 
         $userIDPreResault           = $_POST['userIDPreResault'];
         $Filter                     = $_POST['Filter']; // In this Case Its Equal 0
@@ -152,6 +43,41 @@ if (isset($_POST['action'])) {
         $insertValue = oci_parse($conn, $ticketTransation);
         $run = oci_execute($insertValue);
 
+        // $getActionDate = "SELECT TICKET_NO, TICKET_STATUS, ACTION_DATE FROM TICKETING.TICKETS";
+        // $actionDateForCalTimeUpdate = oci_parse($conn, $getActionDate);
+        // oci_execute($actionDateForCalTimeUpdate);
+
+        // while ($actionDate = oci_fetch_assoc($actionDateForCalTimeUpdate)) {
+        //     if ($actionDate['ACTION_DATE'] !== null) {
+        //         $actionDateData = json_decode($actionDate['ACTION_DATE'], true);
+
+        //         // Check if the key "Confirmed By User" exists and if its value is in the expected format
+        //         if (isset($actionDateData['Confirmed By User'])) {
+        //             $lastValue = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Confirmed By User']);
+        //         } else {
+        //             // If the key doesn't exist or the value is not in the expected format, set $dateOne to null
+        //             $lastValue =  new DateTime();
+        //         }
+
+        //         // // Create a DateTime object from the first value
+        //         $firstDateTime = DateTime::createFromFormat('d/m/y H:i:s', $actionDateData['Creation Date']);
+        //         // // Calculate the difference between the two DateTime objects
+        //         $interval = $firstDateTime->diff($lastValue);
+
+        //         $DaysDifference = $interval->format('%a');
+        //         $HoursDifference = $interval->format('%h');
+        //         $MinDifference = $interval->format('%i');
+        //         $SecDifference = $interval->format('%s');
+
+        //         $difference = $DaysDifference . " Day " . $HoursDifference .  " Hours " .  $MinDifference . " Minutes " . $SecDifference . " Sec ";
+
+        //         // // Update the TOTAL_TIME column for this specific row
+        //         $updateActionDate = "UPDATE TICKETING.TICKETS SET TOTAL_TIME = '$difference' WHERE TICKET_NO = " . $actionDate['TICKET_NO'];
+        //         $up = oci_parse($conn, $updateActionDate);
+
+        //         oci_execute($up);
+        //     }
+        // }
         if ($run) {
             // Fetch Ticket From  DB Based On User ID And Ticket Status
 
@@ -175,10 +101,17 @@ if (isset($_POST['action'])) {
                         TICKET_END_DATE,  
                         TTOTAL_TIME, 
                         TOTAL_TIME,
-                        ROWNUM AS rn
+                        TICKET_STATUS_MEANING, 
+                        USER_EN_NAME, 
+                        EMAIL,
+                        EMP_DEPARTMENT,
+                        RESPONSE_TIME,
+                        TECHNICIAN_ATTITUDE,
+                        SERVICE_EVALUATION,
+                        REQUESTOR_COMMENTS
                     FROM 
                         TICKETING.TICKETS_TRANSACTIONS_V
-                        WHERE TICKET_STATUS = '$Filter'
+                        WHERE TICKET_STATUS = " . $Filter . "
                         ORDER BY $order $sortOrder ";
             $all = oci_parse($conn, $allTicket);
             // Execute the query
@@ -205,11 +138,17 @@ if (isset($_POST['action'])) {
                     'ASSIGNED_TO'                   => $row['ASSIGNED_TO'],
                     'TICKET_END_DATE'               => $row['TICKET_END_DATE'],
                     'TTOTAL_TIME'                   => $row['TTOTAL_TIME'],
-                    'TOTAL_TIME'                    => $row['TOTAL_TIME']
+                    'TOTAL_TIME'                    => $row['TOTAL_TIME'],
+                    'TICKET_STATUS_MEANING'         => $row['TICKET_STATUS_MEANING'],
+                    'USER_EN_NAME'                  => $row['USER_EN_NAME'],
+                    'EMAIL'                         => $row['EMAIL'],
+                    'EMP_DEPARTMENT'                => $row['EMP_DEPARTMENT'],
+                    'RESPONSE_TIME'                 => $row['RESPONSE_TIME'],
+                    'TECHNICIAN_ATTITUDE'           => $row['TECHNICIAN_ATTITUDE'],
+                    'SERVICE_EVALUATION'            => $row['SERVICE_EVALUATION'],
+                    'REQUESTOR_COMMENTS'            => $row['REQUESTOR_COMMENTS']
                 );
             }
-
-
             echo json_encode($data);
         } else {
             http_response_code(400);
@@ -219,19 +158,30 @@ if (isset($_POST['action'])) {
 
         $ticketNumber           = $_POST['ticketNumber'];       // Ticket Number
         $UserSessionID          = $_POST['UserSessionID'];      // User Who Asssign The Ticket
-        $ticketWeight           = $_POST['ticketWeight'];       // Ticket Weight
-        $ticketPeriority        = $_POST['ticketPeriority'];    // Ticket Periority
         $assignTeam             = $_POST['assignTeam'];         // Team Assigned Number
         $memberAssigned         = json_decode($_POST['memberAssigned'], true);  // Member Team Assigned
         $statusUpdate           = 20; // Ticket  Status Update (Assigned)
 
+        // Ticket Weight
+        if ($_POST['ticketWeight'] == 0) {
+            $ticketWeight           = NULL;
+        } else {
+            $ticketWeight           = $_POST['ticketWeight'];
+        }
+
+        if ($_POST['ticketPeriority'] == 0) {
+            $ticketPeriority = NULL;
+        } else {
+            $ticketPeriority        = $_POST['ticketPeriority'];    // Ticket Periority
+        }
+
         // Update Ticket Status In Ticket Table
         $statusTicket = "UPDATE TICKETING.TICKETS SET 
-                            TICKET_PERIORITY = " . $ticketPeriority . ", 
+                            TICKET_PERIORITY = '" . $ticketPeriority . "', 
                             TICKET_STATUS = " . $statusUpdate . ", 
                             LAST_UPDATE_DATE = CURRENT_TIMESTAMP, 
                             LAST_UPDATED_BY = " . $UserSessionID . ", 
-                            TICKET_WEIGHT = " . $ticketWeight . "
+                            TICKET_WEIGHT = '" . $ticketWeight . "'
                             WHERE TICKET_NO = " . $ticketNumber;
 
         $status = oci_parse($conn, $statusTicket);
@@ -297,18 +247,29 @@ if (isset($_POST['action'])) {
 
         $ticketNumber           = $_POST['ticketNumber'];           // Ticket Number
         $UserSessionID          = $_POST['UserSessionID'];          // User Who Assign The Ticket 
-        $ticketWeight           = $_POST['ticketWeightChange'];     // Ticket Weight
-        $ticketPeriority        = $_POST['ticketPeriorityChange'];  // Ticket Periority
+
         $assignTeam             = $_POST['assignTeamChange'];       // Team Assigned Number
         $memberAssigned         = json_decode($_POST['memberAssignedChange'], true); // Member Team Assigned
         $statusUpdate           = 20;       // Ticket  Status Update (Assigned)
 
+        if ($_POST['ticketWeightChange'] == 0 || $_POST['ticketWeightChange'] == 'null') {
+            $ticketWeight           = NULL;     // Ticket Weight
+        } else {
+            $ticketWeight           = $_POST['ticketWeightChange'];
+        }
+
+        if ($_POST['ticketPeriorityChange'] == 0 || $_POST['ticketPeriorityChange'] == 'null') {
+            $ticketPeriority        = NULL;  // Ticket Periority
+        } else {
+            $ticketPeriority        = $_POST['ticketPeriorityChange'];
+        }
+
         // Update Ticket Status In Ticket Table
         $statusTicket = "UPDATE TICKETING.TICKETS SET 
-                            TICKET_PERIORITY = " . $ticketPeriority . ", 
+                            TICKET_PERIORITY = '" . $ticketPeriority . "', 
                             LAST_UPDATE_DATE = CURRENT_TIMESTAMP, 
                             LAST_UPDATED_BY = " . $UserSessionID . ", 
-                            TICKET_WEIGHT = " . $ticketWeight . "
+                            TICKET_WEIGHT = '" . $ticketWeight . "'
                             WHERE TICKET_NO = " . $ticketNumber;
 
         $status = oci_parse($conn, $statusTicket);
@@ -574,7 +535,6 @@ if (isset($_POST['action'])) {
         $technicianAttitude             = $_POST['technicianAttitude'];         //  Technichen Attitude
         $serviceEvaluation              = $_POST['serviceEvaluation'];          //   General Service Evaluation
         $UserSessionID                  = $_POST['UserSessionID'];              //   User Who Confirme The Ticket
-        $comments                       = 'Ticket Confirmed';                   //  Comments For Action History Table
 
         $statusUpdate = ' ';
 
@@ -607,7 +567,7 @@ if (isset($_POST['action'])) {
                                                     ACTION_DATE, COMMENTS, CREATED_BY, CREATION_DATE,
                                                     LAST_UPDATED_BY, LAST_UPDATE_DATE) 
                                             VALUES ($returnedTicketNumber, $SeqNo, $statusUpdate, 
-                                                    CURRENT_TIMESTAMP, '$comments', $UserSessionID, CURRENT_TIMESTAMP,
+                                                    CURRENT_TIMESTAMP, '$evaluationDescription', $UserSessionID, CURRENT_TIMESTAMP,
                                                     $UserSessionID, CURRENT_TIMESTAMP)";
             $newHistory = oci_parse($conn, $addTicketHistory);
             $resault = oci_execute($newHistory);
@@ -1202,11 +1162,91 @@ if (isset($_POST['action'])) {
         //     $conditions[] = "date_field <= '{$toDate}'";
         // }
 
+    } elseif ($action == 'TicketDetailsInformation') {                              // Fetch Ticket From DB Based On Search Field 
+
+        $TicketNumberDetails                    = $_POST['TicketNumberDetails'];
+        $TechnicianIssueDiscriptionDetails      = $_POST['TechnicianIssueDiscriptionDetails'];
+        $TechnicianIssueResolutionDetails       = $_POST['TechnicianIssueResolutionDetails'];
+        $RequestorCommentDetails                = $_POST['RequestorCommentDetails'];
+        $UserSessionID                          = $_POST['UserSessionID'];
+
+        // Update Ticket Status In Ticket Table
+        $statusTicket = "UPDATE TICKETING.TICKETS SET 
+                            LAST_UPDATE_DATE = CURRENT_TIMESTAMP,
+                            LAST_UPDATED_BY = " . $UserSessionID . ", 
+                            TECHNICAL_ISSUE_DESCRIPTION = '" . $TechnicianIssueDiscriptionDetails . "', 
+                            TECHNICAL_ISSUE_RESOLUTION = '" . $TechnicianIssueResolutionDetails . "'
+                            WHERE TICKET_NO = " . $TicketNumberDetails;
+        $status = oci_parse($conn, $statusTicket);
+        $run = oci_execute($status);
+
+        if ($run) {
+            http_response_code(200);
+            echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['status' => 'error', 'message' => oci_error($status)['message']]);
+        }
     }
 }
 
 
 ///////////////////////////////////////////***************** Delegate Supervisor Page Request Functions Start  *************************/////////////////////////////////////////
+
+if (isset($_POST['teamInfoDelegate'])) {   // Display Delegated User Debends On Team Number In Delegate Supervisor Section
+    $teamInfoDelegate = $_POST['teamInfoDelegate']; // Team Number
+
+    // Query to fetch Delegated users based on the selected Team Number
+    $memberDelegated = "SELECT USER_ID,USERNAME 
+                        FROM TICKETING.xxajmi_ticket_user_info 
+                        WHERE USER_ID IN (SELECT TEAM_MEMBER_USER_ID FROM TICKETING.TEAM_MEMBERS WHERE TEAM_NO =" . $teamInfoDelegate . ")";
+
+    $delegate = oci_parse($conn, $memberDelegated);
+    // Bind the variables
+    oci_execute($delegate);
+
+    $options = '';
+    while ($row = oci_fetch_assoc($delegate)) {
+        $options .= "<option value='{$row['USER_ID']}'>{$row['USERNAME']}</option>";
+    }
+    echo $options;
+}
+
+if (isset($_POST['delegate'])) {   // Display Delegated User Debends On Team Number In Delegate Supervisor Section
+
+    $delegateTeam =         $_POST['delegateTeam']; // Team Number
+    $delegateUser =         $_POST['delegateUser']; // Team Number
+    $StartDate =            $_POST['StartDate']; // Team Number
+    $EndDate =              $_POST['EndDate']; // Team Number
+    $UserSessionID =        $_POST['UserSessionID']; // Team Number
+    $StartDate = "TO_DATE('$StartDate', 'MM/DD/YYYY')";
+    $EndDate = "TO_DATE('$EndDate', 'MM/DD/YYYY')";
+
+    // Query to fetch Delegated users based on the selected Team Number
+    $max        = "SELECT MAX(DELEGATE_ID) FROM TICKETING.DELEGATED_TEM_SUPER";
+    $deleID     = oci_parse($conn, $max);
+    oci_execute($deleID);
+    $id         = oci_fetch_assoc($deleID);
+    $delegateNo   = ++$id['MAX(DELEGATE_ID)'];
+
+
+    $addNewDelegate = "INSERT INTO TICKETING.DELEGATED_TEM_SUPER (DELEGATE_ID, DELEGATE_USER_ID, TEAM_NO, 
+                                                                    END_DATE, CREATED_BY, CREATION_DATE,
+                                                                    LAST_UPDATED_BY, LAST_UPDATE_DATE, START_DATE) 
+                                                            VALUES ($delegateNo, $delegateUser, $delegateTeam, 
+                                                                    $EndDate, $UserSessionID, CURRENT_TIMESTAMP, 
+                                                                    $UserSessionID,CURRENT_TIMESTAMP, $StartDate)";
+    $newDelegate = oci_parse($conn, $addNewDelegate);
+    $resualt = oci_execute($newDelegate);
+
+    if ($resualt) {
+        http_response_code(200);
+        echo json_encode(['status' => 'success', 'message' => 'User Delegated successfully']);
+    } else {
+        http_response_code(500); // Internal Server Error
+        echo json_encode(['status' => 'error', 'message' => oci_error($newDelegate)['message']]);
+    }
+}
 
 if (isset($_POST['delegated'])) {   // Display Delegated User Debends On Team Number In Delegate Supervisor Section
     $delegateUser = $_POST['delegated']; // Team Number
@@ -1214,18 +1254,16 @@ if (isset($_POST['delegated'])) {   // Display Delegated User Debends On Team Nu
     // Query to fetch Delegated users based on the selected Team Number
     $memberDelegated = "SELECT
                             TICKETING.DELEGATED_TEM_SUPER.* , 
-                            DOCARCH.ACT_USERS_VW.USERNAME,USER_EN_NAME
+                            TICKETING.xxajmi_ticket_user_info.USERNAME,USER_EN_NAME
                         FROM 
                             TICKETING.DELEGATED_TEM_SUPER
                         JOIN
-                            DOCARCH.ACT_USERS_VW
+                        TICKETING.xxajmi_ticket_user_info
                         ON 
-                            DOCARCH.ACT_USERS_VW.USER_ID = TICKETING.DELEGATED_TEM_SUPER.DELEGATE_USER_ID
+                        TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.DELEGATED_TEM_SUPER.DELEGATE_USER_ID
                         WHERE
-                            TICKETING.DELEGATED_TEM_SUPER.TEAM_NO = :t_team";
+                            TICKETING.DELEGATED_TEM_SUPER.TEAM_NO = " . $delegateUser;
     $delegate = oci_parse($conn, $memberDelegated);
-    // Bind the variables
-    oci_bind_by_name($delegate, ":t_team", $delegateUser);
     // Execute the query
     oci_execute($delegate);
     $data = array();
@@ -1400,7 +1438,6 @@ if (isset($_POST['teamMembersAssigned'])) {             // Choose Team Member Ba
         'teamOption'    => $teamOption
     );
 
-    // Return JSON response
     echo json_encode($responseData);
 }
 
@@ -1487,7 +1524,7 @@ if (isset($_POST['actionHistory'])) {                   // Retrive Action Histor
                         ON
                         TICKETING.LOOKUP_VALUES.CODE = TICKETING.TICKET_ACTION_HISTORY.ACTION_CODE
                         WHERE TICKETING.TICKET_ACTION_HISTORY.TICKET_NO = " . $ticketNumber . "
-                        AND TICKETING.LOOKUP_VALUES.lookup_type_id = " . $lookupTypeID;
+                        AND TICKETING.LOOKUP_VALUES.lookup_type_id = " . $lookupTypeID . " ORDER BY SEQUENCE_NUMBER DESC";
     $action = oci_parse($conn, $actionHistory);
 
     oci_execute($action);
@@ -1599,6 +1636,29 @@ if (isset($_POST['filter'])) {                          // Get Number Of Ticket 
         http_response_code(500);
         echo json_encode(['status' => 'error', 'message' => 'error Insert data']);
     }
+}
+
+if (isset($_POST['allUsers'])) {                          // Get Number Of Ticket  Based On Filter Criteria
+
+
+    $UserSessionID           = $_POST['allUsers'];
+    $allTicket = "SELECT EBS_EMPLOYEE_ID, USER_EN_NAME, EMAIL, EMP_DEPARTMENT,BRANCH_CODE  FROM TICKETING.xxajmi_ticket_user_info  ";
+    $all = oci_parse($conn, $allTicket);
+    // Execute the query
+    oci_execute($all);
+
+    $data = array();
+    while ($row = oci_fetch_assoc($all)) {
+        $data[] = array(
+            'EBS_EMPLOYEE_ID'                     => $row['EBS_EMPLOYEE_ID'],
+            'USER_EN_NAME'                  => $row['USER_EN_NAME'],
+            'EMAIL'                => $row['EMAIL'],
+            'EMP_DEPARTMENT'      => $row['EMP_DEPARTMENT'],
+            'BRANCH_CODE'                 => $row['BRANCH_CODE']
+            
+        );
+    }
+    echo json_encode($data);
 }
 
 
@@ -1922,15 +1982,12 @@ if (isset($_POST['GetTeamID'])) {   // Add New Team Member To The Team Based On 
 function actionDate($actionName, $actionDate, $ticketNumber, $firstDate, $calTimeKey)
 {
     // Oracle database connection settings
-    $host = '192.168.15.245';
+    $host = '192.168.15.207';
     $port = '1521';
-    $sid = 'ARCHDEV';
+    $sid = 'ARCHPROD';
     //old
-    // $username = 'ticketing';
-    // $password = 'ticketing';
-    //new
-    $username = 'selfticket';
-    $password = 'selfticket';
+    $username = 'ticketing';
+    $password = 'ticketing';
 
     // Establish a connection to the Oracle database
 
