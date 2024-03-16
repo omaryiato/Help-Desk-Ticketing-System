@@ -41,32 +41,11 @@ if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Ticket Transation';
 
-
-    // Oracle database connection settings
-    $host = '192.168.15.245';
-    $port = '1521';
-    $sid = 'ARCHDEV';
-    //old
-    // $username = 'ticketing';
-    // $password = 'ticketing';
-    //new
-    $username = 'selfticket';
-    $password = 'selfticket';
-
-    // Establish a connection to the Oracle database
-    putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
-    $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
-
-    if (!$conn) {
-        $e = oci_error();
-        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-        echo "Connectoin to Oracle Database Failed!<br>";
-    }
-
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
+    $sesion = $_SESSION["user"];
     // Select UserID bsed on Username To return User Roles
-    $userNamePre = "SELECT USER_ID FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $_SESSION["user"] . "'";
+    $userNamePre = "SELECT USER_ID FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $sesion . "'";
     $prevlag = oci_parse($conn, $userNamePre);
     oci_execute($prevlag);
     $prevlegs = oci_fetch_assoc($prevlag);
@@ -99,11 +78,12 @@ if (isset($_SESSION['user'])) {
 
     <!-- Main Table Start -->
     <input type="hidden" id="UserSessionID" value="<?php echo $userNamePreResault ?>" disabled readonly>
+
     <main class="content px-3 py-2">
         <div class="container-fluid">
             <div class="mb-1">
                 <h2 class="text-center mt-2">Ticketing Transactions</h2>
-                <div class="scroll-wrapper mb-5 mt-3">
+                <div class="scroll-wrapper  mt-3" style="margin-bottom: 80px;">
 
                     <div class='my-2 d-flex justify-content-between'>
                         <div class='my-1  d-flex '>
@@ -174,80 +154,90 @@ if (isset($_SESSION['user'])) {
                     <div class="row">
                         <div class="col-2">
                             <div class="card text-bg-secondary text-white mb-3" style="max-width: 15rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="10"><i class="fa-solid fa-plus pe-2"></i>New Ticket: <span id="count-10">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="10"><i class="fa-solid fa-plus pe-2"></i>New Ticket </button>
+                                    <div style="text-align:center;" id="count-10">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="card text-bg-primary mb-3" style="max-width: 20rem;">
-                                <div class="card-header ">
-                                    <button class="tickets" id="ticketButton" data-filter="30"><i class="fa-solid fa-envelope-open pe-2"></i>Started working on ticket: <span id="count-30">Loading...</span></button>
+                                <div class="card-header " style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="30" style="display: block;"><i class="fa-solid fa-envelope-open pe-2"></i>Started working on ticket </button>
+                                    <div style="text-align:center;" id="count-30">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-2">
-                            <div class="card text-bg-primary mb-3" style="max-width: 15rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="110"><i class="fa-solid fa-paper-plane pe-2"></i>Sent Out: <span id="count-110">Loading...</span></button>
+                            <div class="card text-bg-primary mb-3" style="max-width: 17rem;">
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="110"><i class="fa-solid fa-paper-plane pe-2"></i>Sent Out </button>
+                                    <div style="text-align:center;" id="count-110">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="card text-bg-success mb-3" style="max-width: 17rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="40"><i class="fa-solid fa-at pe-2"></i>Requester confirmation: <span id="count-40">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="40"><i class="fa-solid fa-check-double pe-2"></i>Requester confirmation </button>
+                                    <div style="text-align:center;" id="count-40">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="card text-bg-danger mb-3" style="max-width: 15rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="70"><i class="fa-solid fa-circle-xmark pe-2"></i>Canceled Ticket: <span id="count-70">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="70"><i class="fa-solid fa-circle-xmark pe-2"></i>Canceled Ticket </button>
+                                    <div style="text-align:center;" id="count-70">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="card text-bg-warning mb-3" style="max-width: 15rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="20"><i class="fa-solid fa-at pe-2"></i>Ticket assigned: <span id="count-20">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="20"><i class="fa-solid fa-at pe-2"></i>Ticket assigned </button>
+                                    <div style="text-align:center; color: white;" id="count-20">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="card text-bg-success mb-3" style="max-width: 20rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="60"><i class="fa-solid fa-circle-check pe-2"></i>Solved by technician: <span id="count-60">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="60"><i class="fa-solid fa-circle-check pe-2"></i>Solved by technician </button>
+                                    <div style="text-align:center;" id="count-60">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-2">
-                            <div class="card text-bg-info mb-3" style="max-width: 15rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="120"><i class="fa-solid fa-at pe-2"></i>Received: <span id="count-120">Loading...</span></button>
+                            <div class="card text-bg-info mb-3" style="max-width: 17rem;">
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="120"><i class="fa-solid fa-arrow-right-to-bracket pe-2"></i>Received </button>
+                                    <div style="text-align:center; color: white;" id="count-120">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-3">
                             <div class="card text-bg-danger mb-3" style="max-width: 17rem;">
-                                <div class="card-header">
-                                    <button class="tickets" id="ticketButton" data-filter="50"><i class="fa-solid fa-at pe-2"></i>Rejected By requester: <span id="count-50">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="tickets" id="ticketButton" data-filter="50"><i class="fa-solid fa-heart-crack pe-2"></i>Rejected By requester </button>
+                                    <div style="text-align:center;" id="count-50">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-2">
                             <div class="card text-bg-light mb-3" style="max-width: 15rem;">
-                                <div class="card-header">
-                                    <button class="Alltickets" style="color: black;"><i class="fa-solid fa-layer-group pe-2"></i><span id="allRows">Loading...</span></button>
+                                <div class="card-header" style="text-align: center;">
+                                    <button class="Alltickets" style="color: black;"><i class="fa-solid fa-layer-group pe-2"></i>Total </button>
+                                    <div style="text-align:center;" id="allRows">( Loading...)</div>
                                 </div>
                             </div>
                         </div>
@@ -747,6 +737,7 @@ if (isset($_SESSION['user'])) {
                                                 <div class='col-sm-10'>
                                                     <label class="" for="UserSessionID">User Name</label>
                                                     <input type="text" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
+                                                    <input type="hidden" class="form-control" id="UserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
                                                 </div>
                                                 <!-- End Name  SelectBox -->
                                                 <!-- Start Service Type Field Start-->
@@ -1161,7 +1152,7 @@ if (isset($_SESSION['user'])) {
 
     <!-- Time Details Pop Up Form Start -->
     <div class="modal fade" id="TimeDetails" tabindex="-1" aria-labelledby="TimeDetailsPopupLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header">
                     <!-- <h1 class="modal-title fs-5" id="assignPopupLabel">Any Comment For User</h1> -->
@@ -1171,19 +1162,20 @@ if (isset($_SESSION['user'])) {
                     <!-- Assign Ticket  Start -->
                     <main class="content px-3 py-2"> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                            <h2 class="text-center">Time Details</h2>
+
                             <div class="row d-flex justify-content-center">
-                                <div class=" col-sm-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class=" col-sm-10 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                     <div class=" d-flex justify-content-between">
                                         <div class="">
-                                            <h3 class=" mt-3 mb-4 text-dark d-inline">Time Details</h3>
                                         </div>
                                     </div>
                                     <div class="details">
                                         <table class=" detailsTable  text-center table table-bordered mt-3 " id="TimeDetailsHistory">
                                             <thead>
                                                 <tr>
-                                                    <th>Time (DD:HH:MM:SS)</th>
                                                     <th>Discription</th>
+                                                    <th>Time (DD:HH:MM:SS)</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="timeDetails" style="cursor: pointer;">
@@ -1214,9 +1206,17 @@ if (isset($_SESSION['user'])) {
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-1">
                                 <h2 class="text-center" id="TicketBehalfUserPopupLabel">Employees Info</h2>
-                                <div>
-                                    <input type="text" class="form-control" id="userSearch" aria-label="City" >
-                                    <label class="" for="userSearch">Search</label>
+                                <div class=" col-sm-10 mx-1 ">
+                                    <div class="row">
+                                        <!-- Start Submit Button -->
+                                        <div class=" col-sm-4 mt-3">
+                                            <input type="text" class="form-control " id="userSearch" aria-label="City">
+                                        </div>
+                                        <div class=" col-sm-4">
+                                            <button type="submit" class="btn btn-primary  mt-3 "> <i class="fa-solid fa-magnifying-glass PX-1"></i> Search</button>
+                                        </div>
+                                        <!-- End Submit Button  -->
+                                    </div>
                                 </div>
                                 <div class="scroll">
                                     <table class="main-table text-center table table-bordered mt-3 ">
@@ -1227,6 +1227,7 @@ if (isset($_SESSION['user'])) {
                                                 <th>Branch</th>
                                                 <th>Emp Department</th>
                                                 <th>Email</th>
+                                                <th>Username</th>
                                             </tr>
                                         </thead>
                                         <tbody id="allEmployee">

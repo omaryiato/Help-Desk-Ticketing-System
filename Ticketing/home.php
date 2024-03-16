@@ -9,6 +9,7 @@ $startTime = microtime(true);
 
 ob_start(); // Output Buffering Start
 
+
 session_start();
 
 // Check if the user is logged in and the session is active
@@ -37,28 +38,6 @@ if (isset($_SESSION['user'])) {
 if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Home Page';
-
-    // Oracle database connection settings
-    $host = '192.168.15.245';
-    $port = '1521';
-    $sid = 'ARCHDEV';
-    //old
-    // $username = 'ticketing';
-    // $password = 'ticketing';
-    //new
-    $username = 'selfticket';
-    $password = 'selfticket';
-
-    // Establish a connection to the Oracle database
-
-    putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
-    $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
-
-    if (!$conn) {
-        $e = oci_error();
-        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-        echo "Connectoin to Oracle Database Failed!<br>";
-    }
 
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 

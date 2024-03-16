@@ -770,6 +770,13 @@ input[type="radio"] {
 
 .homeMenu button:hover a { color: white !important;}
 
+.hidden {
+  display: none;
+}
+
+#allEmployee  tr {
+  cursor: pointer;
+}
 
 #paginationContainer .pagination {
   color: #0069d9;  

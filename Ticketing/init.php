@@ -3,7 +3,7 @@
 // This File To Include All Files You Have to Use It in Every File 
 
 // Include The Important Files
-
+include 'DBConnection.php';
 
 $inc = 'include/'; // Functions Directory
 $css = 'layout/css/';      // Css Directory 
@@ -11,6 +11,7 @@ $js = 'layout/js/';       // Js Directory
 
 include $inc . 'header.php'; // Header File For This Project 
 // include $inc . 'footer.php';
+
 
 // IF This Variable Is Exist So Dont Include The SideBar In This Page (Like Login Page (index))
 

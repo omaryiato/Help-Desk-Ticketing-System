@@ -2,29 +2,7 @@
 
 //   ********************  This Page Contain All Function and Ajax Function ***************************
 
-// Oracle database connection settings
-$host = '192.168.15.245';
-$port = '1521';
-$sid = 'ARCHDEV';
-//old
-// $username = 'ticketing';
-// $password = 'ticketing';
-//new
-$username = 'selfticket';
-$password = 'selfticket';
-
-// Establish a connection to the Oracle database
-
-putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
-$conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
-
-
-if (!$conn) {
-    $e = oci_error();
-    trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-    echo "Connectoin to Oracle Database Failed!<br>";
-}
-
+include 'DBConnection.php';
 
 if (isset($_POST['action'])) {
 
@@ -1187,6 +1165,22 @@ if (isset($_POST['action'])) {
             http_response_code(500); // Internal Server Error
             echo json_encode(['status' => 'error', 'message' => oci_error($status)['message']]);
         }
+    } elseif ($action == 'TicketTimeDetails') {                              // Fetch Ticket From DB Based On Search Field 
+
+        $DetailsTimePopup                          = $_POST['DetailsTimePopup'];
+
+        // Update Ticket Status In Ticket Table
+        $TimeDeatails = "SELECT CAL_TIME FROM TICKETING.TICKETS WHERE TICKET_NO = " . $DetailsTimePopup;
+        $calTime = oci_parse($conn, $TimeDeatails);
+        $run = oci_execute($calTime);
+        $calTimeReturned = oci_fetch_assoc($calTime);
+
+        if ($run) {
+            echo $calTimeReturned['CAL_TIME'];
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['status' => 'error', 'message' => oci_error($calTime)['message']]);
+        }
     }
 }
 
@@ -1640,9 +1634,8 @@ if (isset($_POST['filter'])) {                          // Get Number Of Ticket 
 
 if (isset($_POST['allUsers'])) {                          // Get Number Of Ticket  Based On Filter Criteria
 
-
     $UserSessionID           = $_POST['allUsers'];
-    $allTicket = "SELECT EBS_EMPLOYEE_ID, USER_EN_NAME, EMAIL, EMP_DEPARTMENT,BRANCH_CODE  FROM TICKETING.xxajmi_ticket_user_info  ";
+    $allTicket = "SELECT EBS_EMPLOYEE_ID, USER_EN_NAME, EMAIL, EMP_DEPARTMENT,BRANCH_CODE, USERNAME  FROM TICKETING.xxajmi_ticket_user_info  ";
     $all = oci_parse($conn, $allTicket);
     // Execute the query
     oci_execute($all);
@@ -1650,12 +1643,12 @@ if (isset($_POST['allUsers'])) {                          // Get Number Of Ticke
     $data = array();
     while ($row = oci_fetch_assoc($all)) {
         $data[] = array(
-            'EBS_EMPLOYEE_ID'                     => $row['EBS_EMPLOYEE_ID'],
+            'EBS_EMPLOYEE_ID'               => $row['EBS_EMPLOYEE_ID'],
             'USER_EN_NAME'                  => $row['USER_EN_NAME'],
-            'EMAIL'                => $row['EMAIL'],
-            'EMP_DEPARTMENT'      => $row['EMP_DEPARTMENT'],
-            'BRANCH_CODE'                 => $row['BRANCH_CODE']
-            
+            'EMAIL'                         => $row['EMAIL'],
+            'EMP_DEPARTMENT'                => $row['EMP_DEPARTMENT'],
+            'BRANCH_CODE'                   => $row['BRANCH_CODE'],
+            'USERNAME'                   => $row['USERNAME']
         );
     }
     echo json_encode($data);
@@ -1982,14 +1975,15 @@ if (isset($_POST['GetTeamID'])) {   // Add New Team Member To The Team Based On 
 function actionDate($actionName, $actionDate, $ticketNumber, $firstDate, $calTimeKey)
 {
     // Oracle database connection settings
-    $host = '192.168.15.207';
+    $host = '192.168.15.245';
     $port = '1521';
-    $sid = 'ARCHPROD';
+    $sid = 'ARCHDEV';
     //old
-    $username = 'ticketing';
-    $password = 'ticketing';
-
-    // Establish a connection to the Oracle database
+    // $username = 'ticketing';
+    // $password = 'ticketing';
+    //new
+    $username = 'selfticket';
+    $password = 'selfticket';
 
     putenv('NLS_LANG=AMERICAN_AMERICA.AL32UTF8');
     $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
@@ -2022,7 +2016,7 @@ function actionDate($actionName, $actionDate, $ticketNumber, $firstDate, $calTim
     $MinDifference = $interval->format('%i');
     $SecDifference = $interval->format('%s');
 
-    $difference = $DaysDifference . "Day " . $HoursDifference .  "Hours " .  $MinDifference . "Minutes " . $SecDifference . "Sec ";
+    $difference = $DaysDifference . " : " . $HoursDifference .  " : " .  $MinDifference . " : " . $SecDifference;
 
     $getCalTime = "SELECT CAL_TIME FROM TICKETING.TICKETS WHERE TICKET_NO =" . $ticketNumber;
     $cal_time = oci_parse($conn, $getCalTime);

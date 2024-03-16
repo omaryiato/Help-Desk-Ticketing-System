@@ -1261,9 +1261,9 @@ $(function () {
                     UserSessionID: UserSessionID
                 },
                 success: function(response) {
-                    $('#count-' + filter).text(response);
+                    $('#count-' + filter).text('( ' + response + ' )');
                     allRecord += parseInt(response);
-                    $('#allRows').text('Total:' + allRecord);
+                    $('#allRows').text('( ' + allRecord + ' )');
                 },
                 error: function() {
                     $('#count-' + filter).text('Error fetching count');
@@ -2498,14 +2498,50 @@ $(function () {
         });
     });
 
+
     $('.hiddenList tbody').on('dblclick', 'tr', function() {
         // Get data from the clicked row if needed
+
+        $('#timeDetails').text('Loading...');
 
         var tick = $(this).find('td:first').text();
         $(this).find('td:nth-child(18), td:nth-child(19)').on('click', function() {
             // Show the second popup
             $('#TimeDetails').modal('show');
-            $('#timeDetails').html(tick);
+            
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: { 
+                    'DetailsTimePopup':  tick,
+                    'action': 'TicketTimeDetails'
+                },
+                success: function (data) {
+
+                    $('#timeDetails').empty();
+                    var jsonData = JSON.parse(data);
+
+                    var tableBody = $('#timeDetails');
+                    
+                    // Iterate over each key-value pair in the JSON object
+                    for (var key in jsonData) {
+                        if (jsonData.hasOwnProperty(key)) {
+                            var row = $('<tr>');
+                            row.append($('<td>').text(key)); // Key in the "Description" column
+                            row.append($('<td>').text(jsonData[key])); // Value in the second column
+                            tableBody.append(row);
+                        }
+                    }
+                },
+                error: function(data) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: JSON.stringify(data),
+                        });
+                }
+            });
+            
         });
 
         $('#TicketDetailsPopup').modal('show');
@@ -2574,6 +2610,7 @@ $(function () {
 
         $('#TicketBehalfUserPopup').modal('show');
         $('#allEmployee').text("Loading...");
+        $('#userSearch').val(' ');
 
         $.ajax({
             method: "POST",
@@ -2594,6 +2631,7 @@ $(function () {
                         <td>${row.BRANCH_CODE}</td>
                         <td>${row.EMP_DEPARTMENT}</td>
                         <td>${row.EMAIL}</td>
+                        <td>${row.USERNAME}</td>
                         `);
                     // Append the new row to the table body
                     tableBody.append(newRow);
@@ -2610,6 +2648,29 @@ $(function () {
         
 
     });
+
+    $('#userSearch').on('keyup', function() {
+        var searchText = $(this).val().toLowerCase();
+        // Loop through each table row
+        $('#allEmployee tr').each(function() {
+            var rowData = $(this).text().toLowerCase();
+            // Show/hide rows based on search match
+            if (rowData.indexOf(searchText) === -1) {
+                $(this).addClass('hidden');
+            } else {
+                $(this).removeClass('hidden');
+            }
+        });
+    });
+
+    $('#allEmployee ').on('dblclick', 'tr ', function(e) {
+        e.preventDefault();
+
+        $('#TicketBehalfUserPopup').modal('hide');
+        $('#AddNewTicketPopup').modal('show');
+        $('#addTicket').closest('.content').find('#UserSessionID').val($(this).find('td:nth-child(6)').text());
+    });
+
 
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
 
@@ -2706,6 +2767,8 @@ $(document).on('click', '#addTicket', function(e) {         // Add New Ticket To
                 $('#details').val('');
                 $('#device').val('');
                 $('#description').val('');
+                $('#addTicket').closest('.content').find('#UserSessionID').val();
+                $('#addTicket').closest('.content').find('#UserSessionID').val($('#addTicket').closest('.content').find('#UserSessionName').val());
                 updateCounts();
             },
             error: function(response) {

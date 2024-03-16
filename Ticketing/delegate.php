@@ -40,26 +40,6 @@ if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Delegate Page';
 
-
-    // Oracle database connection settings
-    $host = '192.168.15.245';
-    $port = '1521';
-    $sid = 'ARCHDEV';
-    //old
-    // $username = 'ticketing';
-    // $password = 'ticketing';
-    //new
-    $username = 'selfticket';
-    $password = 'selfticket';
-
-    // Establish a connection to the Oracle database
-    $conn = oci_connect($username, $password, "(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))(CONNECT_DATA=(SID=$sid)))");
-
-    if (!$conn) {
-        $e = oci_error();
-        trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
-        echo "Connectoin to Oracle Database Failed!<br>";
-    }
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 
     $userSession = $_SESSION['user'];
@@ -69,6 +49,14 @@ if (isset($_SESSION['user'])) {
     oci_execute($info);
     $row        = oci_fetch_assoc($info);
     $UserSessionID = $row['USER_ID'];
+
+    if ($sid == 'ARCHDEV') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
+    } elseif ($sid == 'ARCHPROD') {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
+    } else {
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+    }
 
 ?>
 
