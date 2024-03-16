@@ -19,6 +19,8 @@ if (solvePopup) {
 }
 
 
+
+
 // Select Row on Click Function In Ticket Transaction Page In Ticket Transaction Table
 document.addEventListener('DOMContentLoaded', function() {
     var table = document.querySelector('.scroll table');
@@ -1446,7 +1448,7 @@ $(function () {
                     </button>
                 </li>
                 <li>
-                    <button class="item" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
+                    <button class="item" style='margin-right: 5px;' id='chatButton' data-bs-toggle='modal' data-bs-target="#TicketChat" data-bs-whatever="TicketChat" data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
                         <i class="fa-solid fa-comments"></i>
                         <span>Chat</span>
                     </button>
@@ -1545,6 +1547,12 @@ $(function () {
                     <span>Action History</span>
                 </button>
             </li>
+            <li>
+                <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#TicketChat" data-bs-whatever="TicketChat" data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Chat</span>
+                </button>
+            </li>
             `);
         }
 
@@ -1596,6 +1604,22 @@ $(function () {
                 </li>
                 `);
             }
+
+            // Add common HTML content for all roles
+            $('#actionTicketTransactionList').append(`
+            <li>
+                <button class="item" style='margin-right: 5px;' id="actionHistoryTable" data-bs-toggle='modal' data-bs-target="#actionHistory" data-bs-whatever="assign" data-bs-toggle='tooltip' data-bs-placement='top' title='Action History'>
+                    <i class="fa-solid fa-clock-rotate-left"></i>
+                    <span>Action History</span>
+                </button>
+            </li>
+            <li>
+                <button class="item" style='margin-right: 5px;' data-bs-toggle='modal' data-bs-target="#TicketChat" data-bs-whatever="TicketChat" data-bs-toggle='tooltip' data-bs-placement='top' title='Chat'>
+                    <i class="fa-solid fa-comments"></i>
+                    <span>Chat</span>
+                </button>
+            </li>
+            `);
         }
         
     });
@@ -2498,7 +2522,6 @@ $(function () {
         });
     });
 
-
     $('.hiddenList tbody').on('dblclick', 'tr', function() {
         // Get data from the clicked row if needed
 
@@ -2669,6 +2692,80 @@ $(function () {
         $('#TicketBehalfUserPopup').modal('hide');
         $('#AddNewTicketPopup').modal('show');
         $('#addTicket').closest('.content').find('#UserSessionID').val($(this).find('td:nth-child(6)').text());
+    });
+
+    $(document).on('click', '#sendMessage', function(e) {     // Update Ticket Status To Confirme Ticket Function
+
+        e.preventDefault();
+            // Get values of individual inputs
+            $.ajax({
+                type: "POST",
+                url: "function.php", // Replace with your PHP file handling the request
+                data: {
+                    "messageFeild":                      $('#messageFeild').val(),
+                    "UserSessionID":                     UserSessionID,
+                    "ticketNumber":                         ticketNumber,
+                    "action":                            "chatMessage"
+                },
+                success: function(response){
+                    
+                    var messageHTML = '<div class="message">';
+                    messageHTML += '<p><strong> You </strong> (Just now) :  ' + $('#messageFeild').val() + '</p>';
+                    messageHTML += '</div>';
+                    $('#chatScreen').append(messageHTML);
+                    $('#messageFeild').val(' ');
+                },
+                error: function(error){
+                    $('#TicketDetailsPopup').modal('hide');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: JSON.stringify(error),
+                    });
+                }
+            });
+        
+    });
+
+    $(document).on('click', '#chatButton', function(e) {     // Update Ticket Status To Confirme Ticket Function
+
+        $('#chatScreen').val(' ');
+        $('#chatScreen').text('Loading...');
+        e.preventDefault();
+            // Get values of individual inputs
+            $.ajax({
+                type: "POST",
+                url: "function.php", // Replace with your PHP file handling the request
+                data: {
+                    "ticketNumber":                     ticketNumber,
+                    "action":                            "chatHistory"
+                },
+                success: function(jsonData){
+                    // Parse JSON data
+                    var messages = JSON.parse(jsonData);
+
+                    // Clear previous messages
+                    $('#chatScreen').empty();
+
+                    // Loop through messages and append them to the chat screen
+                    for (var i = 0; i < messages.length; i++) {
+                        var message = messages[i];
+                        var messageHTML = '<div class="message">';
+                        messageHTML += '<p><strong> ' + message.CREATED_BY +  ' </strong> (' + message.CREATION_DATE + ') :  ' + message.DESCRIPTION + '</p>';
+                        messageHTML += '</div>';
+                        $('#chatScreen').append(messageHTML);
+                    }
+                    
+                },
+                error: function(error){
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: JSON.stringify(error),
+                    });
+                }
+            });
+        
     });
 
 

@@ -664,7 +664,7 @@ if (isset($_POST['action'])) {
             $lastServiceID = "SELECT MAX(SERVICE_NO) FROM TICKETING.SERVICE";
             $serviceNo     = oci_parse($conn, $lastServiceID);
             oci_execute($serviceNo);
-            $result        = oci_fetch_array($serviceNo);
+            $result        = oci_fetch_assoc($serviceNo);
             $NewServiceID  = ++$result['MAX(SERVICE_NO)'];
 
             $NewService = "INSERT INTO TICKETING.SERVICE (SERVICE_NO, SERVICE_NAME, CREATED_BY, 
@@ -1181,6 +1181,59 @@ if (isset($_POST['action'])) {
             http_response_code(500); // Internal Server Error
             echo json_encode(['status' => 'error', 'message' => oci_error($calTime)['message']]);
         }
+    } elseif ($action == 'chatMessage') {                              // Fetch Ticket From DB Based On Search Field 
+
+        $messageFeild                          = $_POST['messageFeild'];
+        $UserSessionID                          = $_POST['UserSessionID'];
+        $ticketNumber                          = $_POST['ticketNumber'];
+
+
+        // Update Ticket Status In Ticket Table
+        $commentID = "SELECT MAX(COMMENT_ID) FROM TICKETING.COMMENTS ";
+        $comment = oci_parse($conn, $commentID);
+        $run = oci_execute($comment);
+        $result = oci_fetch_assoc($comment);
+        $newid = $result['MAX(COMMENT_ID)'];
+        $newCommentID = ++$newid;
+
+        $addNewComment = "INSERT INTO TICKETING.COMMENTS (COMMENT_ID, TICKET_NO, DESCRIPTION, 
+                                        CREATED_BY, CREATION_DATE, LAST_UPDATED_BY, LAST_UPDATE_DATE )  
+                            VALUES ($newCommentID, $ticketNumber, '$messageFeild' , $UserSessionID, CURRENT_TIMESTAMP, $UserSessionID , CURRENT_TIMESTAMP)";
+        $newComment = oci_parse($conn, $addNewComment);
+        $run = oci_execute($newComment);
+
+        if ($run) {
+            echo http_response_code(200);
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['status' => 'error', 'message' => oci_error($newComment)['message']]);
+        }
+    } elseif ($action == 'chatHistory') {                              // Fetch Ticket From DB Based On Search Field 
+
+        $ticketNumber                          = $_POST['ticketNumber'];
+
+        // Update Ticket Status In Ticket Table
+        $commentID = "SELECT TICKETING.xxajmi_ticket_user_info.USERNAME, TICKETING.COMMENTS.DESCRIPTION, TICKETING.COMMENTS.CREATION_DATE
+                        FROM TICKETING.COMMENTS 
+                        JOIN TICKETING.xxajmi_ticket_user_info ON TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.COMMENTS.CREATED_BY
+                        WHERE TICKETING.COMMENTS.TICKET_NO = " . $ticketNumber . "ORDER BY CREATION_DATE ASC";
+        $comment = oci_parse($conn, $commentID);
+        $run = oci_execute($comment);
+
+        $data = array();
+        while ($row = oci_fetch_assoc($comment)) {
+            $data[] = array(
+                'DESCRIPTION'                     => $row['DESCRIPTION'],
+                'CREATED_BY'                  => $row['USERNAME'],
+                'CREATION_DATE'                => $row['CREATION_DATE']
+            );
+        }
+        if ($run) {
+            echo json_encode($data);
+        } else {
+            http_response_code(500); // Internal Server Error
+            echo json_encode(['status' => 'error', 'message' => oci_error($newComment)['message']]);
+        }
     }
 }
 
@@ -1304,6 +1357,18 @@ if (isset($_POST['UserNameSession'])) {   // Change All Status Solved Ticket To 
         echo "Error: " . htmlentities($e['message'], ENT_QUOTES);
     }
 }
+
+
+if (isset($_POST['formData'])) {   // Change All Status Solved Ticket To Confirmed Status From Application Manager
+    $file_name =  $_FILES['file']['name'];
+    $tmp_name = $_FILES['file']['tmp_name'];
+    $file_up_name = time() . $file_name;
+    move_uploaded_file($tmp_name, "files/" . $file_up_name);
+}
+
+
+
+
 
 ///////////////////////////////////////////***************** Change All Solved Ticket To Confirmed Request Functions End  *************************/////////////////////////////////////////
 

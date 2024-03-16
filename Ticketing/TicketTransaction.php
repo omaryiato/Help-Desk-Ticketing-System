@@ -1193,7 +1193,6 @@ if (isset($_SESSION['user'])) {
     </div>
     <!-- Time Details Pop Up Form Start -->
 
-
     <!-- Behalf User Pop Up Form Start -->
     <div class="modal fade" id="TicketBehalfUserPopup" tabindex="-1" aria-labelledby="TicketBehalfUserPopupLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -1243,6 +1242,46 @@ if (isset($_SESSION['user'])) {
         </div>
     </div>
     <!-- Behalf User Pop Up Form Start -->
+
+    <!-- Ticket Chat Pop Up Form Start -->
+    <div class="modal fade" id="TicketChat" tabindex="-1" aria-labelledby="TicketChatPopupLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <main class="content px-3 py-2"> <!-- Main Start -->
+                        <div class="container-fluid"> <!-- Container-fluid Div Start -->
+                            <div class="mb-1">
+                                <h2 class="text-center" id="TicketChatPopupLabel">Ticket Chat</h2>
+                                <form class="row d-flex justify-content-center" id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                    <div class=" col-sm-10 mx-1 ">
+                                        <!-- Start Issue Description Field -->
+                                        <div class='col-sm-12 mb-3' id="chatScreen" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+
+                                        </div>
+                                        <div class='col-sm-8 d-flex'>
+                                            <div>
+                                                <label class="control-lable mb-2" for="messageFeild">Send Message </label>
+                                                <textarea name="messageFeild" id="messageFeild" class="messageFeild" cols="50" rows="2" style="overflow: scroll;" placeholder=" Chat With Technician..." required='required'></textarea>
+                                            </div>
+                                            <div class="mx-3 mt-3">
+                                                <button type="submit" class="btn btn-primary  mt-3  sendMessage" id="sendMessage" name="sendMessage">Send</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div><!-- Container-fluid Div End  -->
+                    </main> <!-- Main End -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Ticket Chat Pop Up Form Start -->
+
+
 
     <?php
 
