@@ -7,6 +7,8 @@
 <script src="<?php echo $js; ?>jquery-3.7.0.min.js"></script>
 <script src="<?php echo $js; ?>jquery.validate.min.js"></script>
 <script src="<?php echo $js; ?>sweetalert2.all.min.js"></script>
+<script src="<?php echo $js; ?>table2excel.js"></script>
+<script src="<?php echo $js; ?>xlsx.full.min.js"></script>
 <script src="<?php echo $js; ?>all.min.js"></script>
 <script src="<?php echo $js; ?>admin.js"></script>
 </body>

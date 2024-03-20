@@ -1244,48 +1244,8 @@ $(function () {
         $('.wrapper').css('visibility', 'hidden');
     });
 
-    
     var UserSessionID = $('#UserSessionID').val(); // User Who Logged In To The System
     var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
-
-    
-    function updateCounts() {
-        var allRecord = 0; // Initialize the total count
-    
-        $('.tickets').each(function() {
-            var filter = $(this).data('filter');
-            $.ajax({
-                type: 'POST',
-                url: 'function.php', // Replace with the URL of your PHP file to get the count
-                data: { 
-                    filter: filter,
-                    USER_ID: USER_ID,
-                    UserSessionID: UserSessionID
-                },
-                success: function(response) {
-                    $('#count-' + filter).text('( ' + response + ' )');
-                    allRecord += parseInt(response);
-                    $('#allRows').text('( ' + allRecord + ' )');
-                },
-                error: function() {
-                    $('#count-' + filter).text('Error fetching count');
-                }
-            });
-        });
-    }
-    
-    updateCounts();
-    
-    setInterval(updateCounts, 60000);
-
-    function refreshPage() {
-        location.reload(); // Reload the page
-    }
-    
-    // Set timeout to refresh every 10 minutes (600000 milliseconds)
-    setTimeout(refreshPage, 600000);
-
-
     var ticketNumber;
     var requestedBy;
     var serviceTypeNo;
@@ -1692,8 +1652,7 @@ $(function () {
                     newDRow.html(`
             
                         <td hidden>${row.ID}</td>
-                        <td>${row.name}</td>
-                        <td>${row.Ename}</td>`
+                        <td>${row.name}</td>`
             
                         // Check Custody and Private conditions
                         + (row.active === 'Y' ? `
@@ -1737,7 +1696,6 @@ $(function () {
         var newRow = $('<tr>').append(
             $('<td hidden>').text(rowData[0]),  // User ID
             $('<td>').text(rowData[1]),  // User Name
-            $('<td>').text(rowData[2]),  // Name
             $('<td>').text(''),          // Description (empty)
             $('<td>').html('<div class="check"><input type="checkbox"></div>'),  // Team Leader checkbox   
             $('<td>').html('<button class="btn btn-warning excludeBtn">Exclude</button>')  // Exclude button 
@@ -1789,8 +1747,7 @@ $(function () {
         var newRow = $('<tr>').append(
             $('<td hidden>').text(rowData[0]),  // User ID
             $('<td>').text(rowData[1]),  // User Name
-            $('<td>').text(rowData[2]),  // Name
-            $('<td>').html('<div class="check"><input type="checkbox"' + (isChecked ? ' checked' : '') + '></div>'),  // Status (assuming it's the third column)
+            $('<td>').html('<div class="check"><input type="checkbox"' + (isChecked ? ' checked' : '') + ' disabled></div>'),  // Status (assuming it's the third column)
             $('<td>').html('<button class="btn btn-warning includeBtn">Include</button>')  // Include button
         );
 
@@ -1829,12 +1786,11 @@ $(function () {
 
         // Iterate through each row in the table
         $('.main-table #memberAssigned tr').each(function () {
-            var isTeamLeader = $(this).find('td:eq(4) input[type=checkbox]').prop('checked');
+            var isTeamLeader = $(this).find('td:eq(3) input[type=checkbox]').prop('checked');
             var rowData = {
                 userID:         $(this).find('td:eq(0)').text(),
                 userName:       $(this).find('td:eq(1)').text(),
-                name:           $(this).find('td:eq(2)').text(),
-                description:    $(this).find('td:eq(3)').text(),
+                description:    $(this).find('td:eq(2)').text(),
                 teamLeader:     isTeamLeader ? 'Y' : 'N',
             };
 
@@ -1872,6 +1828,8 @@ $(function () {
                     $('#memberAssigned').empty();
                     $('#ticketWeight').val(" ");
                     $('#ticketPeriority').val(" ");
+                    row.remove();
+                    updateCounts();
                 },
                 error: function (response) {
                     $('#assignPopup').modal('hide');
@@ -1907,6 +1865,8 @@ $(function () {
                     Swal.fire("Ticket Started Successfully... ");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-info">Started</span>');
+                    row.remove();
+                    updateCounts();
                 },
                 error: function (response) {
                     Swal.fire({
@@ -1922,8 +1882,8 @@ $(function () {
     $(document).on('click', '#change', function(e) {        // Retrive Ticket Information To Change Popup Function  
         e.preventDefault();
 
-        $('#memberAssignedChange').text(" Waiting Data ");
-        $('#teamMemberChange').text(" Waiting Data ");
+        $('#memberAssignedChange').text("Loading...");
+        $('#teamMemberChange').text("Loading...");
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
@@ -1944,7 +1904,6 @@ $(function () {
             
                         <td hidden>${row.ID}</td>
                         <td>${row.name}</td>
-                        <td>${row.Ename}</td>
                         <td>${row.disc}</td>`
             
                         // Check Custody and Private conditions
@@ -1998,8 +1957,7 @@ $(function () {
                     newDRow.html(`
             
                         <td hidden>${row.ID}</td>
-                        <td>${row.name}</td>
-                        <td>${row.Ename}</td>`
+                        <td>${row.name}</td>`
             
                         // Check Custody and Private conditions
                         + (row.active === 'Y' ? `
@@ -2028,8 +1986,6 @@ $(function () {
                     $('#assignTeamChange').append(optionElement);
                 });
 
-                
-                
             },
             error: function () {
                 alert('Error fetching users');
@@ -2055,7 +2011,7 @@ $(function () {
             $('#ticketPeriorityChange').html(`"<option value='${periorityNo}' selected>` + periorityNName + `</option>"`);
         }
         
-        $('#teamMemberChange').text("Waiting Data");
+        $('#teamMemberChange').text("Loading...");
         $('#waitingMessageForTeamAssignMemberChange').empty().removeClass('mt-5');
 
         $.ajax({
@@ -2081,7 +2037,7 @@ $(function () {
     $('#assignTeamChange').on('change', function () {             // Retrive Team Member Based ON Team Choosen Function
         $('#memberAssignedChange').empty();
         $('#teamMemberChange').empty();
-        $('#teamMemberChange').text(" Waiting Data ");
+        $('#teamMemberChange').text(" Loading...");
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
@@ -2103,8 +2059,7 @@ $(function () {
                     newDRow.html(`
             
                         <td hidden>${row.ID}</td>
-                        <td>${row.name}</td>
-                        <td>${row.Ename}</td>`
+                        <td>${row.name}</td>`
             
                         // Check Custody and Private conditions
                         + (row.active === 'Y' ? `
@@ -2148,7 +2103,6 @@ $(function () {
         var newRow = $('<tr>').append(
             $('<td hidden>').text(rowData[0]),  // User ID
             $('<td>').text(rowData[1]),  // User Name
-            $('<td>').text(rowData[2]),  // Name
             $('<td>').text(''),          // Description (empty)
             $('<td>').html('<div class="check"><input type="checkbox"></div>'),  // Team Leader checkbox   
             $('<td>').html('<button class="btn btn-warning excludeChangeBtn">Exclude</button>')  // Exclude button 
@@ -2181,21 +2135,6 @@ $(function () {
             });
         }
 
-        // $.ajax({
-        //     type: 'POST',
-        //     url: 'function.php', // Function Page For All ajax Function
-        //     data: { 
-        //         includeMember:          ticketNumber,
-        //         UserSessionID:          $('#UserSessionID').val(),
-        //         UserAssigned:          $(this).closest('tr').find('td:nth-child(2)').text()
-        //     },
-        //     success: function (data) {
-        //         console.log(data);
-        //     },
-        //     error: function (data) {
-        //         console.log(data);
-        //     }
-        // });
     });
 
     // Exclude button click event
@@ -2209,8 +2148,7 @@ $(function () {
         var newRow = $('<tr>').append(
             $('<td hidden>').text(rowData[0]),  // User ID
             $('<td>').text(rowData[1]),  // User Name
-            $('<td>').text(rowData[2]),  // Name
-            $('<td>').html('<div class="check"><input type="checkbox"' + (IsChecked ? ' checked' : '') + '></div>'),  // Status (assuming it's the third column)
+            $('<td>').html('<div class="check"><input type="checkbox"' + (IsChecked ? ' checked' : '') + ' disabled></div>'),  // Status (assuming it's the third column)
             $('<td>').html('<button class="btn btn-warning includeChangeBtn">Include</button>')  // Include button
         );
 
@@ -2240,21 +2178,6 @@ $(function () {
             });
         }
 
-        // $.ajax({
-        //     type: 'POST',
-        //     url: 'function.php', // Function Page For All ajax Function
-        //     data: { 
-        //         excludeMember:          ticketNumber,
-        //         UserSessionID:          $('#UserSessionID').val(),
-        //         UserAssigned:           $(this).closest('tr').find('td:nth-child(2)').text()
-        //     },
-        //     success: function (data) {
-        //         console.log(data);
-        //     },
-        //     error: function (data) {
-        //         console.log(data);
-        //     }
-        // });
     });
 
     $(document).on('click', '#assignTicketChange', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
@@ -2264,12 +2187,11 @@ $(function () {
 
         // Iterate through each row in the table
         $('.main-table #memberAssignedChange tr').each(function () {
-            var isTeamLeader = $(this).find('td:eq(4) input[type=checkbox]').prop('checked');
+            var isTeamLeader = $(this).find('td:eq(3) input[type=checkbox]').prop('checked');
             var rowData = {
                 userID:         $(this).find('td:eq(0)').text(),
                 userName:       $(this).find('td:eq(1)').text(),
-                name:           $(this).find('td:eq(2)').text(),
-                description:    $(this).find('td:eq(3)').text(),
+                description:    $(this).find('td:eq(2)').text(),
                 teamLeader:     isTeamLeader ? 'Y' : 'N',
             };
 
@@ -2305,6 +2227,7 @@ $(function () {
                     $('#memberAssignedChange').empty();
                     $('#ticketWeightChange').val(" ");
                     $('#ticketPeriorityChange').val(" ");
+                    row.remove();
                 },
                 error: function (response) {
                     $('#changePopup').modal('hide');
@@ -2340,6 +2263,8 @@ $(function () {
                     Swal.fire("Ticket Solved Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-success">Solved</span>');
+                    row.remove();
+                    updateCounts();
             },
             error: function (response){
                 $('#solvePopup').modal('hide');
@@ -2368,6 +2293,8 @@ $(function () {
                     Swal.fire("Ticket Canceled Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-danger">Canceled</span>');
+                    row.remove();
+                    updateCounts();
             },
             error: function (response){
                 Swal.fire({
@@ -2467,6 +2394,8 @@ $(function () {
                     Swal.fire("Ticket Confirmed Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-success">Confirmed</span>');
+                    row.remove();
+                    updateCounts();
                 },
                 error: function(error){
                     $('#finishPopup').modal('hide');
@@ -2540,9 +2469,12 @@ $(function () {
                     'action': 'TicketTimeDetails'
                 },
                 success: function (data) {
+                    console.log(data);
 
                     $('#timeDetails').empty();
                     var jsonData = JSON.parse(data);
+
+                    console.log(jsonData);
 
                     var tableBody = $('#timeDetails');
                     
@@ -2569,27 +2501,108 @@ $(function () {
 
         $('#TicketDetailsPopup').modal('show');
 
-        $('#TicketNumberDetails').val($(this).find('td:first').text());
-        $('#ServiceTypeDetails').val($(this).find('td:nth-child(2)').text());
-        $('#ServiceDetailsDetails').val($(this).find('td:nth-child(3)').text());
-        $('#TicketPeriorityDetails').val($(this).find('td:nth-child(4)').text());
-        $('#TicketStatusDetails').val($(this).find('td:nth-child(20)').text());
-        $('#BranchCodeDetails').val($(this).find('td:nth-child(15)').text());
-        $('#StartDateDetails').val($(this).find('td:nth-child(14)').text());
-        $('#EndDateDetails').val($(this).find('td:nth-child(17)').text());
-        $('#ITTotaleTimeDetails').val($(this).find('td:nth-child(18)').text());
-        $('#RequestorNameDetails').val($(this).find('td:nth-child(21)').text());
-        $('#RequestorDepartmentDetails').val($(this).find('td:nth-child(23)').text());
-        $('#RequestorEmailDetails').val($(this).find('td:nth-child(22)').text());
-        $('#RequestorIssueDiscriptionDetails').val($(this).find('td:nth-child(9)').text());
-        $('#TechnicianNameDetails').val($(this).find('td:nth-child(16)').text());
-        $('#TechnicianDepartmentDetails').val($(this).find('td:nth-child(13)').text());
-        $('#TechnicianIssueDiscriptionDetails').val($(this).find('td:nth-child(10)').text());
-        $('#TechnicianIssueResolutionDetails').val($(this).find('td:nth-child(11)').text());
-        $('#ResponsTimeDetails').val($(this).find('td:nth-child(24)').text());
-        $('#TechnicianAttitudeDetails').val($(this).find('td:nth-child(25)').text());
-        $('#ServiceEvaluationInGeneralDetails').val($(this).find('td:nth-child(26)').text());
-        $('#RequestorCommentDetails').val($(this).find('td:nth-child(27)').text());
+        $('#TicketNumberDetails').val('');
+        $('#ServiceTypeDetails').val('');
+        $('#ServiceDetailsDetails').val('');
+        $('#TicketPeriorityDetails').val('');
+        $('#TicketStatusDetails').val(' ');
+        $('#BranchCodeDetails').val(' ');
+        $('#StartDateDetails').val(' ');
+        $('#EndDateDetails').val(' ');
+        $('#ITTotaleTimeDetails').val(' ');
+        $('#RequestorNameDetails').val(' ');
+        $('#RequestorDepartmentDetails').val(' ');
+        $('#RequestorEmailDetails').val(' ');
+        $('#RequestorIssueDiscriptionDetails').val(' ');
+        $('#TechnicianNameDetails').val(' ');
+        $('#TechnicianDepartmentDetails').val(' ');
+        $('#TechnicianIssueDiscriptionDetails').val(' ');
+        $('#TechnicianIssueResolutionDetails').val(' ');
+        $('#ResponsTimeDetails').val(' ');
+        $('#TechnicianAttitudeDetails').val(' ');
+        $('#ServiceEvaluationInGeneralDetails').val(' ');
+        $('#RequestorCommentDetails').val(' ');
+
+        if($(this).find('td:nth-child(24)').text() == 1){
+            var emojiRespons = '<i class="fa-solid fa-face-smile-beam "></i>';
+        } else if($(this).find('td:nth-child(24)').text() == 0){
+            var emojiRespons = '<i class="fa-solid fa-face-angry "></i>';
+        } else {
+            var emojiRespons = 'null';
+        }
+
+        if($(this).find('td:nth-child(25)').text() == 1){
+            var emojiAttetude = '<i class="fa-solid fa-face-smile-beam "></i>';
+        } else if($(this).find('td:nth-child(25)').text() == 0){
+            var emojiAttetude = '<i class="fa-solid fa-face-angry "></i>';
+        } else {
+            var emojiAttetude = 'null';
+        }
+
+        if ($(this).find('td:nth-child(28)').text() === 'Y') {
+            $('#EvaluationDetails').prop('checked', true);
+            $('#hideEvaluation').append(`<h3 class="text-start mt-3 mb-4 text-dark">Evaluation</h3>
+            <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                <div class="col-sm-4">
+                    <label class="" for="ResponsTimeDetails">Respons Time</label><br>
+                    <span style="text-align: center;" id="ResponsTimeDetails" aria-label="City" title="" disabled readonly></span>
+                </div>
+                <div class="col-sm-4">
+                    <label class="" for="TechnicianAttitudeDetails">Technician Attitude</label><br>
+                    <span style="text-align: center;" id="TechnicianAttitudeDetails" aria-label="State" title="" disabled readonly></span>
+                </div>
+                <div class="col-sm-4">
+                    <label class="" for="ServiceEvaluationInGeneralDetails">Service Evaluation In General</label>
+                    <input type="text" class="form-control" id="ServiceEvaluationInGeneralDetails" aria-label="State" title="" disabled readonly>
+                </div>
+            </div>`);
+        };
+
+        if ($(this).find('td:nth-child(20)').text() === 'Assigned') {
+            $('#hideTechnician').append(`<h3 class="text-start mt-2 mb-2 text-dark">Technician Information</h3>
+            <div class="row " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                <div class="col-sm-6">
+                    <label class="" for="TechnicianNameDetails">Name</label>
+                    <input type="text" class="form-control" id="TechnicianNameDetails" aria-label="City" title="" disabled readonly>
+                </div>
+                <div class="col-sm-6">
+                    <label class="" for="TechnicianDepartmentDetails">Department</label>
+                    <input type="text" class="form-control" id="TechnicianDepartmentDetails" aria-label="State" title="" disabled readonly>
+                </div>
+                <div class="col-sm-6">
+                    <label class="" for="TechnicianIssueDiscriptionDetails">Issue Discription</label>
+                    <textarea type="text" class="form-control" id="TechnicianIssueDiscriptionDetails" title="" style="overflow: scroll; "></textarea>
+                </div>
+                <div class="col-sm-6">
+                    <label class="" for="TechnicianIssueResolutionDetails">Issue Resolution</label>
+                    <textarea type="text" class="form-control" id="TechnicianIssueResolutionDetails" title="" style="overflow: scroll; "></textarea>
+                </div>
+            </div>`);
+        };
+
+        
+
+        $('#TicketNumberDetails').val($(this).find('td:first').text()).attr('title', $(this).find('td:first').text());
+        $('#ServiceTypeDetails').val($(this).find('td:nth-child(2)').text()).attr('title', $(this).find('td:nth-child(2)').text());
+        $('#ServiceDetailsDetails').val($(this).find('td:nth-child(3)').text()).attr('title', $(this).find('td:nth-child(3)').text());
+        $('#TicketPeriorityDetails').val($(this).find('td:nth-child(4)').text()).attr('title', $(this).find('td:nth-child(4)').text());
+        $('#TicketStatusDetails').val($(this).find('td:nth-child(20)').text()).attr('title', $(this).find('td:nth-child(20)').text());
+        $('#BranchCodeDetails').val($(this).find('td:nth-child(15)').text()).attr('title', $(this).find('td:nth-child(15)').text());
+        $('#StartDateDetails').val($(this).find('td:nth-child(14)').text()).attr('title', $(this).find('td:nth-child(14)').text());
+        $('#EndDateDetails').val($(this).find('td:nth-child(17)').text()).attr('title', $(this).find('td:nth-child(17)').text());
+        $('#ITTotaleTimeDetails').val($(this).find('td:nth-child(18)').text()).attr('title', $(this).find('td:nth-child(18)').text());
+        $('#RequestorNameDetails').val($(this).find('td:nth-child(21)').text()).attr('title', $(this).find('td:nth-child(21)').text());
+        $('#RequestorDepartmentDetails').val($(this).find('td:nth-child(13)').text()).attr('title', $(this).find('td:nth-child(23)').text());
+        $('#RequestorEmailDetails').val($(this).find('td:nth-child(22)').text()).attr('title', $(this).find('td:nth-child(22)').text());
+        $('#RequestorIssueDiscriptionDetails').val($(this).find('td:nth-child(9)').text()).attr('title', $(this).find('td:nth-child(9)').text());
+        $('#TechnicianNameDetails').val($(this).find('td:nth-child(16)').text()).attr('title', $(this).find('td:nth-child(16)').text());
+        $('#TechnicianDepartmentDetails').val($(this).find('td:nth-child(23)').text()).attr('title', $(this).find('td:nth-child(13)').text());
+        $('#TechnicianIssueDiscriptionDetails').val($(this).find('td:nth-child(10)').text()).attr('title', $(this).find('td:nth-child(10)').text());
+        $('#TechnicianIssueResolutionDetails').val($(this).find('td:nth-child(11)').text()).attr('title', $(this).find('td:nth-child(11)').text());
+        $('#ResponsTimeDetails').html(emojiRespons).attr('title', $(this).find('td:nth-child(24)').text());
+        $('#TechnicianAttitudeDetails').html(emojiAttetude).attr('title', $(this).find('td:nth-child(25)').text());
+        $('#ServiceEvaluationInGeneralDetails').val($(this).find('td:nth-child(26)').text()).attr('title', $(this).find('td:nth-child(26)').text());
+        $('#RequestorCommentDetails').val($(this).find('td:nth-child(27)').text()).attr('title', $(this).find('td:nth-child(27)').text());
     });
 
     $(document).on('click', '#SaveTicketDetailsInformation', function(e) {     // Update Ticket Status To Confirme Ticket Function
@@ -2768,6 +2781,7 @@ $(function () {
         
     });
 
+    
 
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
 
@@ -2821,69 +2835,6 @@ $('#details').on('change', function () {    // Retrive Device Number Based On Se
     });
 });
 
-$("#AddNewTicketForm").validate({                                          // Validate Function For Add New Service PopUp
-    rules: {
-        service: "required" ,// Name field is required
-        details: "required", // Name field is required
-        description: "required", // Name field is required
-        device: "required" // Name field is required
-    },
-    messages: {
-        service: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Name</div>" ,// Name field is required
-        details: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Details Name</div>", // Name field is required
-        description: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Issue Description</div>", // Name field is required
-        device: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Device</div>" // Name field is required
-    },
-    submitHandler: function(form) {
-        // Form is valid, proceed with form submission
-        form.submit();
-    }
-});
-
-$(document).on('click', '#addTicket', function(e) {         // Add New Ticket To Tickets Table Function
-
-    e.preventDefault();
-
-    if ( $("#AddNewTicketForm").valid()){
-    
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "name":             $(this).closest('.content').find('#UserSessionID').val(),
-                "service":          $(this).closest('.content').find('.service').val(),
-                "details":          $(this).closest('.content').find('.details').val(),
-                "device":           $(this).closest('.content').find('.device').val(),
-                "description":      $(this).closest('.content').find('.description').val(),
-                "action" :          "add"
-            },
-            success: function (response) {
-                $('#AddNewTicketPopup').modal('hide');
-                Swal.fire("Ticket # " + response + " Created Successfully!!!");
-                $('#service').val('');
-                $('#details').val('');
-                $('#device').val('');
-                $('#description').val('');
-                $('#addTicket').closest('.content').find('#UserSessionID').val();
-                $('#addTicket').closest('.content').find('#UserSessionID').val($('#addTicket').closest('.content').find('#UserSessionName').val());
-                updateCounts();
-            },
-            error: function(response) {
-                $('#AddNewTicketPopup').modal('hide');
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: JSON.stringify(response),
-                    });
-                    $('#service').val('');
-                    $('#details').val('');
-                    $('#device').val('');
-                    $('#description').val('');
-            }
-        });
-    }
-}); 
-
 $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket Transation Dropdown  List
 
     e.preventDefault();
@@ -2899,7 +2850,7 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
 
 
 
-    ///////////////////////////////////////////***************** Delegate Page Start  *************************/////////////////////////////////////////
+///////////////////////////////////////////***************** Delegate Page Start  *************************/////////////////////////////////////////
 
     $('#delegateTeam').on('change', function () {   // Return Delegated Users  Based On Team Number Function
         var teamName = $(this).val();  // Team Number
@@ -3025,11 +2976,11 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
         });
     });
 
-    ///////////////////////////////////////////***************** Delegate Page End  *************************/////////////////////////////////////////
+///////////////////////////////////////////***************** Delegate Page End  *************************/////////////////////////////////////////
 
 
 
-    ///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button Start  *************************/////////////////////////////////////////
+///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button Start  *************************/////////////////////////////////////////
 
     $('#UpdateAllSolveTicketToConfirm').on('click', function () {   // Change All Solved Ticket To Confirm
 
@@ -3053,6 +3004,7 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
     });
 
     ///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button End  *************************/////////////////////////////////////////
+
 });
 
 

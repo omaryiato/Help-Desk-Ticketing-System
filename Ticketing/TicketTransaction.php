@@ -86,22 +86,36 @@ if (isset($_SESSION['user'])) {
                 <div class="scroll-wrapper  mt-3" style="margin-bottom: 80px;">
 
                     <div class='my-2 d-flex justify-content-between'>
-                        <div class='my-1  d-flex '>
-                            <label class="pe-1" for="recoredPerPage">No Of Recoed</label>
-                            <select class="form-select w-50" id="recoredPerPage">
-                                <option value="10" selected>10</option>
-                                <option value="25">25</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>
-                            </select>
+                        <div class='my-1  d-flex'>
+                            <div class='my-1  d-flex'>
+                                <label class="pe-1" style="width: 200px;" for="recoredPerPage">No Of Record</label>
+                                <select class="form-select " id="recoredPerPage">
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                            <div style="margin: 10px 5px 5px 15px;">
+                                <button data-bs-toggle='tooltip' data-bs-placement='top' title='Export to Excel' class="toExcel" id="toExcel">
+                                    <i class="fa-regular fa-file-excel pe-1"></i>
+                                    Export to Excel
+                                </button>
+                            </div>
+                            <!-- <div style="margin: 10px 5px 5px 15px;">
+                                <button data-bs-toggle='tooltip' data-bs-placement='top' title='Export to Excel' class="toExcel" id="exportAllData">
+                                    <i class="fa-regular fa-file-excel pe-1"></i>
+                                    Export All to Excel
+                                </button>
+                            </div> -->
                         </div>
+
                         <div class='my-2 d-flex justify-content-end '>
                             <div class='my-1'>
                                 <span id="activeUsers" style="cursor: pointer;">Active Users: 800</span>
                             </div>
                         </div>
                     </div>
-
                     <div class="scroll">
                         <table class="hiddenList scro">
                             <thead>
@@ -133,6 +147,7 @@ if (isset($_SESSION['user'])) {
                                     <th hidden>Technician Attitude</th>
                                     <th hidden>Service Evaluation</th>
                                     <th hidden>Requestor Comment</th>
+                                    <th hidden>Evaluation Flag</th>
                                 </tr>
                             </thead>
                             <tbody id="mainTableTicketTransation">
@@ -452,7 +467,6 @@ if (isset($_SESSION['user'])) {
                                                         <tr>
                                                             <th hidden>ID</th>
                                                             <th>User Name</th>
-                                                            <th>Name</th>
                                                             <th>Status</th>
                                                             <th>Control</th>
                                                         </tr>
@@ -471,7 +485,6 @@ if (isset($_SESSION['user'])) {
                                                         <tr>
                                                             <th hidden>ID</th>
                                                             <th>User Name</th>
-                                                            <th>Name</th>
                                                             <th>Description</th>
                                                             <th>Team Leader</th>
                                                             <th>Control</th>
@@ -667,7 +680,6 @@ if (isset($_SESSION['user'])) {
                                                         <tr>
                                                             <th hidden>ID</th>
                                                             <th>User Name</th>
-                                                            <th>Name</th>
                                                             <th>Status</th>
                                                             <th>Control</th>
                                                         </tr>
@@ -686,7 +698,6 @@ if (isset($_SESSION['user'])) {
                                                         <tr>
                                                             <th hidden>ID</th>
                                                             <th>User Name</th>
-                                                            <th>Name</th>
                                                             <th>Description</th>
                                                             <th>Team Leader</th>
                                                             <th>Control</th>
@@ -808,7 +819,7 @@ if (isset($_SESSION['user'])) {
 
     <!-- Search Ticket  Pop Up Form Start -->
     <div class="modal fade" id="SearchTicket" tabindex="-1" aria-labelledby="SearchTicketPopupLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -820,188 +831,205 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="SearchTicketPopupLabel">Search Ticket</h2>
                                 <div class=" container  mt-2">
-                                    <form class="row d-flex justify-content-center" id="SearchTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class=" col-sm-5 mx-1 ">
-                                            <div class="row">
-                                                <!-- Start Ticket Number Field -->
-                                                <div class='col-sm-5 my-1'>
-                                                    <label class="" for="SearchTicketNumber">Ticket #</label>
-                                                    <input type="text" class="form-control" id="SearchTicketNumber" name="TICKET_NO" aria-label="SearchTicketNumber">
-                                                </div>
-                                                <!-- End  Ticket Number Field -->
-                                                <!-- Start Ticket Status Field -->
-                                                <div class='col-sm-5 my-1'>
-                                                    <label class="" for="SearchTicketStatus">Status</label>
-                                                    <select class="form-select" id="SearchTicketStatus">
-                                                        <?php
-                                                        $ticketStatus = "SELECT CODE, MEANING FROM TICKETING.LOOKUP_VALUES WHERE lookup_type_id = 1 ";
-                                                        $status = oci_parse($conn, $ticketStatus);
-                                                        oci_execute($status);
-                                                        echo '<option ></option>';
-                                                        while ($row = oci_fetch_array($status)) {
-                                                            echo '<option value="' . $row['CODE'] . '">' . $row['MEANING'] . '</option>';
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </div>
-                                                <!-- End Ticket Status Field -->
-                                                <!-- Start Ticket Branch Field-->
-                                                <div class='col-sm-5 my-1'>
-                                                    <label class="" for="SearchTicketBranch">Branch</label>
-                                                    <select class="form-select" id="SearchTicketBranch">
-                                                        <option></option>
-                                                        <option value="RYD">RYD</option>
-                                                        <option value="HUF">HUF</option>
-                                                        <option value="JIZ">JIZ</option>
-                                                    </select>
-                                                </div>
-                                                <!-- End Ticket Branch Field -->
-                                                <!-- Start Ticket Priority Field-->
-                                                <div class='col-sm-5 my-1'>
-                                                    <label class="" for="SearchTicketPriority">Priority</label>
-                                                    <select class="form-select" id="SearchTicketPriority">
-                                                        <?php
-                                                        $ticketStatus = "SELECT CODE, MEANING FROM TICKETING.LOOKUP_VALUES WHERE lookup_type_id = 4 ";
-                                                        $status = oci_parse($conn, $ticketStatus);
-                                                        oci_execute($status);
-                                                        echo '<option  ></option>';
-                                                        while ($row = oci_fetch_array($status)) {
-                                                            echo '<option value="' . $row['CODE'] . '">' . $row['MEANING'] . '</option>';
-                                                        }
-                                                        ?>
-                                                    </select>
-                                                </div>
+                                    <form class="row" id="SearchTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
 
-                                                <!-- End Ticket Priority Field -->
-                                                <!-- Start Ticket IT Time Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchITTime">IT Time</label>
-                                                    <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime" disabled>
-                                                </div>
-                                                <!-- End Ticket IT Time Field -->
-                                                <!-- Start Ticket IT Time Per Hour Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchITTimePerHour">Hour</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour" disabled>
-                                                </div>
-                                                <!-- End Ticket IT Time Per Hour Field -->
-                                                <!-- Start Ticket IT Time Per Min Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchITTimePerMin">Min</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin" disabled>
-                                                </div>
-                                                <!-- End Ticket IT Time Per Min Field -->
-                                                <!-- Start Ticket IT Time Per Sec Field -->
-                                                <div class='col-sm-3  my-1'>
-                                                    <label class="" for="SearchITTimePerSec">Sec</label>
-                                                    <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec" disabled>
-                                                </div>
-                                                <!-- End Ticket IT Time Per Sec Field -->
-                                                <!-- Start Ticket Total Time Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchTotalTime">Total Time</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime" disabled>
-                                                </div>
-                                                <!-- End Ticket Total Time Field -->
-                                                <!-- Start Ticket Total Time Per Hour Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchTotalTimePerHour">Hour</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour" disabled>
-                                                </div>
-                                                <!-- End Ticket Total Time Per Hour Field -->
-                                                <!-- Start Ticket Total Time Per Min Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchTotalTimePerMin">Min</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin" disabled>
-                                                </div>
-                                                <!-- End Ticket Total Time Per Min Field -->
-                                                <!-- Start Ticket Total Time Per Sec Field -->
-                                                <div class='col-sm-3 my-1'>
-                                                    <label class="" for="SearchTotalTimePerSec">Sec</label>
-                                                    <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec" disabled>
-                                                </div>
-                                                <!-- End Ticket Total Time Per Sec Field -->
-                                                <!-- Start Ticket Assigned To Field -->
-                                                <div class='col-sm-10 my-1'>
-                                                    <label class="" for="SearchTicketAssignedTo">Assigned To</label>
-                                                    <input type="text" class="form-control" id="SearchTicketAssignedTo" aria-label="SearchTicketAssignedTo">
-                                                </div>
-                                                <!-- End Ticket Assigned To Field -->
-                                                <!-- Start Ticket Tec Issue Discription Field -->
-                                                <div class='col-sm-10 my-1'>
-                                                    <label class="" for="SearchTecIssueDiscription">Tec Issue Discription</label>
-                                                    <input type="text" class="form-control" id="SearchTecIssueDiscription" aria-label="SearchTecIssueDiscription">
-                                                </div>
-                                                <!-- End Ticket Tec Issue Discription Field -->
-                                                <!-- Start Ticket Tec Issue Resolution Field -->
-                                                <div class='col-sm-10 my-1'>
-                                                    <label class="" for="SearchTecIssueResolution">Tec Issue Resolution</label>
-                                                    <input type="text" class="form-control" id="SearchTecIssueResolution" aria-label="SearchTecIssueResolution">
-                                                </div>
-                                                <!-- End Ticket Tec Issue Resolution Field -->
-                                            </div>
+                                        <!-- Start Ticket Number Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTicketNumber">Ticket #</label>
+                                            <input type="text" class="form-control" id="SearchTicketNumber" name="TICKET_NO" aria-label="SearchTicketNumber">
                                         </div>
-                                        <div class=" col-sm-5 mx-1">
-                                            <!-- Start Ticket Responsible Dept Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchResponsibleDept">Responsible Dept</label>
-                                                <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept" disabled>
-                                            </div>
-                                            <!-- End Ticket Responsible Dept Field -->
-                                            <!-- Start Ticket Service Type Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchServiceType">Service Type</label>
-                                                <input type="text" class="form-control" id="SearchServiceType" aria-label="SearchServiceType">
-                                            </div>
-                                            <!-- End Ticket Service Type Field -->
-                                            <!-- Start Ticket Service Details Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchServiceDetails">Service Details</label>
-                                                <input type="text" class="form-control" id="SearchServiceDetails" aria-label="SearchServiceDetails">
-                                            </div>
-                                            <!-- End Ticket Service Details Field -->
-                                            <!-- Start Ticket Created By Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchCreatedBy">Created By</label>
-                                                <input type="text" class="form-control" id="SearchCreatedBy" aria-label="SearchCreatedBy">
-                                            </div>
-                                            <!-- End Ticket Created By Field -->
-                                            <!-- Start Ticket Department Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchDepartment">Department</label>
-                                                <input type="text" class="form-control" id="SearchDepartment" aria-label="SearchDepartment">
-                                            </div>
-                                            <!-- End Ticket Department Field -->
-                                            <!-- Start Ticket User Issue Description Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchUserIsseDescription">User Issue Description</label>
-                                                <input type="text" class="form-control" id="SearchUserIsseDescription" aria-label="SearchUserIsseDescription">
-                                            </div>
-                                            <!-- End Ticket User Issue Description Field -->
-                                            <!-- Start Ticket From Date Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchFromDate">From Date</label>
-                                                <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate" disabled>
-                                            </div>
-                                            <!-- End Ticket From Date Field -->
-                                            <!-- Start Ticket To Date Field -->
-                                            <div class='col-sm-10 my-1'>
-                                                <label class="" for="SearchToDate">To Date</label>
-                                                <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate" disabled>
-                                            </div>
-                                            <!-- End Ticket To Date Field -->
+                                        <!-- End  Ticket Number Field -->
+                                        <!-- Start Ticket Status Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTicketStatus">Status</label>
+                                            <select class="form-select" id="SearchTicketStatus">
+                                                <?php
+                                                $ticketStatus = "SELECT CODE, MEANING FROM TICKETING.LOOKUP_VALUES WHERE lookup_type_id = 1 ";
+                                                $status = oci_parse($conn, $ticketStatus);
+                                                oci_execute($status);
+                                                echo '<option ></option>';
+                                                while ($row = oci_fetch_array($status)) {
+                                                    echo '<option value="' . $row['CODE'] . '">' . $row['MEANING'] . '</option>';
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
-                                        <div class=" col-sm-10 mx-1 ">
-                                            <div class="row">
-                                                <!-- Start Submit Button -->
-                                                <div class="form-group">
-                                                    <div class="col-sm-offset-2 col-sm-10">
-                                                        <button type="submit" class="btn btn-primary btn-lg mt-3  " id="SearchTicketButton"> <i class="fa-solid fa-magnifying-glass px-1"></i> Search</button>
-                                                    </div>
-                                                </div>
-                                                <!-- End Submit Button  -->
-                                            </div>
+                                        <!-- End Ticket Status Field -->
+                                        <!-- Start Ticket Branch Field-->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTicketBranch">Branch</label>
+                                            <select class="form-select" id="SearchTicketBranch">
+                                                <option></option>
+                                                <option value="RYD">RYD</option>
+                                                <option value="HUF">HUF</option>
+                                                <option value="JIZ">JIZ</option>
+                                            </select>
                                         </div>
+                                        <!-- End Ticket Branch Field -->
+                                        <!-- Start Ticket Priority Field-->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTicketPriority">Priority</label>
+                                            <select class="form-select" id="SearchTicketPriority">
+                                                <?php
+                                                $ticketStatus = "SELECT CODE, MEANING FROM TICKETING.LOOKUP_VALUES WHERE lookup_type_id = 4 ";
+                                                $status = oci_parse($conn, $ticketStatus);
+                                                oci_execute($status);
+                                                echo '<option  ></option>';
+                                                while ($row = oci_fetch_array($status)) {
+                                                    echo '<option value="' . $row['CODE'] . '">' . $row['MEANING'] . '</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+
+                                        <!-- End Ticket Priority Field -->
+                                        <!-- Start Ticket IT Time Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchITTime">IT Time</label>
+                                            <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime" disabled>
+                                        </div>
+                                        <!-- End Ticket IT Time Field -->
+                                        <!-- Start Ticket IT Time Per Hour Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchITTimePerHour">Hour</label>
+                                            <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour" disabled>
+                                        </div>
+                                        <!-- End Ticket IT Time Per Hour Field -->
+                                        <!-- Start Ticket IT Time Per Min Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchITTimePerMin">Min</label>
+                                            <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin" disabled>
+                                        </div>
+                                        <!-- End Ticket IT Time Per Min Field -->
+                                        <!-- Start Ticket IT Time Per Sec Field -->
+                                        <div class='col-sm-3  '>
+                                            <label class="" for="SearchITTimePerSec">Sec</label>
+                                            <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec" disabled>
+                                        </div>
+                                        <!-- End Ticket IT Time Per Sec Field -->
+                                        <!-- Start Ticket Total Time Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTotalTime">Total Time</label>
+                                            <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime" disabled>
+                                        </div>
+                                        <!-- End Ticket Total Time Field -->
+                                        <!-- Start Ticket Total Time Per Hour Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTotalTimePerHour">Hour</label>
+                                            <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour" disabled>
+                                        </div>
+                                        <!-- End Ticket Total Time Per Hour Field -->
+                                        <!-- Start Ticket Total Time Per Min Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTotalTimePerMin">Min</label>
+                                            <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin" disabled>
+                                        </div>
+                                        <!-- End Ticket Total Time Per Min Field -->
+                                        <!-- Start Ticket Total Time Per Sec Field -->
+                                        <div class='col-sm-3 '>
+                                            <label class="" for="SearchTotalTimePerSec">Sec</label>
+                                            <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec" disabled>
+                                        </div>
+                                        <!-- End Ticket Total Time Per Sec Field -->
+                                        <!-- Start Ticket Assigned To Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchTicketAssignedTo">Assigned To</label>
+                                            <input type="text" class="form-control" id="SearchTicketAssignedTo" aria-label="SearchTicketAssignedTo">
+                                        </div>
+                                        <!-- End Ticket Assigned To Field -->
+                                        <!-- Start Ticket Tec Issue Discription Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchTecIssueDiscription">Tec Issue Discription</label>
+                                            <input type="text" class="form-control" id="SearchTecIssueDiscription" aria-label="SearchTecIssueDiscription">
+                                        </div>
+                                        <!-- End Ticket Tec Issue Discription Field -->
+                                        <!-- Start Ticket Tec Issue Resolution Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchTecIssueResolution">Tec Issue Resolution</label>
+                                            <input type="text" class="form-control" id="SearchTecIssueResolution" aria-label="SearchTecIssueResolution">
+                                        </div>
+                                        <!-- End Ticket Tec Issue Resolution Field -->
+                                        <!-- Start Ticket User Issue Description Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchUserIsseDescription">User Issue Description</label>
+                                            <input type="text" class="form-control" id="SearchUserIsseDescription" aria-label="SearchUserIsseDescription">
+                                        </div>
+                                        <!-- End Ticket User Issue Description Field -->
+
+
+                                        <!-- Start Ticket Responsible Dept Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchResponsibleDept">Responsible Dept</label>
+                                            <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept" disabled>
+                                        </div>
+                                        <!-- End Ticket Responsible Dept Field -->
+                                        <!-- Start Ticket Service Type Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchServiceType">Service Type</label>
+                                            <select class="form-select service" name="service" id="SearchServiceType" aria-label="SearchServiceType">
+                                                <option value="">Choes Service</option>
+                                                <?php
+                                                // // Query to retrieve a list of tables
+                                                $department = "SELECT  * FROM TICKETING.SERVICE";
+                                                $dep = oci_parse($conn, $department);
+                                                // Execute the query
+                                                oci_execute($dep);
+                                                while ($dept = oci_fetch_assoc($dep)) {
+                                                    echo "<option value='" . $dept['SERVICE_NAME'] . "'>" . $dept['SERVICE_NAME'] . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <!-- End Ticket Service Type Field -->
+                                        <!-- Start Ticket Service Details Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchServiceDetails">Service Details</label>
+                                            <select class="form-select details" name="details" id="SearchServiceDetails" aria-label="SearchServiceDetails">
+                                                <option value="">Choose Service Detail</option>
+                                                <?php
+                                                // // Query to retrieve a list of tables
+                                                $department = "SELECT  * FROM TICKETING.SERVICE_DETAILS";
+                                                $dep = oci_parse($conn, $department);
+                                                // Execute the query
+                                                oci_execute($dep);
+                                                while ($dept = oci_fetch_assoc($dep)) {
+                                                    echo "<option value='" . $dept['SERVICE_DETAIL_NAME'] . "'>" . $dept['SERVICE_DETAIL_NAME'] . "</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <!-- End Ticket Service Details Field -->
+                                        <!-- Start Ticket Created By Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchCreatedBy">Created By</label>
+                                            <input type="text" class="form-control" id="SearchCreatedBy" aria-label="SearchCreatedBy">
+                                        </div>
+                                        <!-- End Ticket Created By Field -->
+                                        <!-- Start Ticket Department Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchDepartment">Department</label>
+                                            <input type="text" class="form-control" id="SearchDepartment" aria-label="SearchDepartment">
+                                        </div>
+                                        <!-- End Ticket Department Field -->
+
+                                        <!-- Start Ticket From Date Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchFromDate">From Date</label>
+                                            <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate">
+                                        </div>
+                                        <!-- End Ticket From Date Field -->
+                                        <!-- Start Ticket To Date Field -->
+                                        <div class='col-sm-4 '>
+                                            <label class="" for="SearchToDate">To Date</label>
+                                            <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate">
+                                        </div>
+                                        <!-- End Ticket To Date Field -->
+                                        <!-- Start Submit Button -->
+                                        <div class="col-sm-4">
+                                            <button type="submit" class="btn btn-primary  mt-3  " id="SearchTicketButton"> <i class="fa-solid fa-magnifying-glass px-1"></i> Search</button>
+                                        </div>
+                                        <!-- End Submit Button  -->
+
                                     </form>
                                 </div>
                             </div>
@@ -1013,7 +1041,6 @@ if (isset($_SESSION['user'])) {
     </div>
     <!-- Search Ticket Pop Up Form Start -->
 
-
     <!-- Ticket Details Pop Up Form Start -->
     <div class="modal fade" id="TicketDetailsPopup" tabindex="-1" aria-labelledby="TicketDetailsPopupLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl">
@@ -1022,113 +1049,94 @@ if (isset($_SESSION['user'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <main class="content px-3 py-2"> <!-- Main Start -->
+                    <main class="content px-3 "> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-1">
                                 <h2 class="text-center" id="TicketDetailsPopupLabel">Ticket Details</h2>
                                 <div class="container  mt-1">
-                                    <h3 class="text-start mt-3 mb-4 text-dark">Ticket Information</h3>
-                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-4">
+                                    <h3 class="text-start mt-2 mb-2 text-dark">Ticket Information</h3>
+                                    <div class="row " style=" border: #bcbaba 1px solid; padding: 5px; border-radius: 10px;">
+                                        <div class="col-sm-2">
                                             <label class="" for="TicketNumberDetails">Ticket #</label>
-                                            <input type="text" class="form-control" id="TicketNumberDetails" aria-label="City" disabled readonly>
+                                            <input type="text" class="form-control" id="TicketNumberDetails" aria-label="City" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-1">
                                             <label class="" for="BranchCodeDetails">Branch</label>
-                                            <input type="text" class="form-control" id="BranchCodeDetails" aria-label="State" disabled readonly>
+                                            <input type="text" class="form-control" id="BranchCodeDetails" aria-label="State" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="TicketPeriorityDetails">Periority</label>
-                                            <input type="text" class="form-control" id="TicketPeriorityDetails" aria-label="State" disabled readonly>
+
+                                        <div class="col-sm-2">
+                                            <label class="" for="StartDateDetails">Start Date</label>
+                                            <input type="text" class="form-control" id="StartDateDetails" aria-label="State" title="" disabled readonly>
                                         </div>
+
                                         <div class="col-sm-4">
                                             <label class="" for="ServiceTypeDetails">Service Type</label>
-                                            <input type="text" class="form-control" id="ServiceTypeDetails" aria-label="City" disabled readonly>
+                                            <input type="text" class="form-control" id="ServiceTypeDetails" aria-label="City" title="" disabled readonly>
                                         </div>
+
+                                        <div class="col-sm-2">
+                                            <label class="" for="ITTotaleTimeDetails">IT Totale Time</label>
+                                            <input type="text" class="form-control" id="ITTotaleTimeDetails" aria-label="State" title="" disabled readonly>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <label class="" for="TicketStatusDetails">Status</label>
+                                            <input type="text" class="form-control" id="TicketStatusDetails" aria-label="State" title="" disabled readonly>
+                                        </div>
+
+                                        <div class="col-sm-1">
+                                            <label class="" for="TicketPeriorityDetails">Periority</label>
+                                            <input type="text" class="form-control" id="TicketPeriorityDetails" aria-label="State" title="" disabled readonly>
+                                        </div>
+
+                                        <div class="col-sm-2">
+                                            <label class="" for="EndDateDetails">End Date</label>
+                                            <input type="text" class="form-control" id="EndDateDetails" aria-label="State" title="" disabled readonly>
+                                        </div>
+
                                         <div class="col-sm-4">
                                             <label class="" for="ServiceDetailsDetails">Service Details</label>
-                                            <input type="text" class="form-control" id="ServiceDetailsDetails" aria-label="State" disabled readonly>
+                                            <input type="text" class="form-control" id="ServiceDetailsDetails" aria-label="State" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="TicketStatusDetails">Ticket Status</label>
-                                            <input type="text" class="form-control" id="TicketStatusDetails" aria-label="State" disabled readonly>
+
+                                        <div class="col-sm-3">
+                                            <label class="" for="EvaluationDetails">Evaluation</label>
+                                            <div class="check"><input type="checkbox" id="EvaluationDetails" disabled></div>
                                         </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="StartDateDetails">Start Date</label>
-                                            <input type="text" class="form-control" id="StartDateDetails" aria-label="State" disabled readonly>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="EndDateDetails">End Date</label>
-                                            <input type="text" class="form-control" id="EndDateDetails" aria-label="State" disabled readonly>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="ITTotaleTimeDetails">IT Totale Time</label>
-                                            <input type="text" class="form-control" id="ITTotaleTimeDetails" aria-label="State" disabled readonly>
-                                        </div>
+
                                     </div>
                                 </div>
-                                <div class="container  mt-1">
-                                    <h3 class="text-start mt-3 mb-4 text-dark">Requestor Information</h3>
-                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                <div class="container  mt-1 ">
+                                    <h3 class="text-start mt-2 mb-2 text-dark">Requestor Information</h3>
+                                    <div class="row " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                                         <div class="col-sm-4">
                                             <label class="" for="RequestorNameDetails">Name</label>
-                                            <input type="text" class="form-control" id="RequestorNameDetails" aria-label="City" disabled readonly>
+                                            <input type="text" class="form-control" id="RequestorNameDetails" aria-label="City" title="" disabled readonly>
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="" for="RequestorDepartmentDetails">Department</label>
-                                            <input type="text" class="form-control" id="RequestorDepartmentDetails" aria-label="State" disabled readonly>
+                                            <input type="text" class="form-control" id="RequestorDepartmentDetails" aria-label="State" title="" disabled readonly>
                                         </div>
                                         <div class="col-sm-4">
                                             <label class="" for="RequestorEmailDetails">Email</label>
-                                            <input type="text" class="form-control" id="RequestorEmailDetails" aria-label="State" disabled readonly>
+                                            <input type="text" class="form-control" id="RequestorEmailDetails" aria-label="State" title="" disabled readonly>
                                         </div>
                                         <div class="col-sm-6">
                                             <label class="" for="RequestorIssueDiscriptionDetails">Issue Discription</label>
-                                            <input type="text" class="form-control" id="RequestorIssueDiscriptionDetails" aria-label="City" disabled readonly>
+                                            <input type="text" class="form-control" id="RequestorIssueDiscriptionDetails" aria-label="City" title="" disabled readonly>
                                         </div>
                                         <div class="col-sm-6">
                                             <label class="" for="RequestorCommentDetails">Comment</label>
-                                            <textarea type="text" class="form-control" id="RequestorCommentDetails" cols="30" rows="10" style="overflow: scroll; height: 100px;"></textarea>
+                                            <textarea type="text" class="form-control" id="RequestorCommentDetails" title="" style="overflow: scroll;"></textarea>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="container  mt-1">
-                                    <h3 class="text-start mt-3 mb-4 text-dark">Technician Information</h3>
-                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-6">
-                                            <label class="" for="TechnicianNameDetails">Name</label>
-                                            <input type="text" class="form-control" id="TechnicianNameDetails" aria-label="City" disabled readonly>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="" for="TechnicianIssueDiscriptionDetails">Issue Discription</label>
-                                            <textarea type="text" class="form-control" id="TechnicianIssueDiscriptionDetails" cols="30" rows="10" style="overflow: scroll; height: 100px;"></textarea>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="" for="TechnicianDepartmentDetails">Department</label>
-                                            <input type="text" class="form-control" id="TechnicianDepartmentDetails" aria-label="State" disabled readonly>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <label class="" for="TechnicianIssueResolutionDetails">Issue Resolution</label>
-                                            <textarea type="text" class="form-control" id="TechnicianIssueResolutionDetails" cols="30" rows="10" style="overflow: scroll; height: 100px;"></textarea>
-                                        </div>
-                                    </div>
+                                <div class="container  mt-1" id="hideTechnician">
+
                                 </div>
-                                <div class="container  mt-1">
-                                    <h3 class="text-start mt-3 mb-4 text-dark">Evaluation</h3>
-                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-4">
-                                            <label class="" for="ResponsTimeDetails">Respons Time</label>
-                                            <input type="text" class="form-control" id="ResponsTimeDetails" aria-label="City" disabled readonly>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="TechnicianAttitudeDetails">Technician Attitude</label>
-                                            <input type="text" class="form-control" id="TechnicianAttitudeDetails" aria-label="State" disabled readonly>
-                                        </div>
-                                        <div class="col-sm-4">
-                                            <label class="" for="ServiceEvaluationInGeneralDetails">Service Evaluation In General</label>
-                                            <input type="text" class="form-control" id="ServiceEvaluationInGeneralDetails" aria-label="State" disabled readonly>
-                                        </div>
-                                    </div>
+                                <div class="container  mt-1 " id="hideEvaluation">
+
                                 </div>
                                 <div class=" col-sm-10 mx-1 ">
                                     <div class="row">
@@ -1301,38 +1309,124 @@ if (isset($_SESSION['user'])) {
             var filter = ' ';
             var allData = [];
 
-            $('.tran').hide(100);
-            $('#mainTableTicketTransation').empty();
-            $('#mainTableTicketTransation').append('Loading....');
+            getAllData(UserSessionID, order, sortOrder);
 
-            var startTime = new Date().getTime();
-            $.ajax({
-                type: 'POST',
-                url: 'function.php',
-                data: {
-                    userNamePreResault: 'USER_ID',
-                    userIDPreResault: UserSessionID,
-                    order: order,
-                    sortOrder: sortOrder,
-                    Filter: 10,
-                    action: 'TicketTransactionFilter'
-                },
-                success: function(data) {
+            function getAllData(UserSessionID, order, sortOrder) {
+                $('.tran').hide(100);
+                $('#mainTableTicketTransation').empty();
+                $('#mainTableTicketTransation').append('Loading....');
 
-                    allData = JSON.parse(data);
-                    displayFilterData(page, noRecord);
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                var startTime = new Date().getTime();
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php',
+                    data: {
+                        userNamePreResault: 'USER_ID',
+                        userIDPreResault: UserSessionID,
+                        order: order,
+                        sortOrder: sortOrder,
+                        Filter: 10,
+                        action: 'TicketTransactionFilter'
+                    },
+                    success: function(data) {
 
-                },
-                error: function(data) {
-                    console.log('from error case' + data);
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                        allData = JSON.parse(data);
+                        displayFilterData(page, noRecord);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', status, error);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                    }
+                });
+            }
+
+            function refreshData() {
+                getAllData(UserSessionID, order, sortOrder);
+            }
+
+            function updateCounts() {
+
+                var allRecord = 0; // Initialize the total count
+
+                $('.tickets').each(function() {
+                    var filter = $(this).data('filter');
+                    $.ajax({
+                        type: 'POST',
+                        url: 'function.php', // Replace with the URL of your PHP file to get the count
+                        data: {
+                            filter: filter,
+                            USER_ID: USER_ID,
+                            UserSessionID: UserSessionID
+                        },
+                        success: function(response) {
+                            $('#count-' + filter).text('( ' + response + ' )');
+                            allRecord += parseInt(response);
+                            $('#allRows').text('( ' + allRecord + ' )');
+                        },
+                        error: function() {
+                            $('#count-' + filter).text('Error fetching count');
+                        }
+                    });
+                });
+            }
+
+            updateCounts();
+
+            // var refreshMode = $('#refreshMode').val();
+            // var refreshTableData;
+            // var refreshCountSection;
+
+            // $('#refreshMode').on('change', function() { // Retrieve Team Member Based ON Team Choosen Function
+            //     refreshMode = $(this).val();
+
+            //     // If refresh mode is manually, clear the interval
+            //     if (refreshMode === 'manually') {
+            //         clearInterval(refreshTableData);
+            //         clearInterval(refreshCountSection);
+            //     } else {
+            //         refreshTableData = setInterval(refreshData, 180000);
+            //         refreshCountSection = setInterval(updateCounts, 180000);
+            //     }
+            // });
+
+            // if (refreshMode === 'auto') {
+            //     refreshTableData = setInterval(refreshData, 180000);
+            //     refreshCountSection = setInterval(updateCounts, 180000);
+            // }
+
+
+            var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
+            var refreshTableData;
+            var refreshCountSection;
+
+            $('#refreshMode').val(refreshMode); // Set the value of the select element to the saved refresh mode
+
+            $('#refreshMode').on('change', function() { // Event listener for refresh mode change
+                refreshMode = $(this).val();
+                localStorage.setItem('refreshMode', refreshMode); // Save refresh mode to local storage
+
+                // If refresh mode is manually, clear the interval
+                if (refreshMode === 'manually') {
+                    clearInterval(refreshTableData);
+                    clearInterval(refreshCountSection);
+                } else {
+                    // Start intervals for auto refresh
+                    refreshTableData = setInterval(refreshData, 180000);
+                    refreshCountSection = setInterval(updateCounts, 180000);
                 }
             });
+
+            if (refreshMode === 'auto') { // If refresh mode is auto, start intervals
+                refreshTableData = setInterval(refreshData, 180000);
+                refreshCountSection = setInterval(updateCounts, 180000);
+            }
+
 
             function displayData(page, noRecord) {
 
@@ -1365,7 +1459,7 @@ if (isset($_SESSION['user'])) {
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
                         ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
                         ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
                         ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
                         ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
@@ -1398,6 +1492,7 @@ if (isset($_SESSION['user'])) {
                         <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
                         <td hidden>${ticket.SERVICE_EVALUATION}</td>
                         <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                        <td hidden>${ticket.EVALUATION_FLAG}</td>
                     `);
 
                     // Append the new row to the table body
@@ -1437,8 +1532,6 @@ if (isset($_SESSION['user'])) {
                 $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
 
                 console.log('from success case');
-
-
             }
 
             $(document).on('click', '#ticketButton', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
@@ -1510,7 +1603,7 @@ if (isset($_SESSION['user'])) {
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
                         ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
                         ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
                         ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
                         ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
@@ -1543,6 +1636,7 @@ if (isset($_SESSION['user'])) {
                         <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
                         <td hidden>${ticket.SERVICE_EVALUATION}</td>
                         <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                        <td hidden>${ticket.EVALUATION_FLAG}</td>
                     `);
 
                     // Append the new row to the table body
@@ -1653,6 +1747,11 @@ if (isset($_SESSION['user'])) {
             // Event listener for search button click
             $(document).on('click', '#SearchTicketButton', function(e) {
                 e.preventDefault();
+
+                refreshMode = 'manually';
+                $('#refreshMode').val('manually');
+                clearInterval(refreshTableData);
+                clearInterval(refreshCountSection);
                 var startTime = new Date().getTime();
                 // Update search parameters from form inputs
                 searchParams = {
@@ -1682,64 +1781,72 @@ if (isset($_SESSION['user'])) {
                     SearchToDate: $('#SearchToDate').val()
                 };
 
-                $('#SearchTicket').modal('hide');
-                $('#paginationContainer').empty();
-                $('#numberOfPages').empty();
-                $('#mainTableTicketTransation').empty();
-                $('#mainTableTicketTransation').append('Loading....');
+                if (Object.keys(searchParams).length === 0) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please Choose  at least one field to search!",
+                    });
+                } else {
+                    $('#SearchTicket').modal('hide');
+                    $('#paginationContainer').empty();
+                    $('#numberOfPages').empty();
+                    $('#mainTableTicketTransation').empty();
+                    $('#mainTableTicketTransation').append('Loading....');
+                    $.ajax({
+                        type: 'POST',
+                        url: 'function.php',
+                        data: {
+                            // Include search parameters along with page number
+                            searchParams: searchParams,
+                            UserSessionID: UserSessionID,
+                            USER_ID: 'USER_ID',
+                            order: order,
+                            sortOrder: sortOrder,
+                            action: 'search'
+                        },
+                        success: function(data) {
+                            $('#SearchTicketNumber').val('');
+                            $('#SearchServiceType').val('');
+                            $('#SearchServiceDetails').val('');
+                            $('#SearchCreatedBy').val('');
+                            $('#SearchDepartment').val('');
+                            $('#SearchTicketStatus').val('');
+                            $('#SearchTicketBranch').val('');
+                            $('#SearchTicketPriority').val('');
+                            $('#SearchTicketAssignedTo').val('');
+                            $('#SearchTecIssueDiscription').val('');
+                            $('#SearchTecIssueResolution').val('');
+                            $('#SearchResponsibleDept').val('');
+                            $('#SearchUserIsseDescription').val('');
+
+                            allData = JSON.parse(data);
+                            displaySearchData(1, noRecord);
+                            var duration = new Date().getTime() - startTime;
+                            var durationInSeconds = duration / 1000;
+                            $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+                        },
+                        error: function() {
+                            alert("Error Fetching Data");
+                            $('#SearchTicketNumber').val('');
+                            $('#SearchServiceType').val('');
+                            $('#SearchServiceDetails').val('');
+                            $('#SearchCreatedBy').val('');
+                            $('#SearchDepartment').val('');
+                            $('#SearchTicketStatus').val('');
+                            $('#SearchTicketBranch').val('');
+                            $('#SearchTicketPriority').val('');
+                            $('#SearchTicketAssignedTo').val('');
+                            $('#SearchTecIssueDiscription').val('');
+                            $('#SearchTecIssueResolution').val('');
+                            $('#SearchResponsibleDept').val('');
+                            $('#SearchUserIsseDescription').val('');
+                        }
+                    });
+                }
 
 
-                $.ajax({
-                    type: 'POST',
-                    url: 'function.php',
-                    data: {
-                        // Include search parameters along with page number
-                        searchParams: searchParams,
-                        UserSessionID: UserSessionID,
-                        USER_ID: 'USER_ID',
-                        order: order,
-                        sortOrder: sortOrder,
-                        action: 'search'
-                    },
-                    success: function(data) {
-                        $('#SearchTicketNumber').val('');
-                        $('#SearchServiceType').val('');
-                        $('#SearchServiceDetails').val('');
-                        $('#SearchCreatedBy').val('');
-                        $('#SearchDepartment').val('');
-                        $('#SearchTicketStatus').val('');
-                        $('#SearchTicketBranch').val('');
-                        $('#SearchTicketPriority').val('');
-                        $('#SearchTicketAssignedTo').val('');
-                        $('#SearchTecIssueDiscription').val('');
-                        $('#SearchTecIssueResolution').val('');
-                        $('#SearchResponsibleDept').val('');
-                        $('#SearchUserIsseDescription').val('');
-
-                        allData = JSON.parse(data);
-                        displaySearchData(1, noRecord);
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
-                    },
-                    error: function() {
-                        alert("Error Fetching Data");
-                        $('#SearchTicketNumber').val('');
-                        $('#SearchServiceType').val('');
-                        $('#SearchServiceDetails').val('');
-                        $('#SearchCreatedBy').val('');
-                        $('#SearchDepartment').val('');
-                        $('#SearchTicketStatus').val('');
-                        $('#SearchTicketBranch').val('');
-                        $('#SearchTicketPriority').val('');
-                        $('#SearchTicketAssignedTo').val('');
-                        $('#SearchTecIssueDiscription').val('');
-                        $('#SearchTecIssueResolution').val('');
-                        $('#SearchResponsibleDept').val('');
-                        $('#SearchUserIsseDescription').val('');
-                    }
-                });
             });
 
             function displaySearchData(page, noRecord) {
@@ -1772,7 +1879,7 @@ if (isset($_SESSION['user'])) {
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
                         <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
                         ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assign</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
                         ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
                         ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
                         ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
@@ -1805,6 +1912,7 @@ if (isset($_SESSION['user'])) {
                         <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
                         <td hidden>${ticket.SERVICE_EVALUATION}</td>
                         <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                        <td hidden>${ticket.EVALUATION_FLAG}</td>
                     `);
 
                     // Append the new row to the table body
@@ -1846,6 +1954,140 @@ if (isset($_SESSION['user'])) {
                 console.log('from success case');
 
             }
+
+            $("#AddNewTicketForm").validate({ // Validate Function For Add New Service PopUp
+                rules: {
+                    service: "required", // Name field is required
+                    details: "required", // Name field is required
+                    description: "required", // Name field is required
+                    device: "required" // Name field is required
+                },
+                messages: {
+                    service: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Name</div>", // Name field is required
+                    details: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Details Name</div>", // Name field is required
+                    description: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Issue Description</div>", // Name field is required
+                    device: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Device</div>" // Name field is required
+                },
+                submitHandler: function(form) {
+                    // Form is valid, proceed with form submission
+                    form.submit();
+                }
+            });
+
+            $(document).on('click', '#addTicket', function(e) { // Add New Ticket To Tickets Table Function
+
+                e.preventDefault();
+
+                var allRecord = 0;
+                if ($("#AddNewTicketForm").valid()) {
+
+                    $.ajax({
+                        method: "POST",
+                        url: "function.php", // Function Page For All ajax Function
+                        data: {
+                            "name": $(this).closest('.content').find('#UserSessionID').val(),
+                            "service": $(this).closest('.content').find('.service').val(),
+                            "details": $(this).closest('.content').find('.details').val(),
+                            "device": $(this).closest('.content').find('.device').val(),
+                            "description": $(this).closest('.content').find('.description').val(),
+                            "action": "add"
+                        },
+                        success: function(response) {
+                            $('#AddNewTicketPopup').modal('hide');
+                            var regex = /[\[\]]/g;
+                            var cleanedText = response.replace(regex, '');
+                            Swal.fire("Ticket # " + cleanedText + " Created Successfully!!!");
+                            $('#service').val('');
+                            $('#details').val('');
+                            $('#device').val('');
+                            $('#description').val('');
+                            $('#addTicket').closest('.content').find('#UserSessionID').val();
+                            $('#addTicket').closest('.content').find('#UserSessionID').val($('#addTicket').closest('.content').find('#UserSessionName').val());
+                            $('.tickets').each(function() {
+                                var filter = $(this).data('filter');
+                                $.ajax({
+                                    type: 'POST',
+                                    url: 'function.php', // Replace with the URL of your PHP file to get the count
+                                    data: {
+                                        filter: filter,
+                                        USER_ID: USER_ID,
+                                        UserSessionID: UserSessionID
+                                    },
+                                    success: function(response) {
+                                        $('#count-' + filter).text('( ' + response + ' )');
+                                        allRecord += parseInt(response);
+                                        $('#allRows').text('( ' + allRecord + ' )');
+                                    },
+                                    error: function() {
+                                        $('#count-' + filter).text('Error fetching count');
+                                    }
+                                });
+                            });
+                            refreshData();
+                        },
+                        error: function(response) {
+                            $('#AddNewTicketPopup').modal('hide');
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: JSON.stringify(response),
+                            });
+                            $('#service').val('');
+                            $('#details').val('');
+                            $('#device').val('');
+                            $('#description').val('');
+                        }
+                    });
+                }
+            });
+
+            // Function to convert JSON to Excel and initiate download
+            function exportToExcel(jsonData) {
+                // Convert JSON to worksheet
+                const worksheet = XLSX.utils.json_to_sheet(jsonData);
+
+                // Create a new workbook
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+                // Generate Excel file
+                const excelBuffer = XLSX.write(workbook, {
+                    bookType: 'xlsx',
+                    type: 'array'
+                });
+
+                // Convert to binary string
+                const data = new Blob([excelBuffer], {
+                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                });
+
+                // Create download link
+                const url = window.URL.createObjectURL(data);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'data.xlsx');
+                document.body.appendChild(link);
+
+                // Initiate download
+                link.click();
+
+                // Cleanup
+                setTimeout(function() {
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(link);
+                }, 0);
+            }
+
+            $(document).on('click', '#toExcel', function(e) { // Update Ticket Status To Confirme Ticket Function
+
+                e.preventDefault();
+
+                exportToExcel(allData);
+
+                // var table2excel = new Table2Excel();
+                // table2excel.export(document.querySelectorAll("table"));
+            });
+
 
             ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
 
