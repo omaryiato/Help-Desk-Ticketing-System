@@ -41,7 +41,6 @@
                             <li><a href="teams.php" aria-label="Go To The User Orders"><i class="fa-solid fa-users pe-2"></i>Team Member</a></li>
                             <li><a href="service.php" aria-label="Logout From User Account"><i class="fa-solid fa-headphones pe-2"></i>Services</a></li>
                             <li><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</a></li>
-                            <input type="hidden" id="UserSessionName">
                         <?php
                         }
                         ?>

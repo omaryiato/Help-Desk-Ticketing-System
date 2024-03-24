@@ -2,13 +2,12 @@
 $startTime = microtime(true);
 /*
     ================================================
-    == Manage Service Page
-    == You Can Edit | Delete | Add |  Service & Service DEtails From Here 
+    == Home Page
+    == You Can Access to the other pages from this page  
     ================================================
 */
 
 ob_start(); // Output Buffering Start
-
 
 session_start();
 
@@ -39,8 +38,7 @@ if (isset($_SESSION['user'])) {
 
     $pageTitle = 'Home Page';
 
-    include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
-
+    include 'init.php';  // This File Contain ( Header, Footer, Navbar, JS File,  Style File ) File
 
     $userSession = $_SESSION['user'];
     // Query to fetch users Information based on User Name
@@ -50,11 +48,13 @@ if (isset($_SESSION['user'])) {
     $row        = oci_fetch_assoc($info);
     $UserSessionID = $row['USER_ID'];
 
+    // Query to fetch users role based on User ID
     $permission = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $row['USER_ID'];
     $userPermission = oci_parse($conn, $permission);
     oci_execute($userPermission);
     $roles = oci_fetch_assoc($userPermission); // User Roles
 
+    /*******  This Condition to print DB name to know which one Opened  ***************/
     if ($sid == 'ARCHDEV') {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
@@ -94,7 +94,7 @@ if (isset($_SESSION['user'])) {
                                 </div>
                             </div>
                             <?php
-                            if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) {
+                            if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) { /* GM & Supervisor */
                             ?>
                                 <div class="col-sm-3 mb-3 mx-3">
                                     <div class="card" style="width: 15rem; height: 15rem;">
@@ -109,7 +109,7 @@ if (isset($_SESSION['user'])) {
                             }
                             ?>
                             <?php
-                            if ($roles['ROLE_ID'] == 1) {
+                            if ($roles['ROLE_ID'] == 1) { /* GM */
                             ?>
                                 <div class="col-sm-3 mb-3 mx-3">
                                     <div class="card" style="width: 15rem; height: 15rem;">
@@ -134,7 +134,7 @@ if (isset($_SESSION['user'])) {
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>
                                             <p class="card-text mt-2">Confirm All Solved Tickets Thats Not Confirmeds.</p>
-                                            <button class="mt-auto"><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></li>
+                                            <button class="mt-auto"><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirmhome" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></li>
                                         </div>
                                     </div>
                                 </div>
@@ -168,7 +168,7 @@ if (isset($_SESSION['user'])) {
                                                 <!-- Start Name SelectBox -->
                                                 <div class='col-sm-10'>
                                                     <label class="" for="UserSessionID">User Name</label>
-                                                    <input type="text" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
+                                                    <input type="text" class="form-control" id="UserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
                                                 </div>
                                                 <!-- End Name  SelectBox -->
                                                 <!-- Start Service Type Field Start-->

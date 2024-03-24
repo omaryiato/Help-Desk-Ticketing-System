@@ -60,12 +60,6 @@ if (isset($_SESSION['user'])) {
 
     $USER_ID = 'USER_ID';
 
-    // Insert UserID Into global_temp_table Table After Returned From User Table
-    $ticketTransation = "INSERT INTO ticketing.global_temp_table (NAME, VALUE)  
-    VALUES ('$USER_ID', $userNamePreResault)";
-    $insertValue = oci_parse($conn, $ticketTransation);
-    $run = oci_execute($insertValue);
-
     if ($sid == 'ARCHDEV') {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
@@ -77,7 +71,7 @@ if (isset($_SESSION['user'])) {
 ?>
 
     <!-- Main Table Start -->
-    <input type="hidden" id="UserSessionID" value="<?php echo $userNamePreResault ?>" disabled readonly>
+    <input type="hidden" id="TicketTransactionSessionID" value="<?php echo $userNamePreResault ?>" disabled readonly>
 
     <main class="content px-3 py-2">
         <div class="container-fluid">
@@ -268,7 +262,7 @@ if (isset($_SESSION['user'])) {
                 <div class="contents">
                     <span style="padding: 10px;"> Ticket No#:</span>
                     <span id="returnTicketNumber"></span>
-                    <input type="hidden" id="UserSessionID" value="<?php echo  $userNamePreResault ?>" disabled readonly>
+                    <input type="hidden" id="TicketTransactionSessionID" value="<?php echo  $userNamePreResault ?>" disabled readonly>
                     <input type="hidden" id="UserRole" value="<?php echo  $roles['ROLE_ID'] ?>" disabled readonly>
                     <ul class="menu" id="actionTicketTransactionList">
 
@@ -746,9 +740,8 @@ if (isset($_SESSION['user'])) {
                                             <div class="row">
                                                 <!-- Start Ticket Branch Field -->
                                                 <div class='col-sm-10'>
-                                                    <label class="" for="UserSessionID">User Name</label>
-                                                    <input type="text" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
-                                                    <input type="hidden" class="form-control" id="UserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
+                                                    <label class="" for="TicketTransactionSessionID">User Name</label>
+                                                    <input type="text" class="form-control" id="AddUserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
                                                 </div>
                                                 <!-- End Name  SelectBox -->
                                                 <!-- Start Service Type Field Start-->
@@ -934,7 +927,26 @@ if (isset($_SESSION['user'])) {
                                         <!-- Start Ticket Assigned To Field -->
                                         <div class='col-sm-4 '>
                                             <label class="" for="SearchTicketAssignedTo">Assigned To</label>
-                                            <input type="text" class="form-control" id="SearchTicketAssignedTo" aria-label="SearchTicketAssignedTo">
+                                            <select class="form-select" id="SearchTicketAssignedTo" aria-label="SearchTicketAssignedTo">
+                                                <option value="">Choes Service</option>
+                                                <?php
+                                                // // Query to retrieve a list of tables
+                                                $department = "SELECT DISTINCT
+                                                                TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID,
+                                                                TICKETING.xxajmi_ticket_user_info.USERNAME
+                                                                FROM TICKETING.TEAM_MEMBERS
+                                                                JOIN 
+                                                                TICKETING.xxajmi_ticket_user_info
+                                                                ON
+                                                                TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID";
+                                                $dep = oci_parse($conn, $department);
+                                                // Execute the query
+                                                oci_execute($dep);
+                                                while ($dept = oci_fetch_assoc($dep)) {
+                                                    echo "<option value='" . $dept['USERNAME'] . "'>" . $dept['USERNAME'] . "</option>";
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                         <!-- End Ticket Assigned To Field -->
                                         <!-- Start Ticket Tec Issue Discription Field -->
@@ -1132,10 +1144,44 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="container  mt-1" id="hideTechnician">
 
-                                </div>
                                 <div class="container  mt-1 " id="hideEvaluation">
+                                    <h3 class="text-start mt-2 mb-2 text-dark">Technician Information</h3>
+                                    <div class="row " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianNameDetails">Name</label>
+                                            <input type="text" class="form-control" id="TechnicianNameDetails" aria-label="City" title="" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianDepartmentDetails">Department</label>
+                                            <input type="text" class="form-control" id="TechnicianDepartmentDetails" aria-label="State" title="" disabled readonly>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianIssueDiscriptionDetails">Issue Discription</label>
+                                            <textarea type="text" class="form-control" id="TechnicianIssueDiscriptionDetails" title="" style="overflow: scroll; "></textarea>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="" for="TechnicianIssueResolutionDetails">Issue Resolution</label>
+                                            <textarea type="text" class="form-control" id="TechnicianIssueResolutionDetails" title="" style="overflow: scroll; "></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container  mt-1" id="hideTechnician">
+                                    <h3 class="text-start mt-3 mb-4 text-dark">Evaluation</h3>
+                                    <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class="col-sm-4">
+                                            <label class="" for="ResponsTimeDetails">Respons Time</label><br>
+                                            <span style="text-align: center;" id="ResponsTimeDetails" aria-label="City" title="" disabled readonly></span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="TechnicianAttitudeDetails">Technician Attitude</label><br>
+                                            <span style="text-align: center;" id="TechnicianAttitudeDetails" aria-label="State" title="" disabled readonly></span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <label class="" for="ServiceEvaluationInGeneralDetails">Service Evaluation In General</label>
+                                            <input type="text" class="form-control" id="ServiceEvaluationInGeneralDetails" aria-label="State" title="" disabled readonly>
+                                        </div>
+                                    </div>
 
                                 </div>
                                 <div class=" col-sm-10 mx-1 ">
@@ -1300,7 +1346,7 @@ if (isset($_SESSION['user'])) {
     <script>
         $(function() {
 
-            var UserSessionID = $('#UserSessionID').val(); // User Who Logged In To The System
+            var TicketTransactionSessionID = $('#TicketTransactionSessionID').val(); // User Who Logged In To The System
             var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
             var noRecord = $('#recoredPerPage').val();
             var order = '';
@@ -1309,9 +1355,9 @@ if (isset($_SESSION['user'])) {
             var filter = ' ';
             var allData = [];
 
-            getAllData(UserSessionID, order, sortOrder);
+            getAllData(TicketTransactionSessionID, order, sortOrder);
 
-            function getAllData(UserSessionID, order, sortOrder) {
+            function getAllData(TicketTransactionSessionID, order, sortOrder) {
                 $('.tran').hide(100);
                 $('#mainTableTicketTransation').empty();
                 $('#mainTableTicketTransation').append('Loading....');
@@ -1321,12 +1367,12 @@ if (isset($_SESSION['user'])) {
                     type: 'POST',
                     url: 'function.php',
                     data: {
-                        userNamePreResault: 'USER_ID',
-                        userIDPreResault: UserSessionID,
-                        order: order,
-                        sortOrder: sortOrder,
-                        Filter: 10,
-                        action: 'TicketTransactionFilter'
+                        "userNamePreResault": 'USER_ID',
+                        "TicketTransactionSessionID": TicketTransactionSessionID,
+                        "order": order,
+                        "sortOrder": sortOrder,
+                        "Filter": 10,
+                        "action": 'TicketTransactionFilter'
                     },
                     success: function(data) {
 
@@ -1338,16 +1384,18 @@ if (isset($_SESSION['user'])) {
 
                     },
                     error: function(xhr, status, error) {
-                        console.error('AJAX Error:', status, error);
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "There's Somthing Wrong !!",
+                        });
+                        console.error(xhr.responseText);
                     }
                 });
             }
 
             function refreshData() {
-                getAllData(UserSessionID, order, sortOrder);
+                getAllData(TicketTransactionSessionID, order, sortOrder);
             }
 
             function updateCounts() {
@@ -1360,45 +1408,29 @@ if (isset($_SESSION['user'])) {
                         type: 'POST',
                         url: 'function.php', // Replace with the URL of your PHP file to get the count
                         data: {
-                            filter: filter,
-                            USER_ID: USER_ID,
-                            UserSessionID: UserSessionID
+                            "filter": filter,
+                            "USER_ID": USER_ID,
+                            "TicketTransactionSessionID": TicketTransactionSessionID,
+                            "action": 'getFilterdData'
                         },
                         success: function(response) {
                             $('#count-' + filter).text('( ' + response + ' )');
                             allRecord += parseInt(response);
                             $('#allRows').text('( ' + allRecord + ' )');
                         },
-                        error: function() {
-                            $('#count-' + filter).text('Error fetching count');
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "There's Somthing Wrong !!",
+                            });
+                            console.error(xhr.responseText);
                         }
                     });
                 });
             }
 
             updateCounts();
-
-            // var refreshMode = $('#refreshMode').val();
-            // var refreshTableData;
-            // var refreshCountSection;
-
-            // $('#refreshMode').on('change', function() { // Retrieve Team Member Based ON Team Choosen Function
-            //     refreshMode = $(this).val();
-
-            //     // If refresh mode is manually, clear the interval
-            //     if (refreshMode === 'manually') {
-            //         clearInterval(refreshTableData);
-            //         clearInterval(refreshCountSection);
-            //     } else {
-            //         refreshTableData = setInterval(refreshData, 180000);
-            //         refreshCountSection = setInterval(updateCounts, 180000);
-            //     }
-            // });
-
-            // if (refreshMode === 'auto') {
-            //     refreshTableData = setInterval(refreshData, 180000);
-            //     refreshCountSection = setInterval(updateCounts, 180000);
-            // }
 
 
             var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
@@ -1550,7 +1582,7 @@ if (isset($_SESSION['user'])) {
                     url: 'function.php',
                     data: {
                         userNamePreResault: 'USER_ID',
-                        userIDPreResault: UserSessionID,
+                        TicketTransactionSessionID: TicketTransactionSessionID,
                         Filter: filter,
                         order: order,
                         sortOrder: sortOrder,
@@ -1564,11 +1596,13 @@ if (isset($_SESSION['user'])) {
                         $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
 
                     },
-                    error: function(data) {
-                        console.log('from error case' + data);
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "There's Somthing Wrong !!",
+                        });
+                        console.error(xhr.responseText);
                     }
                 });
             });
@@ -1798,12 +1832,12 @@ if (isset($_SESSION['user'])) {
                         url: 'function.php',
                         data: {
                             // Include search parameters along with page number
-                            searchParams: searchParams,
-                            UserSessionID: UserSessionID,
-                            USER_ID: 'USER_ID',
-                            order: order,
-                            sortOrder: sortOrder,
-                            action: 'search'
+                            "searchParams": searchParams,
+                            "TicketTransactionSessionID": TicketTransactionSessionID,
+                            "USER_ID": 'USER_ID',
+                            "order": order,
+                            "sortOrder": sortOrder,
+                            "action": 'search'
                         },
                         success: function(data) {
                             $('#SearchTicketNumber').val('');
@@ -1827,8 +1861,7 @@ if (isset($_SESSION['user'])) {
                             $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
 
                         },
-                        error: function() {
-                            alert("Error Fetching Data");
+                        error: function(xhr, status, error) {
                             $('#SearchTicketNumber').val('');
                             $('#SearchServiceType').val('');
                             $('#SearchServiceDetails').val('');
@@ -1842,6 +1875,12 @@ if (isset($_SESSION['user'])) {
                             $('#SearchTecIssueResolution').val('');
                             $('#SearchResponsibleDept').val('');
                             $('#SearchUserIsseDescription').val('');
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "There's Somthing Wrong !!",
+                            });
+                            console.error(xhr.responseText);
                         }
                     });
                 }
@@ -1985,7 +2024,7 @@ if (isset($_SESSION['user'])) {
                         method: "POST",
                         url: "function.php", // Function Page For All ajax Function
                         data: {
-                            "name": $(this).closest('.content').find('#UserSessionID').val(),
+                            "name": $(this).closest('.content').find('#AddUserSessionName').val(),
                             "service": $(this).closest('.content').find('.service').val(),
                             "details": $(this).closest('.content').find('.details').val(),
                             "device": $(this).closest('.content').find('.device').val(),
@@ -2001,8 +2040,8 @@ if (isset($_SESSION['user'])) {
                             $('#details').val('');
                             $('#device').val('');
                             $('#description').val('');
-                            $('#addTicket').closest('.content').find('#UserSessionID').val();
-                            $('#addTicket').closest('.content').find('#UserSessionID').val($('#addTicket').closest('.content').find('#UserSessionName').val());
+                            $('#addTicket').closest('.content').find('#AddUserSessionName').val();
+                            $('#addTicket').closest('.content').find('#AddUserSessionName').val($('#addTicket').closest('.content').find('#AddUserSessionName').val());
                             $('.tickets').each(function() {
                                 var filter = $(this).data('filter');
                                 $.ajax({
@@ -2011,40 +2050,48 @@ if (isset($_SESSION['user'])) {
                                     data: {
                                         filter: filter,
                                         USER_ID: USER_ID,
-                                        UserSessionID: UserSessionID
+                                        TicketTransactionSessionID: TicketTransactionSessionID
                                     },
                                     success: function(response) {
                                         $('#count-' + filter).text('( ' + response + ' )');
                                         allRecord += parseInt(response);
                                         $('#allRows').text('( ' + allRecord + ' )');
                                     },
-                                    error: function() {
-                                        $('#count-' + filter).text('Error fetching count');
+                                    error: function(xhr, status, error) {
+                                        Swal.fire({
+                                            icon: "error",
+                                            title: "Oops...",
+                                            text: "There's Somthing Wrong !!",
+                                        });
+                                        console.error(xhr.responseText);
                                     }
                                 });
                             });
                             refreshData();
                         },
-                        error: function(response) {
+                        error: function(xhr, status, error) {
                             $('#AddNewTicketPopup').modal('hide');
-                            Swal.fire({
-                                icon: "error",
-                                title: "Oops...",
-                                text: JSON.stringify(response),
-                            });
                             $('#service').val('');
                             $('#details').val('');
                             $('#device').val('');
                             $('#description').val('');
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "There's Somthing Wrong !!",
+                            });
+                            console.error(xhr.responseText);
                         }
                     });
                 }
             });
 
-            // Function to convert JSON to Excel and initiate download
-            function exportToExcel(jsonData) {
+            $(document).on('click', '#toExcel', function(e) { // Update Ticket Status To Confirme Ticket Function
+
+                e.preventDefault();
+
                 // Convert JSON to worksheet
-                const worksheet = XLSX.utils.json_to_sheet(jsonData);
+                const worksheet = XLSX.utils.json_to_sheet(allData);
 
                 // Create a new workbook
                 const workbook = XLSX.utils.book_new();
@@ -2065,7 +2112,7 @@ if (isset($_SESSION['user'])) {
                 const url = window.URL.createObjectURL(data);
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', 'data.xlsx');
+                link.setAttribute('download', 'e-Ticketing System.xlsx');
                 document.body.appendChild(link);
 
                 // Initiate download
@@ -2076,18 +2123,10 @@ if (isset($_SESSION['user'])) {
                     window.URL.revokeObjectURL(url);
                     document.body.removeChild(link);
                 }, 0);
-            }
-
-            $(document).on('click', '#toExcel', function(e) { // Update Ticket Status To Confirme Ticket Function
-
-                e.preventDefault();
-
-                exportToExcel(allData);
 
                 // var table2excel = new Table2Excel();
                 // table2excel.export(document.querySelectorAll("table"));
             });
-
 
             ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
 
