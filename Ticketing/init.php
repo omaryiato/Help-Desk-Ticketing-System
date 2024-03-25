@@ -19,13 +19,3 @@ if (!isset($no_sidebar)) {
     include $inc . 'sidebar.php';
 }
 
-function getTitle()
-{
-    global $pageTitle;
-
-    if (isset($pageTitle)) {
-        echo $pageTitle;
-    } else {
-        echo 'Ticketing System';
-    }
-}

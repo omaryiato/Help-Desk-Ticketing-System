@@ -83,7 +83,7 @@ if (isset($_POST['action'])) {
                         TTOTAL_TIME, 
                         TOTAL_TIME,
                         TICKET_STATUS_MEANING, 
-                        USER_EN_NAME, 
+                        USER_EN_NAME,
                         EMAIL,
                         EMP_DEPARTMENT,
                         RESPONSE_TIME,
@@ -97,7 +97,7 @@ if (isset($_POST['action'])) {
                         ORDER BY $order $sortOrder ";
                 $all = oci_parse($conn, $allTicket);
                 // Execute the query
-                oci_execute($all);
+                $resault = oci_execute($all);
 
                 $data = array();
                 while ($row = oci_fetch_assoc($all)) {
@@ -132,13 +132,19 @@ if (isset($_POST['action'])) {
                         'EVALUATION_FLAG'               => $row['EVALUATION_FLAG']
                     );
                 }
-                echo json_encode($data);
+
+
+                if ($resault) {
+                    echo json_encode($data);
+                } else {
+                    http_response_code(500); // Internal Server Error
+                    $errorMessage = oci_error($all)['message'];
+                    echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                    // Optionally, you can log the error message for debugging purposes
+                    error_log("Error occurred: $errorMessage");
+                }
             } else {
-                http_response_code(500); // Internal Server Error
-                $errorMessage = oci_error($insertValue)['message'];
-                echo json_encode(['status' => 'error', 'message' => $errorMessage]);
-                // Optionally, you can log the error message for debugging purposes
-                error_log("Error occurred: $errorMessage");
+                echo 'empty';
             }
         } catch (Exception $e) {
             print_r($e->getMessage());
@@ -253,7 +259,7 @@ if (isset($_POST['action'])) {
     } elseif ($action == 'assignTicketChange') {                // Change Assign Team Ticket To The New Team Member Function
 
         $ticketNumber           = $_POST['ticketNumber'];           // Ticket Number
-        $UserSessionID          = $_POST['UserSessionID'];          // User Who Assign The Ticket 
+        $TicketTransactionSessionID          = $_POST['TicketTransactionSessionID'];          // User Who Assign The Ticket 
 
         $assignTeam             = $_POST['assignTeamChange'];       // Team Assigned Number
         $memberAssigned         = json_decode($_POST['memberAssignedChange'], true); // Member Team Assigned
@@ -277,7 +283,7 @@ if (isset($_POST['action'])) {
             $statusTicket = "UPDATE TICKETING.TICKETS SET 
                             TICKET_PERIORITY = '" . $ticketPeriority . "', 
                             LAST_UPDATE_DATE = CURRENT_TIMESTAMP, 
-                            LAST_UPDATED_BY = " . $UserSessionID . ", 
+                            LAST_UPDATED_BY = " . $TicketTransactionSessionID . ", 
                             TICKET_WEIGHT = '" . $ticketWeight . "'
                             WHERE TICKET_NO = " . $ticketNumber;
 
@@ -293,10 +299,9 @@ if (isset($_POST['action'])) {
                 foreach ($memberAssigned as $row) {
                     $userID         = $row['userID'];
                     $userName       = $row['userName'];
-                    $name           = $row['name'];
                     $description    = $row['description'];
                     $teamLeader     = $row['teamLeader'];
-                    $UN = "Changed To: " . $name;
+                    $UN = "Changed To: " . $userName;
 
                     $lastSequanceNo = "SELECT MAX(SEQUENCE_NUMBER) FROM  TICKETING.TICKET_ACTION_HISTORY
                                     WHERE TICKET_NO = " . $ticketNumber;
@@ -311,8 +316,8 @@ if (isset($_POST['action'])) {
                                                         ACTION_DATE, COMMENTS, CREATED_BY, CREATION_DATE,
                                                         LAST_UPDATED_BY, LAST_UPDATE_DATE) 
                                                 VALUES ($ticketNumber, $SeqNo, $statusUpdate, 
-                                                        CURRENT_TIMESTAMP, '$UN' , $UserSessionID, CURRENT_TIMESTAMP,
-                                                        $UserSessionID, CURRENT_TIMESTAMP)";
+                                                        CURRENT_TIMESTAMP, '$UN' , $TicketTransactionSessionID, CURRENT_TIMESTAMP,
+                                                        $TicketTransactionSessionID, CURRENT_TIMESTAMP)";
                     $newHistory = oci_parse($conn, $addTicketHistory);
                     $resault = oci_execute($newHistory);
 
@@ -322,7 +327,7 @@ if (isset($_POST['action'])) {
                                                 (TEAM_NO, TICKET_NO, TEAM_LEADER, TEAM_MEMBER, DESCRIPTION, 
                                                 CREATED_BY, CREATION_DATE) 
                                         VALUES ($assignTeam, $ticketNumber, '$teamLeader', $userID,
-                                                '$description', $UserSessionID, CURRENT_TIMESTAMP)";
+                                                '$description', $TicketTransactionSessionID, CURRENT_TIMESTAMP)";
                         $newTeamMembreAssigned = oci_parse($conn, $addTicketTeamMember);
                         $run = oci_execute($newTeamMembreAssigned);
 
@@ -330,14 +335,26 @@ if (isset($_POST['action'])) {
                             http_response_code(200);
                             echo json_encode(['status' => 'success', 'message' => 'Tables updated successfully']);
                         } else {
-                            http_response_code(404); // Internal Server Error
-                            echo json_encode(['status' => 'error', 'message' => oci_error($newTeamMembreAssigned)['message']]);
+                            http_response_code(500); // Internal Server Error
+                            $errorMessage = oci_error($newTeamMembreAssigned)['message'];
+                            echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                            // Optionally, you can log the error message for debugging purposes
+                            error_log("Error occurred: $errorMessage");
                         }
+                    } else {
+                        http_response_code(500); // Internal Server Error
+                        $errorMessage = oci_error($newHistory)['message'];
+                        echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                        // Optionally, you can log the error message for debugging purposes
+                        error_log("Error occurred: $errorMessage");
                     }
                 }
             } else {
-                http_response_code(400); // Internal Server Error
-                echo json_encode(['status' => 'error', 'message' => oci_error($status)['message']]);
+                http_response_code(500); // Internal Server Error
+                $errorMessage = oci_error($status)['message'];
+                echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                // Optionally, you can log the error message for debugging purposes
+                error_log("Error occurred: $errorMessage");
             }
         } catch (Exception $e) {
             print_r($e->getMessage());
@@ -1391,6 +1408,120 @@ if (isset($_POST['action'])) {
             print_r($e->getMessage());
             $conn::rollback();
         }
+    } elseif ($action == 'getTeamMemebersAssigned') {             // Choose Team Member Based On Team Number In Change Page
+        $ticketNumberforAssignedTeam = $_POST['teamMembersAssigned'];  // Team Number
+
+        try {
+
+            // Query to fetch Team Member based on the selected Team Number
+            $teamMembersAssigned = "SELECT 
+                                        TICKETING.TICKET_TEAM_MEMBERS.TEAM_NO,
+                                        TICKETING.TICKET_TEAM_MEMBERS.TEAM_LEADER,
+                                        TICKETING.TICKET_TEAM_MEMBERS.team_member,
+                                        TICKETING.TICKET_TEAM_MEMBERS.DESCRIPTION,
+                                        TICKETING.xxajmi_ticket_user_info.USERNAME
+                                    FROM TICKETING.TICKET_TEAM_MEMBERS
+                                    JOIN
+                                        TICKETING.xxajmi_ticket_user_info
+                                    ON
+                                        TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.TICKET_TEAM_MEMBERS.team_member
+                                    WHERE
+                                        TICKETING.TICKET_TEAM_MEMBERS.TICKET_NO =" . $ticketNumberforAssignedTeam;
+
+            $teamAssigned = oci_parse($conn, $teamMembersAssigned);
+
+            $runteam = oci_execute($teamAssigned);
+            $teamAssignedTable = array();
+            while ($row = oci_fetch_assoc($teamAssigned)) {
+                $teamAssignedTable[] = array(
+                    'ID'            => $row['TEAM_MEMBER'],
+                    'name'          => $row['USERNAME'],
+                    'disc'          => $row['DESCRIPTION'],
+                    'teamLeader'    => $row['TEAM_LEADER'],
+                    'team'          => $row['TEAM_NO']
+                );
+            }
+
+            if ($runteam) {
+                $returnTeamNo = "SELECT TEAM_NO FROM TICKETING.TICKET_TEAM_MEMBERS WHERE TICKET_NO = " . $ticketNumberforAssignedTeam;
+                $returnTeamNoS = oci_parse($conn, $returnTeamNo);
+
+                oci_execute($returnTeamNoS);
+                $te = oci_fetch_assoc($returnTeamNoS);
+                $team_no = $te['TEAM_NO'];
+
+                $teamMembersTable = "SELECT 
+                                    TICKETING.TEAM_MEMBERS.ACTIVE, 
+                                    TICKETING.xxajmi_ticket_user_info.USERNAME, 
+                                    TICKETING.xxajmi_ticket_user_info.USER_ID
+                                FROM 
+                                    TICKETING.TEAM_MEMBERS 
+                                JOIN 
+                                    TICKETING.xxajmi_ticket_user_info
+                                ON 
+                                    TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
+                                WHERE TEAM_NO = " . $team_no . " AND 
+                                USER_ID NOT IN (
+                                    SELECT team_member
+                                    FROM TICKETING.TICKET_TEAM_MEMBERS
+                                    WHERE TICKET_NO = " . $ticketNumberforAssignedTeam . ")";
+                $teamTable = oci_parse($conn, $teamMembersTable);
+
+                $runassignteam = oci_execute($teamTable);
+                $teamTables = array();
+                while ($row = oci_fetch_assoc($teamTable)) {
+                    $teamTables[] = array(
+                        'ID'            => $row['USER_ID'],
+                        'name'          => $row['USERNAME'],
+                        'active'        => $row['ACTIVE']
+                    );
+                }
+
+                if ($runassignteam) {
+                    $returnTeamOption = "SELECT TEAM_NO, TEAM_NAME FROM TICKETING.TEAMS WHERE TEAM_NO = " . $team_no;
+                    $returnTeamOptions = oci_parse($conn, $returnTeamOption);
+                    $runallteam = oci_execute($returnTeamOptions);
+                    $teamOption = array();
+                    while ($row = oci_fetch_assoc($returnTeamOptions)) {
+                        $teamOption[] = array( // Append to $teamOption array
+                            'TEAM_NO'   => $row['TEAM_NO'],
+                            'TEAM_NAME' => $row['TEAM_NAME']
+                        );
+                    }
+                    if ($runallteam) {
+                        // Combine both arrays into a single array
+                        $responseData = array(
+                            'teamAssigned'  => $teamAssignedTable,
+                            'teamTables'    => $teamTables,
+                            'teamOption'    => $teamOption
+                        );
+
+                        echo json_encode($responseData);
+                    } else {
+                        http_response_code(500); // Internal Server Error
+                        $errorMessage = oci_error($returnTeamOptions)['message'];
+                        echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                        // Optionally, you can log the error message for debugging purposes
+                        error_log("Error occurred: $errorMessage");
+                    }
+                } else {
+                    http_response_code(500); // Internal Server Error
+                    $errorMessage = oci_error($teamTable)['message'];
+                    echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                    // Optionally, you can log the error message for debugging purposes
+                    error_log("Error occurred: $errorMessage");
+                }
+            } else {
+                http_response_code(500); // Internal Server Error
+                $errorMessage = oci_error($teamAssigned)['message'];
+                echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+                // Optionally, you can log the error message for debugging purposes
+                error_log("Error occurred: $errorMessage");
+            }
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+            $conn::rollback();
+        }
     }
 }
 
@@ -1402,98 +1533,6 @@ if (isset($_POST['action'])) {
 
 ///////////////////////////////////////////***************** Ticket Transation Page Request Functions Start  *************************/////////////////////////////////////////
 
-
-
-
-if (isset($_POST['teamMembersAssigned'])) {             // Choose Team Member Based On Team Number In Change Page
-    $ticketNumberforAssignedTeam = $_POST['teamMembersAssigned'];  // Team Number
-
-    try {
-
-        // Query to fetch Team Member based on the selected Team Number
-        $teamMembersAssigned = "SELECT TICKETING.TICKET_TEAM_MEMBERS.TEAM_NO,
-                                TICKETING.TICKET_TEAM_MEMBERS.TEAM_LEADER,
-                                TICKETING.TICKET_TEAM_MEMBERS.team_member,
-                                TICKETING.TICKET_TEAM_MEMBERS.DESCRIPTION,
-                                TICKETING.xxajmi_ticket_user_info.USERNAME
-                            FROM TICKETING.TICKET_TEAM_MEMBERS
-                            JOIN
-                                TICKETING.xxajmi_ticket_user_info
-                            ON
-                                TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.TICKET_TEAM_MEMBERS.team_member
-                            WHERE
-                                TICKETING.TICKET_TEAM_MEMBERS.TICKET_NO =" . $ticketNumberforAssignedTeam;
-
-        $teamAssigned = oci_parse($conn, $teamMembersAssigned);
-
-        oci_execute($teamAssigned);
-        $teamAssignedTable = array();
-        while ($row = oci_fetch_assoc($teamAssigned)) {
-            $teamAssignedTable[] = array(
-                'ID'            => $row['TEAM_MEMBER'],
-                'name'          => $row['USERNAME'],
-                'disc'          => $row['DESCRIPTION'],
-                'teamLeader'    => $row['TEAM_LEADER'],
-                'team'          => $row['TEAM_NO']
-            );
-        }
-
-        $returnTeamNo = "SELECT TEAM_NO FROM TICKETING.TICKET_TEAM_MEMBERS WHERE TICKET_NO = " . $ticketNumberforAssignedTeam;
-        $returnTeamNoS = oci_parse($conn, $returnTeamNo);
-
-        oci_execute($returnTeamNoS);
-        $te = oci_fetch_assoc($returnTeamNoS);
-        $team_no = $te['TEAM_NO'];
-
-        $teamMembersTable = "SELECT 
-                        TICKETING.TEAM_MEMBERS.ACTIVE, TICKETING.xxajmi_ticket_user_info.USERNAME, USER_ID
-                    FROM 
-                        TICKETING.TEAM_MEMBERS 
-                    JOIN 
-                        TICKETING.xxajmi_ticket_user_info
-                    ON 
-                        TICKETING.xxajmi_ticket_user_info.USER_ID = TICKETING.TEAM_MEMBERS.TEAM_MEMBER_USER_ID
-                    WHERE TEAM_NO = " . $team_no . " AND 
-                    USER_ID NOT IN (
-                        SELECT team_member
-                        FROM TICKETING.TICKET_TEAM_MEMBERS
-                        WHERE TICKET_NO = " . $ticketNumberforAssignedTeam . ")";
-        $teamTable = oci_parse($conn, $teamMembersTable);
-
-        oci_execute($teamTable);
-        $teamTables = array();
-        while ($row = oci_fetch_assoc($teamTable)) {
-            $teamTables[] = array(
-                'ID'            => $row['USER_ID'],
-                'name'          => $row['USERNAME'],
-                'active'        => $row['ACTIVE']
-            );
-        }
-
-        $returnTeamOption = "SELECT TEAM_NO, TEAM_NAME FROM TICKETING.TEAMS WHERE TEAM_NO = " . $team_no;
-        $returnTeamOptions = oci_parse($conn, $returnTeamOption);
-        oci_execute($returnTeamOptions);
-        $teamOption = array();
-        while ($row = oci_fetch_assoc($returnTeamOptions)) {
-            $teamOption[] = array( // Append to $teamOption array
-                'TEAM_NO'   => $row['TEAM_NO'],
-                'TEAM_NAME' => $row['TEAM_NAME']
-            );
-        }
-
-        // Combine both arrays into a single array
-        $responseData = array(
-            'teamAssigned'  => $teamAssignedTable,
-            'teamTables'    => $teamTables,
-            'teamOption'    => $teamOption
-        );
-
-        echo json_encode($responseData);
-    } catch (Exception $e) {
-        print_r($e->getMessage());
-        $conn::rollback();
-    }
-}
 
 
 

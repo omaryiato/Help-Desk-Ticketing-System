@@ -21,4 +21,3 @@ if (!$conn) {
     trigger_error(htmlentities($e['message'], ENT_QUOTES), E_USER_ERROR);
     echo "Connectoin to Oracle Database Failed!<br>";
 }
-

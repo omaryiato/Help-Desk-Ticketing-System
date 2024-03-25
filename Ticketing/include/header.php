@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="<?php echo $css; ?>bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo $css; ?>all.min.css">
     <link rel="stylesheet" href="<?php echo $css; ?>style.css">
-    <title><?php getTitle() ?></title>
+    <title>e-Ticketing System</title>
 
 </head>
 

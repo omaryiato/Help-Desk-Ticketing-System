@@ -1267,17 +1267,23 @@ $(function () {
                 type: 'POST',
                 url: 'function.php', // Replace with the URL of your PHP file to get the count
                 data: {
-                    filter: filter,
-                    USER_ID: USER_ID,
-                    TicketTransactionSessionID: TicketTransactionSessionID
+                    "filter": filter,
+                    "USER_ID": USER_ID,
+                    "TicketTransactionSessionID": TicketTransactionSessionID,
+                    "action": 'getFilterdData'
                 },
                 success: function(response) {
                     $('#count-' + filter).text('( ' + response + ' )');
                     allRecord += parseInt(response);
                     $('#allRows').text('( ' + allRecord + ' )');
                 },
-                error: function() {
-                    $('#count-' + filter).text('Error fetching count');
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's Somthing Wrong !!",
+                    });
+                    console.error(xhr.responseText);
                 }
             });
         });
@@ -1933,6 +1939,23 @@ $(function () {
 
         $('#memberAssignedChange').text("Loading...");
         $('#teamMemberChange').text("Loading...");
+
+        $('#ticketNumberChange').val(ticketNumber);
+        $('#RequestedByChange').val(requestedBy);
+        $('#requestTypeChange').val(serviceTypeName);
+        $('#serviceForChange').val(serviceDetailsName);
+        $('#ticketWeightChange').empty();
+        $('#assignTeamChange').empty();
+        $('#ticketPeriorityChange').empty();
+
+        if (periorityNo == " " || periorityNName == " ") {
+            $('#ticketPeriorityChange').html(`"<option value='0' selected>Selecte Periority ....</option>"`);
+        } else{
+            $('#ticketPeriorityChange').html(`"<option value='${periorityNo}' selected>` + periorityNName + `</option>"`);
+        }
+        
+        $('#teamMemberChange').text("Loading...");
+        $('#waitingMessageForTeamAssignMemberChange').empty().removeClass('mt-5');
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
@@ -2038,6 +2061,31 @@ $(function () {
                     $('#assignTeamChange').append(optionElement);
                 });
 
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php', // Function Page For All ajax Function
+                    data: { 
+                        "selectDetailsTeamMember": serviceDetailsNo,
+                        "action":   "getdetailsteammembersForAssignPopup"
+                    },
+                    success: function (data) {
+                        // Parse the JSON response
+                        var responseData = JSON.parse(data);
+        
+                        // Update HTML elements based on IDs
+                        $('#ticketWeightChange').append(responseData.weights);
+                        $('#assignTeamChange').append(responseData.teams);
+                        $('#ticketPeriorityChange').append(responseData.priorities);
+                    },
+                    error: function(xhr, status, error){
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "There's Somthing Wrong !!",
+                        });
+                        console.error(xhr.responseText); // For debugging 
+                    }
+                });
             },
             error: function(xhr, status, error) {
                 Swal.fire({
@@ -2051,46 +2099,6 @@ $(function () {
         
     });
 
-    $(document).on('click', '#change', function(e) {        // Retrive Ticket Information To Assign Popup Function  
-        e.preventDefault();
-
-        $('#ticketNumberChange').val(ticketNumber);
-        $('#RequestedByChange').val(requestedBy);
-        $('#requestTypeChange').val(serviceTypeName);
-        $('#serviceForChange').val(serviceDetailsName);
-        $('#ticketWeightChange').empty();
-        $('#assignTeamChange').empty();
-        $('#ticketPeriorityChange').empty();
-
-        if (periorityNo == " " || periorityNName == " ") {
-            $('#ticketPeriorityChange').html(`"<option value='0' selected>Selecte Periority ....</option>"`);
-        } else{
-            $('#ticketPeriorityChange').html(`"<option value='${periorityNo}' selected>` + periorityNName + `</option>"`);
-        }
-        
-        $('#teamMemberChange').text("Loading...");
-        $('#waitingMessageForTeamAssignMemberChange').empty().removeClass('mt-5');
-
-        $.ajax({
-            type: 'POST',
-            url: 'function.php', // Function Page For All ajax Function
-            data: { selectDetailsTeamMember: serviceDetailsNo},
-            success: function (data) {
-                // Parse the JSON response
-                var responseData = JSON.parse(data);
-
-                // Update HTML elements based on IDs
-                $('#ticketWeightChange').append(responseData.weights);
-                $('#assignTeamChange').append(responseData.teams);
-                $('#ticketPeriorityChange').append(responseData.priorities);
-            },
-            error: function (data) {
-                alert('Error fetching Ticket Information');
-            }
-        });
-        
-    });
-
     $('#assignTeamChange').on('change', function () {             // Retrive Team Member Based ON Team Choosen Function
         $('#memberAssignedChange').empty();
         $('#teamMemberChange').empty();
@@ -2098,10 +2106,13 @@ $(function () {
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { teamMembers: $(this).val() },
+            data: { 
+                "teamMembers":    $(this).val(),
+                "action" :     "getTeammemberDetail"
+            
+            },
             success: function (data) {
-                // Call function to fill Service Deatails Table
-                //fillServiceTable(data);
+                
                 ////////////////////////////////Parsing the data retrived and plot it in table view///////////////////////////////////////////////////
                 var tableDBody = $('#teamMemberChange');
                 // Parse the returned JSON data
@@ -2141,8 +2152,13 @@ $(function () {
                 });
                 ////////////////////////////////////////////////////////////////////////////////////////
             },
-            error: function () {
-                alert('Error fetching users');
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "There's Somthing Wrong !!",
+                });
+                console.error(xhr.responseText);
             }
         });
     });
@@ -2271,7 +2287,7 @@ $(function () {
                 url: 'function.php', // Function Page For All ajax Function
                 data: { 
                     'ticketNumber':                      ticketNumber,
-                    "UserSessionID":                     UserSessionID,
+                    "TicketTransactionSessionID":                     TicketTransactionSessionID,
                     "ticketWeightChange":                $('#ticketWeightChange').val(),
                     "ticketPeriorityChange":             $('#ticketPeriorityChange').val(),
                     "memberAssignedChange":              jsonData,
@@ -2284,18 +2300,18 @@ $(function () {
                     $('#memberAssignedChange').empty();
                     $('#ticketWeightChange').val(" ");
                     $('#ticketPeriorityChange').val(" ");
-                    row.remove();
                 },
-                error: function (response) {
+                error: function(xhr, status, error) {
                     $('#changePopup').modal('hide');
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: JSON.stringify(response),
-                    });
                     $('#memberAssignedChange').empty();
                     $('#ticketWeightChange').val(" ");
                     $('#ticketPeriorityChange').val(" ");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's Somthing Wrong !!",
+                    });
+                    console.error(xhr.responseText);
                 }
             });
         }
@@ -2872,7 +2888,7 @@ $('#details').on('change', function () {    // Retrive Device Number Based On Se
         url: 'function.php', // Handle Page For All AJAX Function
         data: { 
             'details':          $(this).val(),
-            'UserSessionName':    $(this).closest('.content').find('#UserSessionName').val(),
+            'UserSessionName':    $(this).closest('.content').find('#AddUserSessionName').val(),
             'NewTicket':        'getDeviceNumber'
         }, 
         success: function (data) {

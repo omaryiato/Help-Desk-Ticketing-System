@@ -39,8 +39,6 @@ if (isset($_SESSION['user'])) {
 
 if (isset($_SESSION['user'])) {
 
-    $pageTitle = 'Ticket Transation';
-
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
     $sesion = $_SESSION["user"];
@@ -1376,12 +1374,19 @@ if (isset($_SESSION['user'])) {
                     },
                     success: function(data) {
 
-                        allData = JSON.parse(data);
-                        displayFilterData(page, noRecord);
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
+                        if (data === 'empty') {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "There's No Data To Show It !!",
+                            });
+                        } else {
+                            allData = JSON.parse(data);
+                            displayFilterData(page, noRecord);
+                            var duration = new Date().getTime() - startTime;
+                            var durationInSeconds = duration / 1000;
+                            $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                        }
                     },
                     error: function(xhr, status, error) {
                         Swal.fire({
@@ -1581,12 +1586,12 @@ if (isset($_SESSION['user'])) {
                     type: 'POST',
                     url: 'function.php',
                     data: {
-                        userNamePreResault: 'USER_ID',
-                        TicketTransactionSessionID: TicketTransactionSessionID,
-                        Filter: filter,
-                        order: order,
-                        sortOrder: sortOrder,
-                        action: 'TicketTransactionFilter'
+                        "userNamePreResault": 'USER_ID',
+                        "TicketTransactionSessionID": TicketTransactionSessionID,
+                        "Filter": filter,
+                        "order": order,
+                        "sortOrder": sortOrder,
+                        "action": 'TicketTransactionFilter'
                     },
                     success: function(data) {
                         allData = JSON.parse(data);
@@ -1718,11 +1723,11 @@ if (isset($_SESSION['user'])) {
                 order = $(this).data('filter');
                 basedon = '#' + order;
 
-                if (sortOrder === 'ASC') {
-                    sortOrder = 'DESC';
+                if (sortOrder === 'DESC') {
+                    sortOrder = 'ASC';
                     $(basedon).removeClass('fa-solid fa-arrow-up').addClass('fa-solid fa-arrow-down');
                 } else {
-                    sortOrder = 'ASC';
+                    sortOrder = 'DESC';
                     $(basedon).removeClass('fa-solid fa-arrow-down').addClass('fa-solid fa-arrow-up');
                 }
 
@@ -1884,8 +1889,6 @@ if (isset($_SESSION['user'])) {
                         }
                     });
                 }
-
-
             });
 
             function displaySearchData(page, noRecord) {
@@ -2042,31 +2045,7 @@ if (isset($_SESSION['user'])) {
                             $('#description').val('');
                             $('#addTicket').closest('.content').find('#AddUserSessionName').val();
                             $('#addTicket').closest('.content').find('#AddUserSessionName').val($('#addTicket').closest('.content').find('#AddUserSessionName').val());
-                            $('.tickets').each(function() {
-                                var filter = $(this).data('filter');
-                                $.ajax({
-                                    type: 'POST',
-                                    url: 'function.php', // Replace with the URL of your PHP file to get the count
-                                    data: {
-                                        filter: filter,
-                                        USER_ID: USER_ID,
-                                        TicketTransactionSessionID: TicketTransactionSessionID
-                                    },
-                                    success: function(response) {
-                                        $('#count-' + filter).text('( ' + response + ' )');
-                                        allRecord += parseInt(response);
-                                        $('#allRows').text('( ' + allRecord + ' )');
-                                    },
-                                    error: function(xhr, status, error) {
-                                        Swal.fire({
-                                            icon: "error",
-                                            title: "Oops...",
-                                            text: "There's Somthing Wrong !!",
-                                        });
-                                        console.error(xhr.responseText);
-                                    }
-                                });
-                            });
+                            updateCounts();
                             refreshData();
                         },
                         error: function(xhr, status, error) {

@@ -3,7 +3,6 @@
 session_start();
 
 $no_sidebar = '';
-$pageTitle = 'Login';
 
 if (isset($_SESSION['user'])) {
     header('Location: home.php');  // Redirect To Home Page

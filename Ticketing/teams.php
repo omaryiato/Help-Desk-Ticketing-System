@@ -37,8 +37,6 @@ if (isset($_SESSION['user'])) {
 
 if (isset($_SESSION['user'])) {
 
-    $pageTitle = 'Team Members Page';
-
     include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 
     $userSession = $_SESSION['user'];
@@ -377,7 +375,7 @@ if (isset($_SESSION['user'])) {
                                                 <!-- Start Name SelectBox -->
                                                 <div class='col-sm-10'>
                                                     <label class="" for="UserSessionID">User Name</label>
-                                                    <input type="text" class="form-control" id="UserSessionID" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
+                                                    <input type="text" class="form-control" id="AddUserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
                                                 </div>
                                                 <!-- End Name  SelectBox -->
                                                 <!-- Start Service Type Field Start-->
