@@ -750,13 +750,10 @@ input[type="radio"] {
   color: #fff;
 }
 
-.home {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+.homeMenu { margin-top: 50px; }
 
-.homeMenu { margin-top: 50px; max-width: 1000px; }
+.homeMenu .row {display: flex; justify-content: center; align-items: center; }
+
 .homeMenu button {
   background-color:  transparent;
   border: #0069d9  solid 2px;
