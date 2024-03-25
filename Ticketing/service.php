@@ -446,6 +446,10 @@ if (isset($_SESSION['user'])) {
     </div>
     <!-- Add New Ticket Pop Up Form Start -->
 
+    <div class="overlay" id="spinner">
+        <span class="loader"></span>
+    </div>
+
 <?php
 
     include $inc . 'footer.php';

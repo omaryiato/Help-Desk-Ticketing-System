@@ -356,8 +356,9 @@ if (isset($_POST['action'])) {
                 // Optionally, you can log the error message for debugging purposes
                 error_log("Error occurred: $errorMessage");
             }
+            $conn::commit();
         } catch (Exception $e) {
-            print_r($e->getMessage());
+            // print_r($e->getMessage());
             $conn::rollback();
         }
     } elseif ($action == 'start') {                             // Start Solving Ticket ( Change Ticket Status To Started ) 
@@ -418,7 +419,6 @@ if (isset($_POST['action'])) {
                 error_log("Error occurred: $errorMessage");
             }
         } catch (Exception $e) {
-            print_r($e->getMessage());
             $conn::rollback();
         }
     } elseif ($action == 'solve') {                             // Solved Ticket ( Change Ticket Status To Solved )

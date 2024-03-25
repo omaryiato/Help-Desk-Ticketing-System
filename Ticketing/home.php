@@ -73,7 +73,7 @@ if (isset($_SESSION['user'])) {
                 <div class="home">
                     <div class="homeMenu">
                         <div class="row ">
-                            <div class="col-sm-3 mb-3  ">
+                            <div class="col-sm-4 mb-3  ">
                                 <div class="card" style="width: 15rem; height: 15rem;">
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions Page</h5>
@@ -82,7 +82,7 @@ if (isset($_SESSION['user'])) {
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-sm-3 mb-3 ">
+                            <div class="col-sm-4 mb-3 ">
                                 <div class="card" style="width: 15rem; height: 15rem;">
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title"><i class="fa-solid fa-plus pe-2"></i>Create New Tickets</h5>
@@ -94,7 +94,7 @@ if (isset($_SESSION['user'])) {
                             <?php
                             if ($roles['ROLE_ID'] == 1 || $roles['ROLE_ID'] == 3) { /* GM & Supervisor */
                             ?>
-                                <div class="col-sm-3 mb-3 ">
+                                <div class="col-sm-4 mb-3 ">
                                     <div class="card" style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</h5>
@@ -109,7 +109,7 @@ if (isset($_SESSION['user'])) {
                             <?php
                             if ($roles['ROLE_ID'] == 1) { /* GM */
                             ?>
-                                <div class="col-sm-3 mb-3 ">
+                                <div class="col-sm-4 mb-3 ">
                                     <div class="card" style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-users pe-2"></i>Team Member</h5>
@@ -118,7 +118,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-3 mb-3 ">
+                                <div class="col-sm-4 mb-3 ">
                                     <div class="card" style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-headphones pe-2"></i>Services</h5>
@@ -127,7 +127,7 @@ if (isset($_SESSION['user'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-sm-3 mb-3 ">
+                                <div class="col-sm-4 mb-3 ">
                                     <div class="card " style="width: 15rem; height: 15rem;">
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>
@@ -234,6 +234,10 @@ if (isset($_SESSION['user'])) {
         </div>
     </div>
     <!-- Add New Ticket Pop Up Form Start -->
+
+    <div class="overlay" id="spinner">
+        <span class="loader"></span>
+    </div>
 
 <?php
 

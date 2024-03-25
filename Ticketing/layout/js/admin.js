@@ -133,11 +133,9 @@ $(function () {
     });
 
 
-
     /////////////////////////////////////////// ***************** Manage Service Page Start  *************************/////////////////////////////////////////
 
     var ServiceUserSessionID =  $('#ServiceUserSessionID').val(); // User Name In This Session (Who Logged In)
-
 
     $("#AddNewServiceForm").validate({                                          // Validate Function For Add New Service PopUp
         rules: {
@@ -155,9 +153,11 @@ $(function () {
     $(document).on('click', '#AddNewService', function(e) {                     // Add New Service To Service Table Function
 
         e.preventDefault();
-
+        
         // Validate the form
         if ($("#AddNewServiceForm").valid()) {
+            $('#NewService').modal('hide');
+            $(".overlay").css("display", "flex");
             // Form is valid, proceed with AJAX submission
             $.ajax({
                 method: "POST",
@@ -169,30 +169,36 @@ $(function () {
                 },
                 success: function (response) {
                     if (response === 'exist') {
-                        $('#NewService').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",
                             text: "This Service Name Is Already Exist!",
                         });
                         $('#NewServiceName').val('');
+                        
                     } else {
-                        $('#NewService').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         Swal.fire("Service Added Successfully ");
                         $('#serviceLOV').html(response);
                         $('#NewServiceName').val('');
                     }
                 },
                 error: function(xhr, status, error) {
-                    $('#NewService').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
+                    // Display the error message
+                    $('#NewServiceName').val('');
+                    $("#spinner").hide();
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
                         text: "There's Somthing Wrong !!!",
                     });
                     console.error(xhr.responseText); // For debugging
-                    // Display the error message
-                    $('#NewServiceName').val('');
+                    
                 }
             });
         } 
@@ -362,7 +368,10 @@ $(function () {
     $(document).on('click', '#AddNewServiceDetails', function(e) {              // Add New Service Details To Service Details Table Function
 
         e.preventDefault();
+        
         if ($("#AddNewServiceDetailsForm").valid()) {
+            $('#NewServiceDetail').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -377,7 +386,8 @@ $(function () {
                     if (response === 'exist') {
                         $('#NewServiceDetailsName').val('');
                         $('#ServiceDetailsDescription').val('');
-                        $('#NewServiceDetail').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",
@@ -387,7 +397,8 @@ $(function () {
                     } else {
                         $('#NewServiceDetailsName').val('');
                         $('#ServiceDetailsDescription').val('');
-                        $('#NewServiceDetail').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         Swal.fire("Service Details Added Successfully ");
                         fillServiceDetailsTable();
                     }
@@ -396,7 +407,8 @@ $(function () {
                 error: function(xhr, status, error) {
                     $('#NewServiceDetailsName').val('');
                     $('#ServiceDetailsDescription').val('');
-                    $('#NewServiceDetail').modal('hide');
+                    
+                    $("#spinner").hide();
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -427,7 +439,10 @@ $(function () {
     $(document).on('click', '#UpdateServiceDetailsInfoButton', function(e) {    // Update Service Details Information Function
 
         e.preventDefault();
+        
         if ($("#EditServiceDetailsInformationForm").valid()) {
+            $('#EditServiceDetails').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -441,13 +456,15 @@ $(function () {
                 },
                 success: function (data) {
                     if (data === 'exist') {
+                        $(".overlay").css("display", "none");
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",
                             text: "This Service Details Name Is Already Exist!",
                         });
                     } else {
-                        $('#EditServiceDetails').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         Swal.fire("Service Details Updated Successfully ");
                         fillServiceDetailsTable();
                     }
@@ -455,7 +472,8 @@ $(function () {
                 },
                 
                 error: function(xhr, status, error) {
-                    $('#EditServiceDetails').modal('hide');
+                    
+                    $("#spinner").hide();
                         Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -502,6 +520,7 @@ $(function () {
     $(document).on('click', '#updateServiceDetailsButton', function(e) {        //  Update Custody And Private Columns In Service Details Table Function
 
         e.preventDefault();
+        $(".overlay").css("display", "flex");
         $.ajax({
             type: 'POST',
             url: 'function.php',
@@ -514,10 +533,12 @@ $(function () {
             },
             success: function (response) {
                 // Replace this Popup To normal popup 
+                $(".overlay").css("display", "none");
                 Swal.fire("Service Detail Updated Successfully"); 
                 fillServiceDetailsTable();
             },
             error: function(xhr, status, error) {
+                $(".overlay").css("display", "none");
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
@@ -678,8 +699,10 @@ $(function () {
     $(document).on('click', '#AddNewServiceDetailsTeam', function(e) {          // Add New Service Details Team To Service Details Team Table Function
 
         e.preventDefault();
-
+        
         if ($("#AddNewServiceDetailsTeamForm").valid()) {
+            $('#NewDetailTeam').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -691,12 +714,14 @@ $(function () {
                     "service" :                                     "NewServiceDetailsTeam"
                 },
                 success: function (response) {
-                    $('#NewDetailTeam').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     Swal.fire("Service Details Team Added Successfully ");
                     fillServiceDetailsTeamTable();
                 },
                 error:  function(xhr, status, error) { 
-                    $('#NewDetailTeam').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -730,6 +755,7 @@ $(function () {
     $(document).on('click', '#updateTeamEnabled', function(e) {                 //  Update Enabled Column In Team Table Function
 
         e.preventDefault();
+        $(".overlay").css("display", "flex");
         $.ajax({
                 type: 'POST',
                 url: 'function.php',
@@ -740,10 +766,12 @@ $(function () {
                     "service":                      "updateTeamTable"
                 },
                 success: function (response) {
+                    $(".overlay").css("display", "none");
                     Swal.fire("Enabled updated successfully ");
                     fillServiceDetailsTeamTable();
                 },
                 error: function(xhr, status, error) {
+                    $(".overlay").css("display", "none");
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -792,9 +820,10 @@ $(function () {
     $(document).on('click', '#AddNewTeam', function(e) {                     // Add New Team To Team Table Function
 
         e.preventDefault();
-
+        
         if ($("#AddNewTeamForm").valid()) {
-            
+            $('#NewTeam').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -809,6 +838,7 @@ $(function () {
                 success: function (response) {
 
                     if (response === 'exist') {
+                        $(".overlay").css("display", "none");
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",
@@ -819,7 +849,8 @@ $(function () {
                         $(this).closest('.content').find('#description').val(" ");
                         $(this).closest('.content').find('#departmentID').val(" ");
                     } else {
-                        $('#NewTeam').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         Swal.fire("Team Added Successfully ");
                         $('#TeamName').html(response);
                         $(this).closest('.content').find('#NewTeamName').val(" ");
@@ -830,7 +861,8 @@ $(function () {
                         
                 },
                 error: function(xhr, status, error) {
-                    $('#NewTeam').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     $(this).closest('.content').find('#NewTeamName').val(" ");
                     $(this).closest('.content').find('#branchCode').val(" ");
                     $(this).closest('.content').find('#description').val(" ");
@@ -1085,8 +1117,10 @@ $(function () {
     $(document).on('click', '#UpdateTeamInfoButton', function(e) {    // Update Team Information Into Team Table Function
 
         e.preventDefault();
-
+        
         if ($("#UpdateTeamInformationForm").valid()) {
+            $('#EditTeamInformation').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -1102,13 +1136,15 @@ $(function () {
                 },
                 success: function (data) {
                     if (data === 'exist') {
+                        $(".overlay").css("display", "none");
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",
                             text: "This Team Name Is Already Exist !!!",
                         });
                     } else {
-                        $('#EditTeamInformation').modal('hide');
+                        
+                        $(".overlay").css("display", "none");
                         $('#TeamName').html(data);
                         Swal.fire("Team Information Updated Successfully ");
                         fillTeamInfo();
@@ -1116,8 +1152,8 @@ $(function () {
                     
                 },
                 error: function(xhr, status, error) {
-                    $('#EditTeamInformation').modal('hide');
                     
+                    $(".overlay").css("display", "none");
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -1150,7 +1186,10 @@ $(function () {
     $(document).on('click', '#AddNewTeamMemberButton', function(e) {    // Add New Team Member Into Team Member Table Function
 
         e.preventDefault();
+        
         if ($("#AddNewTeamMemberForm").valid()) {
+            $('#NewTeamMember').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -1162,14 +1201,16 @@ $(function () {
                     "team" :                        "addNewTeamMember"
                 },
                 success: function (data) {
-                    $('#NewTeamMember').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     $('#GetMemberName').empty();
                     $('#GetMemberDeacription').val(" ");
                     Swal.fire('Member Add To His Team Successfully');
                     fillTeamInfo();
                 },
                 error: function(xhr, status, error) {
-                    $('#NewTeamMember').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     $('#GetMemberName').empty();
                     $('#GetMemberDeacription').val(" ");
                     Swal.fire({
@@ -1203,6 +1244,8 @@ $(function () {
     $(document).on('click', '#updateTeamMemberActivity', function(e) {        //  Update Active Columns In Team Member Table Function
 
         e.preventDefault();
+        $(".overlay").css("display", "flex");
+        
         if (activeColumnJson.length === 0) {
             Swal.fire({
                 icon: "error",
@@ -1221,12 +1264,14 @@ $(function () {
                     "team":                  "updateTeamMemberTable"
                 },
                 success: function (response) {
+                    $(".overlay").css("display", "none");
                     Swal.fire("Team Member Updated Successfully"); 
                     fillTeamInfo();  
                     activeColumn = [];
                     activeColumnJson = [];        
                 },
                 error: function(xhr, status, error) {
+                    $(".overlay").css("display", "none");
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -1368,7 +1413,7 @@ $(function () {
                         </button>
                     </li>
                     <li>
-                        <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
+                        <button class="item  startTicket" id='startTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
                             <i class="fa-solid fa-play"></i>
                             <span>Start</span>
                         </button>
@@ -1485,7 +1530,7 @@ $(function () {
                 // Additional content for status code 20
                 $('#actionTicketTransactionList').append(`
                     <li>
-                        <button class="item  startTicket" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
+                        <button class="item  startTicket" id='startTicket' style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='Start Ticket'>
                             <i class="fa-solid fa-play"></i>
                             <span>Start</span>
                         </button>
@@ -1835,6 +1880,7 @@ $(function () {
     $(document).on('click', '#assignTicket', function(e) {        // Assign Ticket To The Team Member  
         e.preventDefault();
 
+        
         var tableData = [];
 
         // Iterate through each row in the table
@@ -1861,6 +1907,8 @@ $(function () {
                 text: 'Please Choose Member To Assigne This Ticket!',
             });
         } else {
+            $('#assignPopup').modal('hide');
+        $(".overlay").css("display", "flex");
             $.ajax({
                 type: 'POST',
                 url: 'function.php', // Function Page For All ajax Function
@@ -1874,7 +1922,8 @@ $(function () {
                     'action':                               'assignTicket'
                 },
                 success: function (response) {
-                    $('#assignPopup').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     Swal.fire("Ticket Assigned Successfully... ");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-warning">Assigned</span>');
@@ -1885,7 +1934,8 @@ $(function () {
                     updateCounts();
                 },
                 error: function(xhr, status, error) {
-                    $('#assignPopup').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     $('#memberAssigned').empty();
                     $('#ticketWeight').val(" ");
                     $('#ticketPeriority').val(" ");
@@ -1903,9 +1953,11 @@ $(function () {
         
     });
 
-    $(document).on('click', '.startTicket', function(e) {  // Update Ticket Status To Start Ticket Function
+    $(document).on('click', '#startTicket', function(e) {  // Update Ticket Status To Start Ticket Function
 
         e.preventDefault();
+        
+        $(".overlay").css("display", "flex");
 
         $.ajax({
             method: "POST",
@@ -1916,6 +1968,7 @@ $(function () {
                 "action" :                              "start"
             },
             success: function (response) {
+                $(".overlay").css("display", "none");
                     Swal.fire("Ticket Started Successfully... ");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-info">Started</span>');
@@ -1923,6 +1976,8 @@ $(function () {
                     updateCounts();
                 },
                 error: function(xhr, status, error) {
+                    $(".overlay").css("display", "none");
+
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -2256,6 +2311,7 @@ $(function () {
     $(document).on('click', '#assignTicketChange', function(e) {        // Return Service Details  To Update Ticket Information Popup Function  
         e.preventDefault();
 
+        
         var tableData = [];
 
         // Iterate through each row in the table
@@ -2282,6 +2338,8 @@ $(function () {
                 text: 'You Should Choose Member To Assigne This Ticket!',
             });
         } else {
+            $('#changePopup').modal('hide');
+            $(".overlay").css("display", "flex");
             $.ajax({
                 type: 'POST',
                 url: 'function.php', // Function Page For All ajax Function
@@ -2295,14 +2353,16 @@ $(function () {
                     'action':                            'assignTicketChange'
                 },
                 success: function (response) {
-                    $('#changePopup').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     Swal.fire("Assign Changed Successfully... ");
                     $('#memberAssignedChange').empty();
                     $('#ticketWeightChange').val(" ");
                     $('#ticketPeriorityChange').val(" ");
                 },
                 error: function(xhr, status, error) {
-                    $('#changePopup').modal('hide');
+                    
+                    $(".overlay").css("display", "none");
                     $('#memberAssignedChange').empty();
                     $('#ticketWeightChange').val(" ");
                     $('#ticketPeriorityChange').val(" ");
@@ -2317,44 +2377,68 @@ $(function () {
         }
     });
     
+    $("#solveTicketForm").validate({                                          // Validate Function For Add New Team Member PopUp
+        rules: {
+            
+
+            issue: "required", // Name field is required
+            resolution: "required"
+        },
+        messages: {
+            issue: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Ticket Issue</div>",
+            resolution: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Ticket resolution </div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
     $(document).on('click', '#solveTicket', function(e) {  // Update Ticket Status To Solve Ticket Function
 
         e.preventDefault();
         
-        $.ajax({
-            method: "POST",
-            url: "function.php",  // Function Page For All ajax Function
-            data: {
-                "tickid":                               ticketNumber,
-                "issue":                                $('#issue').val(),
-                "resolution":                           $('#resolution').val(),
-                "TicketTransactionSessionID":           TicketTransactionSessionID,
-                "action" :                              "solve"
-            },
-            success: function (response) {
-                    $('#solvePopup').modal('hide');
-                    Swal.fire("Ticket Solved Successfully");
-                    var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
-                    row.find('td:eq(4)').html('<span class="badge bg-success">Solved</span>');
-                    row.remove();
-                    updateCounts();
-            },
-            error: function(xhr, status, error) {
-                $('#solvePopup').modal('hide');
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: "There's Somthing Wrong !!",
-                });
-                console.error(xhr.responseText);
-            }
-        });
+
+        if ($("#solveTicketForm").valid()) {
+            $('#solvePopup').modal('hide');
+            $(".overlay").css("display", "flex");
+            $.ajax({
+                method: "POST",
+                url: "function.php",  // Function Page For All ajax Function
+                data: {
+                    "tickid":                               ticketNumber,
+                    "issue":                                $('#issue').val(),
+                    "resolution":                           $('#resolution').val(),
+                    "TicketTransactionSessionID":           TicketTransactionSessionID,
+                    "action" :                              "solve"
+                },
+                success: function (response) {
+                        
+                        $(".overlay").css("display", "none");
+                        Swal.fire("Ticket Solved Successfully");
+                        var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
+                        row.find('td:eq(4)').html('<span class="badge bg-success">Solved</span>');
+                        row.remove();
+                        updateCounts();
+                },
+                error: function(xhr, status, error) {
+                    
+                    $(".overlay").css("display", "none");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's Somthing Wrong !!",
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        } 
     });
 
     $(document).on('click', '#cancelTicket', function(e) {  // Update Ticket Status To Cancele Ticket Function
 
         e.preventDefault();
-        
+        $(".overlay").css("display", "flex");
         $.ajax({
             method: "POST",
             url: "function.php",
@@ -2364,6 +2448,7 @@ $(function () {
                 "action" :                          "cancel"
             },
             success: function (response) {
+                $(".overlay").css("display", "none");
                     Swal.fire("Ticket Canceled Successfully");
                     var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                     row.find('td:eq(4)').html('<span class="badge bg-danger">Canceled</span>');
@@ -2371,6 +2456,7 @@ $(function () {
                     updateCounts();
             },
             error: function(xhr, status, error) {
+                $(".overlay").css("display", "none");
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
@@ -2418,7 +2504,8 @@ $(function () {
 
     $(document).on('click', '#UpdateTicketInformationButton', function(e) {  // Update Ticket Information 
         e.preventDefault();
-
+        $('#EditTicketPopup').modal('hide');
+        $(".overlay").css("display", "flex");
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
@@ -2430,13 +2517,15 @@ $(function () {
                 "action":                         "updateTicketInformation"
         },
             success: function (data) {
-                $('#EditTicketPopup').modal('hide');
+                
+                $(".overlay").css("display", "none");
                 Swal.fire("Ticket Information Updated Successfully ");
                 var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
                 row.find('td:eq(2)').html('<span>' + $('#EditServiceDetails').find('option:selected').text() + '</span>');
             },
             error: function(xhr, status, error) {
-                $('#EditTicketPopup').modal('hide');
+                
+                $(".overlay").css("display", "none");
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
@@ -2448,9 +2537,23 @@ $(function () {
         
     });
 
+    $("#confirmTicketForm").validate({                                          // Validate Function For Add New Team Member PopUp
+        rules: {
+            evaluation: "required"
+        },
+        messages: {
+            evaluation: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Ticket Evaluation </div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
     $(document).on('click', '#ConfirmTicket', function(e) {     // Update Ticket Status To Confirme Ticket Function
 
         e.preventDefault();
+        
             // Get values of individual inputs
             var evaluationDescription = $("#evaluation").val();
             // Get selected radio buttons
@@ -2459,47 +2562,43 @@ $(function () {
             var technicianAttitude = $("input[name='technicianAttitude']:checked").val();
             var serviceEvaluation = $("#generalEvaluation").val();
 
-            if (evaluationDescription.trim().length === 0) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: "Please Fill All Data !!!",
-                });
-            } else {
-                $.ajax({
-                    type: "POST",
-                    url: "function.php", // Replace with your PHP file handling the request
-                    data: {
-                        "returnedTicketNumber":         ticketNumber,
-                        "evaluationDescription":        evaluationDescription,
-                        "responseTime":                 responseTime,
-                        "confirmSelection":             confirmSelection,
-                        "technicianAttitude":           technicianAttitude,
-                        "serviceEvaluation":            serviceEvaluation,
-                        "TicketTransactionSessionID":                TicketTransactionSessionID,
-                        "action":                       "confirm"
-                    },
-                    success: function(response){
-                        $('#finishPopup').modal('hide');
-                        Swal.fire("Ticket Confirmed Successfully");
-                        var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
-                        row.find('td:eq(4)').html('<span class="badge bg-success">Confirmed</span>');
-                        row.remove();
-                        updateCounts();
-                    },
-                    error: function(xhr, status, error) {
-                        $('#finishPopup').modal('hide');
-                        Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: "There's Somthing Wrong !!",
-                        });
-                        console.error(xhr.responseText);
-                    }
-                });
-            }
-            
-        
+        if ($("#confirmTicketForm").valid()) {
+            $('#finishPopup').modal('hide');
+            $(".overlay").css("display", "flex");
+            $.ajax({
+                type: "POST",
+                url: "function.php", // Replace with your PHP file handling the request
+                data: {
+                    "returnedTicketNumber":         ticketNumber,
+                    "evaluationDescription":        evaluationDescription,
+                    "responseTime":                 responseTime,
+                    "confirmSelection":             confirmSelection,
+                    "technicianAttitude":           technicianAttitude,
+                    "serviceEvaluation":            serviceEvaluation,
+                    "TicketTransactionSessionID":                TicketTransactionSessionID,
+                    "action":                       "confirm"
+                },
+                success: function(response){
+                    
+                    $(".overlay").css("display", "none");
+                    Swal.fire("Ticket Confirmed Successfully");
+                    var row = $('#mainTableTicketTransation').find('td:contains(' + ticketNumber + ')').closest('tr');
+                    row.find('td:eq(4)').html('<span class="badge bg-success">Confirmed</span>');
+                    row.remove();
+                    updateCounts();
+                },
+                error: function(xhr, status, error) {
+                    
+                    $(".overlay").css("display", "none");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's Somthing Wrong !!",
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        }
     });
 
     $(document).on('click', '#actionHistoryTable', function(e) {  // Retrive Ticket Action History 
@@ -2663,39 +2762,60 @@ $(function () {
         $('#RequestorCommentDetails').val($(this).find('td:nth-child(27)').text()).attr('title', $(this).find('td:nth-child(27)').text());
     });
 
+    $("#ticketDetailsForm").validate({                                          // Validate Function For Add New Team Member PopUp
+        rules: {
+            RequestorCommentDetails: "required",
+            TechnicianIssueDiscriptionDetails: "required",
+            TechnicianIssueResolutionDetails: "required"
+        },
+        messages: {
+            RequestorCommentDetails: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Your Comment Evaluation </div>",
+            TechnicianIssueDiscriptionDetails: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Ticket Issue </div>",
+            TechnicianIssueResolutionDetails: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Ticket Resolution </div>"
+        },
+        submitHandler: function(form) {
+            // Form is valid, proceed with form submission
+            form.submit();
+        }
+    });
+
     $(document).on('click', '#SaveTicketDetailsInformation', function(e) {     // Update Ticket Status To Confirme Ticket Function
 
         e.preventDefault();
-            // Get values of individual inputs
-    
-            $.ajax({
-                type: "POST",
-                url: "function.php", // Replace with your PHP file handling the request
-                data: {
-                    "TicketNumberDetails":                      $('#TicketNumberDetails').val(),
-                    "TechnicianIssueDiscriptionDetails":        $('#TechnicianIssueDiscriptionDetails').val(),
-                    "TechnicianIssueResolutionDetails":         $('#TechnicianIssueResolutionDetails').val(),
-                    "RequestorCommentDetails":                  $('#RequestorCommentDetails').val(),
-                    "TicketTransactionSessionID":               TicketTransactionSessionID,
-                    "action":                                   "TicketDetailsInformation"
-                },
-                success: function(response){
-                    $('#TicketDetailsPopup').modal('hide');
-                    Swal.fire("Ticket Details Information Saved Successfully");
-                    var row = $('#mainTableTicketTransation').find('td:contains(' + $('#TicketNumberDetails').val() + ')').closest('tr');
-                    row.find('td:eq(10)').html($('#TechnicianIssueDiscriptionDetails').val());
-                    row.find('td:eq(11)').html($('#TechnicianIssueResolutionDetails').val());
-                    row.find('td:eq(27)').html($('#RequestorCommentDetails').val());
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "There's Somthing Wrong !!",
-                    });
-                    console.error(xhr.responseText);
-                }
-            });
+            if ($("#ticketDetailsForm").valid()) {
+                $('#TicketDetailsPopup').modal('hide');
+                $(".overlay").css("display", "flex");
+                $.ajax({
+                    type: "POST",
+                    url: "function.php", // Replace with your PHP file handling the request
+                    data: {
+                        "TicketNumberDetails":                      $('#TicketNumberDetails').val(),
+                        "TechnicianIssueDiscriptionDetails":        $('#TechnicianIssueDiscriptionDetails').val(),
+                        "TechnicianIssueResolutionDetails":         $('#TechnicianIssueResolutionDetails').val(),
+                        "RequestorCommentDetails":                  $('#RequestorCommentDetails').val(),
+                        "TicketTransactionSessionID":               TicketTransactionSessionID,
+                        "action":                                   "TicketDetailsInformation"
+                    },
+                    success: function(response){
+                       
+                        $(".overlay").css("display", "none");
+                        Swal.fire("Ticket Details Information Saved Successfully");
+                        var row = $('#mainTableTicketTransation').find('td:contains(' + $('#TicketNumberDetails').val() + ')').closest('tr');
+                        row.find('td:eq(10)').html($('#TechnicianIssueDiscriptionDetails').val());
+                        row.find('td:eq(11)').html($('#TechnicianIssueResolutionDetails').val());
+                        row.find('td:eq(27)').html($('#RequestorCommentDetails').val());
+                    },
+                    error: function(xhr, status, error) {
+                        $(".overlay").css("display", "none");
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "There's Somthing Wrong !!",
+                        });
+                        console.error(xhr.responseText);
+                    }
+                });
+            }
         
     });
 
@@ -2843,8 +2963,6 @@ $(function () {
             });
         
     });
-
-    
 
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
 
@@ -2996,9 +3114,9 @@ $('#StartDate').attr('min', formattedDate);
     $(document).on('click', '#DelegateNewUser', function(e) {         // Add New Delegate User Table Function
 
         e.preventDefault();
-    
-        if ( $("#DelegateForm").valid()){
         
+        if ( $("#DelegateForm").valid()){
+            $(".overlay").css("display", "flex");
             $.ajax({
                 method: "POST",
                 url: "function.php",  // Function Page For All ajax Function
@@ -3012,6 +3130,7 @@ $('#StartDate').attr('min', formattedDate);
                     "delegate" :                  "createNewDelegate"
                 },
                 success: function (response) {
+                    $(".overlay").css("display", "none");
                     Swal.fire("User Delegated Successfully");
                     $('#delegateTeam').val('');
                     $('#delegateUser').val('');
@@ -3019,6 +3138,7 @@ $('#StartDate').attr('min', formattedDate);
                     $('#EndDate').val('');
                 },
                 error: function(xhr, status, error) {
+                    $(".overlay").css("display", "none");
                     $('#delegateTeam').val('');
                     $('#delegateUser').val('');
                     $('#StartDate').val('');
@@ -3083,6 +3203,8 @@ $('#StartDate').attr('min', formattedDate);
 
     $('#UpdateAllSolveTicketToConfirm').on('click', function () {   // Change All Solved Ticket To Confirm
 
+        $(".overlay").css("display", "flex");
+        
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
@@ -3095,6 +3217,7 @@ $('#StartDate').attr('min', formattedDate);
                         text: "Theres No Ticket To Confirmed It",
                     });
                 } else {
+                    $(".overlay").css("display", "none");
                     $('.tran').hide(100);
                     Swal.fire(" Tickets Confirmed Successfully ");
                 }
@@ -3102,6 +3225,7 @@ $('#StartDate').attr('min', formattedDate);
             },
             error: function(xhr, status, error){
                 $('.tran').hide(100);
+                $(".overlay").css("display", "none");
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
