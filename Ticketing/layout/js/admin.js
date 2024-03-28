@@ -102,21 +102,21 @@ $(function () {
 
     // Toggel User Dropdown List
 
-    $('.users').click(function(event) {
-        // Prevent the event from bubbling up to the document
-        event.stopPropagation();
-        // Toggle the .userno element
-        $('.userno').toggle(100);
-    });
+    // $('.users').click(function(event) {
+    //     // Prevent the event from bubbling up to the document
+    //     event.stopPropagation();
+    //     // Toggle the .userno element
+    //     $('.userno').toggle(100);
+    // });
 
-    $(document).on('click', function(event) {
-        // Check if the clicked element is not part of .users or .userno
-        if (!$(event.target).closest('.users, .userno').length) {
-            // Hide the user list element
-            $('.userno').hide(100);
-        }
+    // $(document).on('click', function(event) {
+    //     // Check if the clicked element is not part of .users or .userno
+    //     if (!$(event.target).closest('.users, .userno').length) {
+    //         // Hide the user list element
+    //         $('.userno').hide(100);
+    //     }
         
-    });
+    // });
     
     // Toggel Ticket Transaction Dropdown List
 
@@ -1293,46 +1293,45 @@ $(function () {
 
     ///////////////////////////////////////////***************** Ticket Transation Page Start  *************************/////////////////////////////////////////
 
+    var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
+    var refreshTableData;
+    var refreshCountSection;
+
+    $('#refreshMode').val(refreshMode); // Set the value of the select element to the saved refresh mode
+
+    $('#refreshMode').on('change', function() { // Event listener for refresh mode change
+        refreshMode = $(this).val();
+        localStorage.setItem('refreshMode', refreshMode); // Save refresh mode to local storage
+
+        // If refresh mode is manually, clear the interval
+        if (refreshMode === 'manually') {
+            clearInterval(refreshTableData);
+            clearInterval(refreshCountSection);
+        } else {
+            // Start intervals for auto refresh
+            refreshTableData = setInterval(refreshData, 180000);
+            refreshCountSection = setInterval(updateCounts, 180000);
+        }
+    });
+
+    if (refreshMode === 'auto') { // If refresh mode is auto, start intervals
+        refreshTableData = setInterval(refreshData, 180000);
+        refreshCountSection = setInterval(updateCounts, 180000);
+    }
+
     $(document).on('click', function () { // Hide context menu on click outside 
         $('.wrapper').css('visibility', 'hidden');
     });
 
-    
-
     var TicketTransactionSessionID = $('#TicketTransactionSessionID').val(); // User Who Logged In To The System
     var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
+    var noRecord = $('#recoredPerPage').val();
+    var order = '';
+    var sortOrder = 'DESC';
+    var page = 1;
+    var filter = ' ';
+    var allData = [];
 
-    function updateCounts() {
-
-        var allRecord = 0; // Initialize the total count
-
-        $('.tickets').each(function() {
-            var filter = $(this).data('filter');
-            $.ajax({
-                type: 'POST',
-                url: 'function.php', // Replace with the URL of your PHP file to get the count
-                data: {
-                    "filter": filter,
-                    "USER_ID": USER_ID,
-                    "TicketTransactionSessionID": TicketTransactionSessionID,
-                    "action": 'getFilterdData'
-                },
-                success: function(response) {
-                    $('#count-' + filter).text('( ' + response + ' )');
-                    allRecord += parseInt(response);
-                    $('#allRows').text('( ' + allRecord + ' )');
-                },
-                error: function(xhr, status, error) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "There's Somthing Wrong !!",
-                    });
-                    console.error(xhr.responseText);
-                }
-            });
-        });
-    }
     var ticketNumber;
     var requestedBy;
     var serviceTypeNo;
@@ -1605,7 +1604,7 @@ $(function () {
 
         // List Action For End User
         if (UserRole == 2) {
-            // GM & Supervisor Permission 
+            // End User Permission 
             $('#actionTicketTransactionList').append(`
                 <li>
                     <a href="newTicket.php" class="item" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" style='margin-right: 5px;' data-bs-toggle='tooltip' data-bs-placement='top' title='New Ticket'>
@@ -2748,12 +2747,12 @@ $(function () {
         $('#StartDateDetails').val($(this).find('td:nth-child(14)').text()).attr('title', $(this).find('td:nth-child(14)').text());
         $('#EndDateDetails').val($(this).find('td:nth-child(17)').text()).attr('title', $(this).find('td:nth-child(17)').text());
         $('#ITTotaleTimeDetails').val($(this).find('td:nth-child(18)').text()).attr('title', $(this).find('td:nth-child(18)').text());
-        $('#RequestorNameDetails').val($(this).find('td:nth-child(21)').text()).attr('title', $(this).find('td:nth-child(21)').text());
-        $('#RequestorDepartmentDetails').val($(this).find('td:nth-child(13)').text()).attr('title', $(this).find('td:nth-child(23)').text());
+        $('#RequestorNameDetails').val($(this).find('td:nth-child(12)').text()).attr('title', $(this).find('td:nth-child(21)').text());
+        $('#RequestorDepartmentDetails').val($(this).find('td:nth-child(23)').text()).attr('title', $(this).find('td:nth-child(23)').text());
         $('#RequestorEmailDetails').val($(this).find('td:nth-child(22)').text()).attr('title', $(this).find('td:nth-child(22)').text());
         $('#RequestorIssueDiscriptionDetails').val($(this).find('td:nth-child(9)').text()).attr('title', $(this).find('td:nth-child(9)').text());
         $('#TechnicianNameDetails').val($(this).find('td:nth-child(16)').text()).attr('title', $(this).find('td:nth-child(16)').text());
-        $('#TechnicianDepartmentDetails').val($(this).find('td:nth-child(23)').text()).attr('title', $(this).find('td:nth-child(13)').text());
+        $('#TechnicianDepartmentDetails').val($(this).find('td:nth-child(13)').text()).attr('title', $(this).find('td:nth-child(13)').text());
         $('#TechnicianIssueDiscriptionDetails').val($(this).find('td:nth-child(10)').text()).attr('title', $(this).find('td:nth-child(10)').text());
         $('#TechnicianIssueResolutionDetails').val($(this).find('td:nth-child(11)').text()).attr('title', $(this).find('td:nth-child(11)').text());
         $('#ResponsTimeDetails').html(emojiRespons).attr('title', $(this).find('td:nth-child(24)').text());
@@ -2886,7 +2885,7 @@ $(function () {
 
         $('#TicketBehalfUserPopup').modal('hide');
         $('#AddNewTicketPopup').modal('show');
-        $('#addTicket').closest('.content').find('#UserSessionID').val($(this).find('td:nth-child(6)').text());
+        $('#addTicket').closest('.content').find('#AddUserSessionName').val($(this).find('td:nth-child(6)').text());
     });
 
     $(document).on('click', '#sendMessage', function(e) {     // Update Ticket Status To Confirme Ticket Function
@@ -2964,6 +2963,665 @@ $(function () {
         
     });
 
+    $(document).on('click', '#toExcel', function(e) {         // Export All Recored To Excel File
+
+        e.preventDefault();
+
+        // Convert JSON to worksheet
+        const worksheet = XLSX.utils.json_to_sheet(allData);
+
+        // Create a new workbook
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+
+        // Generate Excel file
+        const excelBuffer = XLSX.write(workbook, {
+            bookType: 'xlsx',
+            type: 'array'
+        });
+
+        // Convert to binary string
+        const data = new Blob([excelBuffer], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+
+        // Create download link
+        const url = window.URL.createObjectURL(data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'e-Ticketing System.xlsx');
+        document.body.appendChild(link);
+
+        // Initiate download
+        link.click();
+
+        // Cleanup
+        setTimeout(function() {
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+        }, 0);
+
+        // var table2excel = new Table2Excel();
+        // table2excel.export(document.querySelectorAll("table"));
+    });
+    
+    $(document).on('click', '#ticketButton', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+        e.preventDefault();
+        // Get the filter value from the 'data-filter' attribute of the clicked button
+        $('#paginationContainer').empty();
+        $('#numberOfPages').empty();
+        $('#mainTableTicketTransation').empty();
+        $('#mainTableTicketTransation').append('Loading....');
+
+        filter = $(this).data('filter');
+
+        var startTime = new Date().getTime();
+        $.ajax({
+            type: 'POST',
+            url: 'function.php',
+            data: {
+                "userNamePreResault": 'USER_ID',
+                "TicketTransactionSessionID": TicketTransactionSessionID,
+                "Filter": filter,
+                "order": order,
+                "sortOrder": sortOrder,
+                "action": 'TicketTransactionFilter'
+            },
+            success: function(data) {
+                allData = JSON.parse(data);
+                displayFilterData(1, noRecord);
+                var duration = new Date().getTime() - startTime;
+                var durationInSeconds = duration / 1000;
+                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "There's Somthing Wrong !!",
+                });
+                console.error(xhr.responseText);
+            }
+        });
+    });
+
+    $(document).on('click', '#orderBy', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+        e.preventDefault();
+        // Get the filter value from the 'data-filter' attribute of the clicked button
+        order = $(this).data('filter');
+        basedon = '#' + order;
+
+        if (sortOrder === 'DESC') {
+            sortOrder = 'ASC';
+            $(basedon).removeClass('fa-solid fa-arrow-up').addClass('fa-solid fa-arrow-down');
+        } else {
+            sortOrder = 'DESC';
+            $(basedon).removeClass('fa-solid fa-arrow-down').addClass('fa-solid fa-arrow-up');
+        }
+
+        var column = $(this).index(); // Get the index of the clicked column
+
+        // Sort the table rows based on the column data
+        $('#mainTableTicketTransation').each(function() {
+            var rows = $(this).find('tr').get();
+            rows.sort(function(a, b) {
+                var aValue = $(a).children('td').eq(column).text();
+                var bValue = $(b).children('td').eq(column).text();
+                if (sortOrder === 'ASC') {
+                    return aValue.localeCompare(bValue);
+                } else {
+                    return bValue.localeCompare(aValue);
+                }
+            });
+            // Re-render the table rows with the sorted data
+            $.each(rows, function(index, row) {
+                $(this).parent().append(row);
+            });
+        });
+
+    });
+
+    $('#recoredPerPage').on('change', function(e) { // Return Delegated Users Based On Team Number Function
+        e.preventDefault();
+        noRecord = $(this).val();
+        if (filter == ' ' && Object.keys(searchParams).length === 0) {
+            displayData(page, noRecord);
+        } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
+            displayFilterData(page, noRecord);
+        } else if (Object.keys(searchParams).length !== 0) {
+            displaySearchData(page, noRecord);
+        }
+    });
+
+    $(document).on('click', '.pagination_link', function(e) {
+        e.preventDefault();
+        page = $(this).attr("id");
+
+        if (filter == ' ' && Object.keys(searchParams).length === 0) {
+            displayData(page, noRecord);
+        } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
+            displayFilterData(page, noRecord);
+        } else if (Object.keys(searchParams).length !== 0) {
+            displaySearchData(page, noRecord);
+        }
+    });
+
+    ///////////////////////////////////////////***************** Search Ticket Start  *************************/////////////////////////////////////////
+
+    // Define a global object to store search parameters
+    var searchParams = {};
+
+    // Event listener for search button click
+    $(document).on('click', '#SearchTicketButton', function(e) {
+        e.preventDefault();
+
+        refreshMode = 'manually';
+        $('#refreshMode').val('manually');
+        clearInterval(refreshTableData);
+        clearInterval(refreshCountSection);
+        var startTime = new Date().getTime();
+        // Update search parameters from form inputs
+        searchParams = {
+            SearchTicketNumber: $('#SearchTicketNumber').val(),
+            SearchTicketStatus: $('#SearchTicketStatus').val(),
+            SearchTicketBranch: $('#SearchTicketBranch').val(),
+            SearchTicketPriority: $('#SearchTicketPriority').val(),
+            SearchITTime: $('#SearchITTime').val(),
+            SearchITTimePerHour: $('#SearchITTimePerHour').val(),
+            SearchITTimePerMin: $('#SearchITTimePerMin').val(),
+            SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+            SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+            SearchTotalTime: $('#SearchTotalTime').val(),
+            SearchTotalTimePerHour: $('#SearchTotalTimePerHour').val(),
+            SearchTotalTimePerMin: $('#SearchTotalTimePerMin').val(),
+            SearchTotalTimePerSec: $('#SearchTotalTimePerSec').val(),
+            SearchTicketAssignedTo: $('#SearchTicketAssignedTo').val(),
+            SearchTecIssueDiscription: $('#SearchTecIssueDiscription').val(),
+            SearchTecIssueResolution: $('#SearchTecIssueResolution').val(),
+            SearchResponsibleDept: $('#SearchResponsibleDept').val(),
+            SearchServiceType: $('#SearchServiceType').val(),
+            SearchServiceDetails: $('#SearchServiceDetails').val(),
+            SearchCreatedBy: $('#SearchCreatedBy').val(),
+            SearchDepartment: $('#SearchDepartment').val(),
+            SearchUserIsseDescription: $('#SearchUserIsseDescription').val(),
+            SearchFromDate: $('#SearchFromDate').val(),
+            SearchToDate: $('#SearchToDate').val()
+        };
+
+        if (Object.keys(searchParams).length === 0) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Please Choose  at least one field to search!",
+            });
+        } else {
+            $('#SearchTicket').modal('hide');
+            $('#paginationContainer').empty();
+            $('#numberOfPages').empty();
+            $('#mainTableTicketTransation').empty();
+            $('#mainTableTicketTransation').append('Loading....');
+            $.ajax({
+                type: 'POST',
+                url: 'function.php',
+                data: {
+                    // Include search parameters along with page number
+                    "searchParams": searchParams,
+                    "TicketTransactionSessionID": TicketTransactionSessionID,
+                    "USER_ID": 'USER_ID',
+                    "order": order,
+                    "sortOrder": sortOrder,
+                    "action": 'search'
+                },
+                success: function(data) {
+                    $('#SearchTicketNumber').val('');
+                    $('#SearchServiceType').val('');
+                    $('#SearchServiceDetails').val('');
+                    $('#SearchCreatedBy').val('');
+                    $('#SearchDepartment').val('');
+                    $('#SearchTicketStatus').val('');
+                    $('#SearchTicketBranch').val('');
+                    $('#SearchTicketPriority').val('');
+                    $('#SearchTicketAssignedTo').val('');
+                    $('#SearchTecIssueDiscription').val('');
+                    $('#SearchTecIssueResolution').val('');
+                    $('#SearchResponsibleDept').val('');
+                    $('#SearchUserIsseDescription').val('');
+
+                    allData = JSON.parse(data);
+                    displaySearchData(1, noRecord);
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+                },
+                error: function(xhr, status, error) {
+                    $('#SearchTicketNumber').val('');
+                    $('#SearchServiceType').val('');
+                    $('#SearchServiceDetails').val('');
+                    $('#SearchCreatedBy').val('');
+                    $('#SearchDepartment').val('');
+                    $('#SearchTicketStatus').val('');
+                    $('#SearchTicketBranch').val('');
+                    $('#SearchTicketPriority').val('');
+                    $('#SearchTicketAssignedTo').val('');
+                    $('#SearchTecIssueDiscription').val('');
+                    $('#SearchTecIssueResolution').val('');
+                    $('#SearchResponsibleDept').val('');
+                    $('#SearchUserIsseDescription').val('');
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's Somthing Wrong !!",
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+    });
+
+    
+
+    function updateCounts() {
+
+        var allRecord = 0; // Initialize the total count
+
+        $('.tickets').each(function() {
+            var filter = $(this).data('filter');
+            $.ajax({
+                type: 'POST',
+                url: 'function.php', // Replace with the URL of your PHP file to get the count
+                data: {
+                    "filter": filter,
+                    "USER_ID": USER_ID,
+                    "TicketTransactionSessionID": TicketTransactionSessionID,
+                    "action": 'getFilterdData'
+                },
+                success: function(response) {
+                    $('#count-' + filter).text('( ' + response + ' )');
+                    allRecord += parseInt(response);
+                    $('#allRows').text('( ' + allRecord + ' )');
+                },
+                error: function(xhr, status, error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's Somthing Wrong !!",
+                    });
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    }
+
+    function refreshData() {
+        getAllData(TicketTransactionSessionID, order, sortOrder);
+    }
+
+    function getAllData(TicketTransactionSessionID, order, sortOrder) {
+        $('.tran').hide(100);
+        $('#mainTableTicketTransation').empty();
+        $('#mainTableTicketTransation').append('Loading....');
+
+        var startTime = new Date().getTime();
+        $.ajax({
+            type: 'POST',
+            url: 'function.php',
+            data: {
+                "userNamePreResault": 'USER_ID',
+                "TicketTransactionSessionID": TicketTransactionSessionID,
+                "order": order,
+                "sortOrder": sortOrder,
+                "Filter": 10,
+                "action": 'TicketTransactionFilter'
+            },
+            success: function(data) {
+
+                if (data === 'empty') {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "There's No Data To Show It !!",
+                    });
+                } else {
+                    allData = JSON.parse(data);
+                    displayFilterData(page, noRecord);
+                    var duration = new Date().getTime() - startTime;
+                    var durationInSeconds = duration / 1000;
+                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+                }
+            },
+            error: function(xhr, status, error) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "There's Somthing Wrong !!",
+                });
+                console.error(xhr.responseText);
+            }
+        });
+    }
+    
+    function displayData(page, noRecord) {
+
+        $('#paginationContainer').empty();
+        $('#numberOfPages').empty();
+
+        let startIndex = (page - 1) * noRecord;
+        let endIndex = page * noRecord;
+
+        let pageData = allData.slice(startIndex, endIndex);
+
+        var tableDBody = $('#mainTableTicketTransation');
+
+        // Clear existing rows
+        tableDBody.empty();
+
+        // Loop through the data and append rows to the table
+        pageData.forEach(function(ticket) {
+            var newDRow = $('<tr>');
+
+            if (ticket.TICKET_STATUS == '70') {
+                newDRow.addClass('canceled-row');
+            }
+
+            // Populate each cell with data
+            newDRow.html(`
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
+                ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
+                ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                ''
+                    }</td>
+                <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                <td hidden>${ticket.TICKET_PERIORITY}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                <td hidden>${ticket.USER_EN_NAME}</td>
+                <td hidden>${ticket.EMAIL}</td>
+                <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                <td hidden>${ticket.RESPONSE_TIME}</td>
+                <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                <td hidden>${ticket.EVALUATION_FLAG}</td>
+            `);
+
+            // Append the new row to the table body
+            tableDBody.append(newDRow);
+        });
+
+        let noPage = Math.ceil(allData.length / noRecord);
+
+        if (page > 1) {
+            let previous = (page - 1);
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+        }
+
+        let count = 0;
+        for (let i = page; i <= noPage - 1; i++) {
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+            count++;
+            if (count == 3 || i == noPage) {
+                break;
+            }
+        }
+
+        if (noPage == page) {
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+        } else {
+            $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+        }
+
+        if (page < noPage) {
+            var next = parseInt(page) + 1;
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+        }
+
+        $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+        console.log('from success case');
+    }
+
+    function displayFilterData(page, noRecord) {
+
+        $('#paginationContainer').empty();
+        $('#numberOfPages').empty();
+
+        let startIndex = (page - 1) * noRecord;
+        let endIndex = page * noRecord;
+
+        let pageData = allData.slice(startIndex, endIndex);
+        var tableDBody = $('#mainTableTicketTransation');
+
+        // Clear existing rows
+        tableDBody.empty();
+
+        // Loop through the data and append rows to the table
+        pageData.forEach(function(ticket) {
+            var newDRow = $('<tr>');
+
+            if (ticket.TICKET_STATUS == '70') {
+                newDRow.addClass('canceled-row');
+            }
+
+            // Populate each cell with data
+            newDRow.html(`
+            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
+                ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
+                ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                ''
+                    }</td>
+                <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                <td hidden>${ticket.TICKET_PERIORITY}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                <td hidden>${ticket.USER_EN_NAME}</td>
+                <td hidden>${ticket.EMAIL}</td>
+                <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                <td hidden>${ticket.RESPONSE_TIME}</td>
+                <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                <td hidden>${ticket.EVALUATION_FLAG}</td>
+            `);
+
+            // Append the new row to the table body
+            tableDBody.append(newDRow);
+        });
+
+        let noPage = Math.ceil(allData.length / noRecord);
+
+        if (page > 1) {
+            let previous = (page - 1);
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+        }
+
+        let count = 0;
+        for (let i = page; i <= noPage - 1; i++) {
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+            count++;
+            if (count == 3 || i == noPage) {
+                break;
+            }
+        }
+
+        if (noPage == page) {
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+        } else {
+            $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+        }
+
+        if (page < noPage) {
+            var next = parseInt(page) + 1;
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+        }
+
+        $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+        console.log('from success case');
+    }
+
+    function displaySearchData(page, noRecord) {
+
+        $('#paginationContainer').empty();
+        $('#numberOfPages').empty();
+
+        let startIndex = (page - 1) * noRecord;
+        let endIndex = page * noRecord;
+
+        let pageData = allData.slice(startIndex, endIndex);
+        var tableDBody = $('#mainTableTicketTransation');
+
+        // Clear existing rows
+        tableDBody.empty();
+
+        // Loop through the data and append rows to the table
+        pageData.forEach(function(ticket) {
+            var newDRow = $('<tr>');
+
+            if (ticket.TICKET_STATUS == '70') {
+                newDRow.addClass('canceled-row');
+            }
+
+            // Populate each cell with data
+            newDRow.html(`
+            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
+                ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
+                ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                ''
+                    }</td>
+                <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                <td hidden>${ticket.TICKET_PERIORITY}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                <td hidden>${ticket.USER_EN_NAME}</td>
+                <td hidden>${ticket.EMAIL}</td>
+                <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                <td hidden>${ticket.RESPONSE_TIME}</td>
+                <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                <td hidden>${ticket.EVALUATION_FLAG}</td>
+            `);
+
+            // Append the new row to the table body
+            tableDBody.append(newDRow);
+        });
+
+        let noPage = Math.ceil(allData.length / noRecord);
+
+        if (page > 1) {
+            let previous = (page - 1);
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+        }
+
+        let count = 0;
+        for (let i = page; i <= noPage - 1; i++) {
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+            count++;
+            if (count == 3 || i == noPage) {
+                break;
+            }
+        }
+
+        if (noPage == page) {
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+        } else {
+            $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+        }
+
+        if (page < noPage) {
+            var next = parseInt(page) + 1;
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+        }
+
+        $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+        console.log('from success case');
+
+    }
+
+    
+    
+
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
 
 
@@ -3030,6 +3688,78 @@ $('#details').on('change', function () {    // Retrive Device Number Based On Se
         }
     });
 });
+
+$("#AddNewTicketForm").validate({ // Validate Function For Add New Service PopUp
+    rules: {
+        service: "required", // Name field is required
+        details: "required", // Name field is required
+        description: "required", // Name field is required
+        device: "required" // Name field is required
+    },
+    messages: {
+        service: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Name</div>", // Name field is required
+        details: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Details Name</div>", // Name field is required
+        description: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Issue Description</div>", // Name field is required
+        device: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Device</div>" // Name field is required
+    },
+    submitHandler: function(form) {
+        // Form is valid, proceed with form submission
+        form.submit();
+    }
+});
+
+$(document).on('click', '#addTicket', function(e) { // Add New Ticket To Tickets Table Function
+
+    e.preventDefault();
+
+    var allRecord = 0;
+    if ($("#AddNewTicketForm").valid()) {
+
+        $('#AddNewTicketPopup').modal('hide');
+        $(".overlay").css("display", "flex");
+        $.ajax({
+            method: "POST",
+            url: "function.php", // Function Page For All ajax Function
+            data: {
+                "name": $(this).closest('.content').find('#AddUserSessionName').val(),
+                "service": $(this).closest('.content').find('.service').val(),
+                "details": $(this).closest('.content').find('.details').val(),
+                "device": $(this).closest('.content').find('.device').val(),
+                "description": $(this).closest('.content').find('.description').val(),
+                "action": "add"
+            },
+            success: function(response) {
+
+                $(".overlay").css("display", "none");
+                var regex = /[\[\]]/g;
+                var cleanedText = response.replace(regex, '');
+                Swal.fire("Ticket # " + cleanedText + " Created Successfully!!!");
+                $('#service').val('');
+                $('#details').val('');
+                $('#device').val('');
+                $('#description').val('');
+                $('#addTicket').closest('.content').find('#AddUserSessionName').val();
+                $('#addTicket').closest('.content').find('#AddUserSessionName').val($('#addTicket').closest('.content').find('#AddUserSessionName').val());
+                updateCounts();
+                refreshData();
+            },
+            error: function(xhr, status, error) {
+                $(".overlay").css("display", "none");
+                $('#service').val('');
+                $('#details').val('');
+                $('#device').val('');
+                $('#description').val('');
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "There's Somthing Wrong !!",
+                });
+                console.error(xhr.responseText);
+            }
+        });
+    }
+});
+
 
 $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket Transation Dropdown  List
 
@@ -3208,7 +3938,7 @@ $('#StartDate').attr('min', formattedDate);
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { UserNameSession: $('#UserSessionID').val() },
+            data: { UserNameSession: TicketTransactionSessionID },
             success: function (data) {
                 if (data === 'empty') {
                     Swal.fire({
@@ -3241,7 +3971,7 @@ $('#StartDate').attr('min', formattedDate);
         $.ajax({
             type: 'POST',
             url: 'function.php', // Function Page For All ajax Function
-            data: { UserNameSession: $('#UserSessionID').val() },
+            data: { UserNameSession: TicketTransactionSessionID },
             success: function (data) {
                 if (data === 'empty') {
                     Swal.fire({
@@ -3269,6 +3999,20 @@ $('#StartDate').attr('min', formattedDate);
 
     ///////////////////////////////////////////***************** Change All Solved Ticket To Confirm Button End  *************************/////////////////////////////////////////
 
+
+    $(document).on('click', '#turnoff',  function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+            iconHtml: '<i class="fas fa-power-off"></i>',
+            title: "Logging  Out ...",
+            text: "Good Bye",
+            showConfirmButton: false
+        });
+
+        window.location.href = 'logout.php';
+
+    }); 
 });
 
 

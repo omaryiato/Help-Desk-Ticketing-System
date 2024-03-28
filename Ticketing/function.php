@@ -4,6 +4,9 @@
 
 include 'DBConnection.php';
 
+
+///////////////////////////////////////////***************** Ticket Transation Page Request Functions Start  *************************/////////////////////////////////////////
+
 if (isset($_POST['action'])) {
 
     $action = $_POST['action'];
@@ -851,7 +854,7 @@ if (isset($_POST['action'])) {
                 }
                 if (isset($searchParams['SearchCreatedBy']) && !empty($searchParams['SearchCreatedBy'])) {
                     $SearchCreatedBy = $searchParams['SearchCreatedBy'];
-                    $conditions[] = "USERNAME LIKE '%$SearchCreatedBy%'";
+                    $conditions[] = "EBS_EMPLOYEE_ID = " . $SearchCreatedBy;
                 }
                 if (isset($searchParams['SearchDepartment']) && !empty($searchParams['SearchDepartment'])) {
                     $SearchDepartment = $searchParams['SearchDepartment'];
@@ -866,6 +869,11 @@ if (isset($_POST['action'])) {
                 if (isset($searchParams['SearchToDate']) && !empty($searchParams['SearchToDate'])) {
                     $SearchToDate = $searchParams['SearchToDate'];
                     $conditions[] = "TICKET_START_DATE <= TO_DATE('$SearchToDate', 'DD-MM-YY')";
+                }
+
+                if (isset($searchParams['SearchResponsibleDept']) && !empty($searchParams['SearchResponsibleDept'])) {
+                    $SearchResponsibleDept = $searchParams['SearchResponsibleDept'];
+                    $conditions[] = "DEPARTMENT_NO = " . $SearchResponsibleDept;
                 }
 
                 // Add WHERE clause if conditions exist
@@ -1524,22 +1532,6 @@ if (isset($_POST['action'])) {
         }
     }
 }
-
-
-
-
-
-
-
-///////////////////////////////////////////***************** Ticket Transation Page Request Functions Start  *************************/////////////////////////////////////////
-
-
-
-
-
-
-
-
 
 ///////////////////////////////////////////***************** Ticket Transation Page Request Functions End  *************************/////////////////////////////////////////
 
@@ -2641,6 +2633,38 @@ if (isset($_POST['UserNameSession'])) {   // Change All Status Solved Ticket To 
         // Optionally, you can log the error message for debugging purposes
         error_log("Error occurred: $errorMessage");
         $conn::rollback();
+    }
+}
+
+///////////////////////////////////////////***************** Change All Solved Ticket To Confirmed Request Functions End  *************************/////////////////////////////////////////
+
+
+
+///////////////////////////////////////////***************** Change All Solved Ticket To Confirmed Request Functions Start  *************************/////////////////////////////////////////
+
+if (isset($_POST['TurnOffFunction'])) {   // Change All Status Solved Ticket To Confirmed Status From Application Manager
+
+    $turnoff = $_POST['TurnOffFunction'];
+
+    session_start();        // Start Session
+
+    if ($turnoff == 'turnOff') {
+        $UserSessionID = $_POST['UserNameSession']; // User ID Session
+
+        $active = 'N';
+
+        // Query to fetch users Information based on User Name
+        $activeUsers   = "UPDATE TICKETING.xxajmi_ticket_user_info SET ACTIVE_LOGIN = '" . $active . "'  WHERE USER_ID = '" .  $UserSessionID . "'";
+        $actives       = oci_parse($conn, $activeUsers);
+        oci_execute($actives);
+
+        session_unset();        // Unset  Data
+
+        session_destroy();      // Destroy The Session
+
+        header('Location: index.php');
+
+        exit();
     }
 }
 

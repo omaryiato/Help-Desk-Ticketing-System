@@ -18,4 +18,3 @@ include $inc . 'header.php'; // Header File For This Project
 if (!isset($no_sidebar)) {
     include $inc . 'sidebar.php';
 }
-

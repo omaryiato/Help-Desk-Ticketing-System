@@ -2,19 +2,18 @@
     <div class="container">
         <?php
 
-        $userSession = $_SESSION['user'];
-        // Query to fetch users Information based on User Name
-        $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
+        // $userSession = 'MAEN';
+        // // Query to fetch users Information based on User Name
+        $userInfo   = "SELECT USER_ID, USERNAME  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $_SESSION['USERNAME'] . "'";
         $info       = oci_parse($conn, $userInfo);
         oci_execute($info);
         $row        = oci_fetch_assoc($info);
         $UserSessionID = $row['USER_ID'];
 
-        $permission = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $row['USER_ID'];
+        $permission = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $_SESSION['USER_ID'];
         $userPermission = oci_parse($conn, $permission);
         oci_execute($userPermission);
         $roles = oci_fetch_assoc($userPermission); // User Roles
-
         ?>
         <a class="navbar-brand text-light" href="home.php">e-Ticketing System</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,11 +61,9 @@
                     </div>
                 </li>
                 <li class="nav-item ms-auto wel">
-                    <a class="nav-link users " href="#"><i class="fa-solid fa-user pe-2"></i><span>Welcome: <?php echo $_SESSION['user'] ?></span><i class="fa-solid fa-caret-down ps-2"></i></a>
-                    <ul class="userno">
-                        <li><a href="?action=Profile&userid=" aria-label="Go To The User Profile"><i class="fa-solid fa-user-pen pe-2"></i>My Account</a></li>
-                        <li><a href="logout.php" aria-label="Logout From User Account"><i class="fa-regular fa-circle-xmark pe-2"></i>Sign Out</a></li>
-                    </ul>
+                    <span>Welcome: <?php echo $_SESSION['USERNAME'] ?></span></a>
+                    <a href="logout.php"><span class="turnOff" id="turnoff"><i class="fa-solid fa-power-off ps-5"></i></span></a>
+
                 </li>
             </ul>
         </div>

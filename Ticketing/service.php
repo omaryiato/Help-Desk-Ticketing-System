@@ -11,9 +11,33 @@ ob_start(); // Output Buffering Start
 
 session_start();
 
+include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
 
-// Check if the user is logged in and the session is active
-if (isset($_SESSION['user'])) {
+
+if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} else {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+}
+
+// $hashKey = $_SESSION['e-Ticketing'];
+$hashKey = $_SESSION['e-Ticketing'];
+$ip_address = '192.168.15.27';
+
+$checkUser = "SELECT xxajmi_sshr_ticketing.xxajmi_user_valid@TKT_TO_SELF_SERV('$hashKey' ,'$ip_address') AS User_Validat
+from dual";
+$parsChek = oci_parse($conn, $checkUser);
+// oci_bind_by_name($parsChek, ":hashKey", $hashKey);
+// oci_bind_by_name($parsChek, ":ip_address", $ip_address);
+oci_execute($parsChek);
+$run = oci_fetch_assoc($parsChek);
+// $run = oci_result($parsChek, 'VALIDAT');
+
+
+if ($run['USER_VALIDAT'] !== 'User not Valid') {
+
     // Check if the last activity time is set
     if (isset($_SESSION['LAST_ACTIVITY'])) {
         // Calculate the time difference since the last activity
@@ -33,19 +57,24 @@ if (isset($_SESSION['user'])) {
 
     // Update the last activity time
     $_SESSION['LAST_ACTIVITY'] = time();
-}
 
 
-if (isset($_SESSION['user'])) {
+    $userFileNum =  $run['USER_VALIDAT'];
+    // count active Users
 
-    include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, JS File,  Style File ) File
-
-    $userSession = $_SESSION['user'];
+    $active = 'Y';
     // Query to fetch users Information based on User Name
-    $userInfo   = "SELECT USER_ID  FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $userSession . "'";
+    $activeUsers   = "UPDATE TICKETING.xxajmi_ticket_user_info SET ACTIVE_LOGIN = '" . $active . "'  WHERE EBS_EMPLOYEE_ID = '" .  $userFileNum . "'";
+    $actives       = oci_parse($conn, $activeUsers);
+    oci_execute($actives);
+
+
+    $userInfo   = "SELECT USER_ID, USERNAME  FROM TICKETING.xxajmi_ticket_user_info WHERE EBS_EMPLOYEE_ID = '" . $userFileNum . "'";
     $info       = oci_parse($conn, $userInfo);
     oci_execute($info);
     $row        = oci_fetch_assoc($info);
+    $_SESSION['USER_ID'] = $row['USER_ID'];
+    $_SESSION['USERNAME'] = $row['USERNAME'];
 
     /*******  This Condition to print DB name to know which one Opened  ***************/
 
@@ -359,7 +388,7 @@ if (isset($_SESSION['user'])) {
 
     <!-- Add New Ticket  Pop Up Form Start -->
     <div class="modal fade" id="AddNewTicketPopup" tabindex="-1" aria-labelledby="AddNewTicketPopupLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -371,13 +400,13 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="AddNewTicketPopupLabel">Create New Ticket</h2>
                                 <div class=" container  mt-2">
-                                    <form class="row d-flex justify-content-center" id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class=" col-sm-5 mx-1 ">
+                                    <form class="row " id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class=" col-sm-6 ">
                                             <div class="row">
-                                                <!-- Start Name SelectBox -->
+                                                <!-- Start Ticket Branch Field -->
                                                 <div class='col-sm-10'>
-                                                    <label class="" for="UserSessionID">User Name</label>
-                                                    <input type="text" class="form-control" id="AddUserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
+                                                    <label class="" for="TicketTransactionSessionID">User Name</label>
+                                                    <input type="text" class="form-control" id="AddUserSessionName" aria-label="State" value="<?php echo $_SESSION['USERNAME'] ?>" disabled readonly>
                                                 </div>
                                                 <!-- End Name  SelectBox -->
                                                 <!-- Start Service Type Field Start-->
@@ -416,11 +445,11 @@ if (isset($_SESSION['user'])) {
                                                 <!-- End Device End -->
                                             </div>
                                         </div>
-                                        <div class=" col-sm-5 mx-1">
+                                        <div class=" col-sm-6 ">
                                             <!-- Start Issue Description Field -->
                                             <div class='col-sm-12'>
                                                 <label class="control-lable" for="description">Issue Description</label>
-                                                <textarea name="description" id="description" class="description" cols="50" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
+                                                <textarea name="description" id="description" class="description" cols="40" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
                                             </div>
                                             <!-- End Issue Description Field -->
                                         </div>
@@ -454,7 +483,7 @@ if (isset($_SESSION['user'])) {
 
     include $inc . 'footer.php';
 } else {
-    header('Location: index.php');
+    header('Location: portal.php');
     exit();
 }
 $endTime = microtime(true); // CALCULAT page loaded time

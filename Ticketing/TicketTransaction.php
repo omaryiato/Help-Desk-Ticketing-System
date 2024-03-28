@@ -13,9 +13,38 @@ ob_start(); // Output Buffering Start
 
 session_start();
 
+include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
-// Check if the user is logged in and the session is active
-if (isset($_SESSION['user'])) {
+// $_SESSION['e-Ticketing'] = $_GET['hashkey'];
+
+// Get the IP address of the client
+if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} else {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+}
+
+// $hashKey = $_SESSION['e-Ticketing'];
+$hashKey = $_SESSION['e-Ticketing'];
+$ip_address = '192.168.203.64';
+
+
+
+// if (isset($_SESSION['user'])) {
+
+$checkUser = "SELECT xxajmi_sshr_ticketing.xxajmi_user_valid@TKT_TO_SELF_SERV('$hashKey' ,'$ip_address') AS User_Validat
+from dual";
+$parsChek = oci_parse($conn, $checkUser);
+// oci_bind_by_name($parsChek, ":hashKey", $hashKey);
+// oci_bind_by_name($parsChek, ":ip_address", $ip_address);
+oci_execute($parsChek);
+$run = oci_fetch_assoc($parsChek);
+// $run = oci_result($parsChek, 'VALIDAT');
+
+if ($run['USER_VALIDAT'] !== 'User not Valid') {
+
     // Check if the last activity time is set
     if (isset($_SESSION['LAST_ACTIVITY'])) {
         // Calculate the time difference since the last activity
@@ -33,25 +62,28 @@ if (isset($_SESSION['user'])) {
         }
     }
 
+    $userFileNum =  $run['USER_VALIDAT'];
+
     // Update the last activity time
     $_SESSION['LAST_ACTIVITY'] = time();
-}
 
-if (isset($_SESSION['user'])) {
+    $active = 'Y';
+    // Query to fetch users Information based on User Name
+    $activeUsers   = "UPDATE TICKETING.xxajmi_ticket_user_info SET ACTIVE_LOGIN = '" . $active . "'  WHERE EBS_EMPLOYEE_ID = '" .  $userFileNum . "'";
+    $actives       = oci_parse($conn, $activeUsers);
+    oci_execute($actives);
 
-    include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
-    $sesion = $_SESSION["user"];
-    // Select UserID bsed on Username To return User Roles
-    $userNamePre = "SELECT USER_ID FROM TICKETING.xxajmi_ticket_user_info WHERE USERNAME = '" . $sesion . "'";
-    $prevlag = oci_parse($conn, $userNamePre);
-    oci_execute($prevlag);
-    $prevlegs = oci_fetch_assoc($prevlag);
-    $userNamePreResault = $prevlegs['USER_ID'];  // UserID
+    $userInfo   = "SELECT USER_ID, USERNAME  FROM TICKETING.xxajmi_ticket_user_info WHERE EBS_EMPLOYEE_ID = '" . $userFileNum . "'";
+    $info       = oci_parse($conn, $userInfo);
+    oci_execute($info);
+    $row        = oci_fetch_assoc($info);
+    $_SESSION['USER_ID'] = $row['USER_ID'];
+    $_SESSION['USERNAME'] = $row['USERNAME'];
 
     // Select User Roles Based On UserID To Display Data Based On Users Permission
 
-    $role = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $userNamePreResault;
+    $role = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $_SESSION['USER_ID'];
     $userRole = oci_parse($conn, $role);
     oci_execute($userRole);
     $roles = oci_fetch_assoc($userRole); // User Roles
@@ -69,7 +101,7 @@ if (isset($_SESSION['user'])) {
 ?>
 
     <!-- Main Table Start -->
-    <input type="hidden" id="TicketTransactionSessionID" value="<?php echo $userNamePreResault ?>" disabled readonly>
+    <input type="hidden" id="TicketTransactionSessionID" value="<?php echo $_SESSION['USER_ID'] ?>" disabled readonly>
 
     <main class="content px-3 py-2">
         <div class="container-fluid">
@@ -104,7 +136,22 @@ if (isset($_SESSION['user'])) {
 
                         <div class='my-2 d-flex justify-content-end '>
                             <div class='my-1'>
-                                <span id="activeUsers" style="cursor: pointer;">Active Users: 800</span>
+                                <span id="activeUsers" style="cursor: pointer;">Active Users:
+                                    <?php
+                                    $status = 'Y';
+                                    $activeUsers = "SELECT count(*) AS ACTIVE_USERS FROM TICKETING.XXAJMI_TICKET_USER_INFO WHERE Active_Login ='" . $status . "'";
+                                    $active = oci_parse($conn, $activeUsers);
+                                    oci_execute($active);
+                                    $run = oci_fetch_assoc($active);
+
+                                    $allUsers = "SELECT count(*) AS ALL_USERS FROM TICKETING.XXAJMI_TICKET_USER_INFO ";
+                                    $all = oci_parse($conn, $allUsers);
+                                    oci_execute($all);
+                                    $resault  = oci_fetch_assoc($all);
+
+                                    echo $run['ACTIVE_USERS'] . ' / ' . $resault['ALL_USERS'];
+                                    ?>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -272,7 +319,7 @@ if (isset($_SESSION['user'])) {
 
     <!-- Add New Ticket  Pop Up Form Start -->
     <div class="modal fade" id="AddNewTicketPopup" tabindex="-1" aria-labelledby="AddNewTicketPopupLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -284,13 +331,13 @@ if (isset($_SESSION['user'])) {
                             <div class="mb-3">
                                 <h2 class="text-center" id="AddNewTicketPopupLabel">Create New Ticket</h2>
                                 <div class=" container  mt-2">
-                                    <form class="row d-flex justify-content-center" id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class=" col-sm-5 mx-1 ">
+                                    <form class="row " id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                                        <div class=" col-sm-6 ">
                                             <div class="row">
                                                 <!-- Start Ticket Branch Field -->
                                                 <div class='col-sm-10'>
                                                     <label class="" for="TicketTransactionSessionID">User Name</label>
-                                                    <input type="text" class="form-control" id="AddUserSessionName" aria-label="State" value="<?php echo $_SESSION['user'] ?>" disabled readonly>
+                                                    <input type="text" class="form-control" id="AddUserSessionName" aria-label="State" value="<?php echo $_SESSION['USERNAME'] ?>" disabled readonly>
                                                 </div>
                                                 <!-- End Name  SelectBox -->
                                                 <!-- Start Service Type Field Start-->
@@ -329,11 +376,11 @@ if (isset($_SESSION['user'])) {
                                                 <!-- End Device End -->
                                             </div>
                                         </div>
-                                        <div class=" col-sm-5 mx-1">
+                                        <div class=" col-sm-6 ">
                                             <!-- Start Issue Description Field -->
                                             <div class='col-sm-12'>
                                                 <label class="control-lable" for="description">Issue Description</label>
-                                                <textarea name="description" id="description" class="description" cols="50" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
+                                                <textarea name="description" id="description" class="description" cols="40" rows="10" placeholder="Enter issue description please..." required='required'></textarea>
                                             </div>
                                             <!-- End Issue Description Field -->
                                         </div>
@@ -367,7 +414,7 @@ if (isset($_SESSION['user'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <main class="content px-3 py-2"> <!-- Main Start -->
+                    <main class="content px-3 "> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-1">
                                 <h2 class="text-center" id="assignPopupLabel">Assign Tickets</h2>
@@ -417,8 +464,7 @@ if (isset($_SESSION['user'])) {
                                 <div class="container-fluid ">
                                     <div class="row d-flex justify-content-center"> <!-- Container Div Start  -->
                                         <div class="col-sm-6 ">
-
-                                            <h3 class="text-start mt-3 text-dark">Team Member</h3>
+                                            <h3 class="text-start mt-1 text-dark">Team Member</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3 ">
                                                     <thead>
@@ -436,7 +482,7 @@ if (isset($_SESSION['user'])) {
                                             </div>
                                         </div>
                                         <div class=" col-sm-6 ">
-                                            <h3 class="text-start mt-3 text-dark">Selected Team Member for Ticket</h3>
+                                            <h3 class="text-start mt-1 text-dark">Selected Team Member for Ticket</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3  ">
                                                     <thead>
@@ -478,7 +524,7 @@ if (isset($_SESSION['user'])) {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <main class="content px-3 py-2"> <!-- Main Start -->
+                    <main class="content px-3 "> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-1">
                                 <h2 class="text-center" id="changePopupLabel">Change Team</h2>
@@ -535,7 +581,7 @@ if (isset($_SESSION['user'])) {
                                                     There Is No Data You Can See It Yet.
                                                 </div>
                                             </div>
-                                            <h3 class="text-start mt-3 text-dark">Team Member</h3>
+                                            <h3 class="text-start mt-1 text-dark">Team Member</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3 ">
                                                     <thead>
@@ -553,7 +599,7 @@ if (isset($_SESSION['user'])) {
                                             </div>
                                         </div>
                                         <div class=" col-sm-6 ">
-                                            <h3 class="text-start mt-3 text-dark">Selected Team Member for Ticket</h3>
+                                            <h3 class="text-start mt-1 text-dark">Selected Team Member for Ticket</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3  ">
                                                     <thead>
@@ -593,7 +639,7 @@ if (isset($_SESSION['user'])) {
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="solvePopupLabel">Any Comment For User</h1>
+                    <h2 class="text-center" id="solvePopupLabel">Solve Ticket</h2>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -764,7 +810,7 @@ if (isset($_SESSION['user'])) {
                 </div>
                 <div class="modal-body">
                     <!-- Assign Ticket  Start -->
-                    <main class="content px-3 py-2"> <!-- Main Start -->
+                    <main class="content px-3"> <!-- Main Start -->
                         <div class="container-fluid"> <!-- Container-fluid Div Start -->
                             <div class="mb-3">
                                 <h2 class="text-center mb-2" id="EditTicketPopupLabel">Edit Ticket</h2>
@@ -968,7 +1014,20 @@ if (isset($_SESSION['user'])) {
                                         <!-- Start Ticket Responsible Dept Field -->
                                         <div class='col-sm-4 '>
                                             <label class="" for="SearchResponsibleDept">Responsible Dept</label>
-                                            <input type="text" class="form-control" id="SearchResponsibleDept" aria-label="SearchResponsibleDept" disabled>
+                                            <select class="form-select " name="SearchResponsibleDept" id="SearchResponsibleDept" aria-label="SearchResponsibleDept">
+                                                <option value="">Choes Department...</option>
+                                                <?php
+                                                // // Query to retrieve a list of tables
+                                                $deptNo = "SELECT    to_char(description) dept_name,to_char(dept_id) dept_id
+                                                            FROM    custody.dept_responsibility";
+                                                $dept = oci_parse($conn, $deptNo);
+                                                // Execute the query
+                                                oci_execute($dept);
+                                                while ($depts = oci_fetch_assoc($dept)) {
+                                                    echo "<option value='" . $depts['DEPT_ID'] . "'>" . $depts['DEPT_NAME'] . "</option>";
+                                                }
+                                                ?>
+                                            </select>
                                         </div>
                                         <!-- End Ticket Responsible Dept Field -->
                                         <!-- Start Ticket Service Type Field -->
@@ -1009,7 +1068,7 @@ if (isset($_SESSION['user'])) {
                                         <!-- End Ticket Service Details Field -->
                                         <!-- Start Ticket Created By Field -->
                                         <div class='col-sm-4 '>
-                                            <label class="" for="SearchCreatedBy">Created By</label>
+                                            <label class="" for="SearchCreatedBy">File Number</label>
                                             <input type="text" class="form-control" id="SearchCreatedBy" aria-label="SearchCreatedBy">
                                         </div>
                                         <!-- End Ticket Created By Field -->
@@ -1355,8 +1414,6 @@ if (isset($_SESSION['user'])) {
             var filter = ' ';
             var allData = [];
 
-            getAllData(TicketTransactionSessionID, order, sortOrder);
-
             function getAllData(TicketTransactionSessionID, order, sortOrder) {
                 $('.tran').hide(100);
                 $('#mainTableTicketTransation').empty();
@@ -1401,10 +1458,6 @@ if (isset($_SESSION['user'])) {
                 });
             }
 
-            function refreshData() {
-                getAllData(TicketTransactionSessionID, order, sortOrder);
-            }
-
             function updateCounts() {
 
                 var allRecord = 0; // Initialize the total count
@@ -1439,180 +1492,7 @@ if (isset($_SESSION['user'])) {
 
             updateCounts();
 
-
-            var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
-            var refreshTableData;
-            var refreshCountSection;
-
-            $('#refreshMode').val(refreshMode); // Set the value of the select element to the saved refresh mode
-
-            $('#refreshMode').on('change', function() { // Event listener for refresh mode change
-                refreshMode = $(this).val();
-                localStorage.setItem('refreshMode', refreshMode); // Save refresh mode to local storage
-
-                // If refresh mode is manually, clear the interval
-                if (refreshMode === 'manually') {
-                    clearInterval(refreshTableData);
-                    clearInterval(refreshCountSection);
-                } else {
-                    // Start intervals for auto refresh
-                    refreshTableData = setInterval(refreshData, 180000);
-                    refreshCountSection = setInterval(updateCounts, 180000);
-                }
-            });
-
-            if (refreshMode === 'auto') { // If refresh mode is auto, start intervals
-                refreshTableData = setInterval(refreshData, 180000);
-                refreshCountSection = setInterval(updateCounts, 180000);
-            }
-
-
-            function displayData(page, noRecord) {
-
-                $('#paginationContainer').empty();
-                $('#numberOfPages').empty();
-
-                let startIndex = (page - 1) * noRecord;
-                let endIndex = page * noRecord;
-
-                let pageData = allData.slice(startIndex, endIndex);
-
-                var tableDBody = $('#mainTableTicketTransation');
-
-                // Clear existing rows
-                tableDBody.empty();
-
-                // Loop through the data and append rows to the table
-                pageData.forEach(function(ticket) {
-                    var newDRow = $('<tr>');
-
-                    if (ticket.TICKET_STATUS == '70') {
-                        newDRow.addClass('canceled-row');
-                    }
-
-                    // Populate each cell with data
-                    newDRow.html(`
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
-                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
-                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                        ''
-                            }</td>
-                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
-                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
-                        <td hidden>${ticket.TICKET_PERIORITY}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
-                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
-                        <td hidden>${ticket.USER_EN_NAME}</td>
-                        <td hidden>${ticket.EMAIL}</td>
-                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
-                        <td hidden>${ticket.RESPONSE_TIME}</td>
-                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
-                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
-                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
-                        <td hidden>${ticket.EVALUATION_FLAG}</td>
-                    `);
-
-                    // Append the new row to the table body
-                    tableDBody.append(newDRow);
-                });
-
-                let noPage = Math.ceil(allData.length / noRecord);
-
-                if (page > 1) {
-                    let previous = (page - 1);
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
-                }
-
-                let count = 0;
-                for (let i = page; i <= noPage - 1; i++) {
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
-                    count++;
-                    if (count == 3 || i == noPage) {
-                        break;
-                    }
-                }
-
-                if (noPage == page) {
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-                } else {
-                    $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-                }
-
-                if (page < noPage) {
-                    var next = parseInt(page) + 1;
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
-                }
-
-                $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
-
-                console.log('from success case');
-            }
-
-            $(document).on('click', '#ticketButton', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
-                e.preventDefault();
-                // Get the filter value from the 'data-filter' attribute of the clicked button
-                $('#paginationContainer').empty();
-                $('#numberOfPages').empty();
-                $('#mainTableTicketTransation').empty();
-                $('#mainTableTicketTransation').append('Loading....');
-
-                filter = $(this).data('filter');
-
-                var startTime = new Date().getTime();
-                $.ajax({
-                    type: 'POST',
-                    url: 'function.php',
-                    data: {
-                        "userNamePreResault": 'USER_ID',
-                        "TicketTransactionSessionID": TicketTransactionSessionID,
-                        "Filter": filter,
-                        "order": order,
-                        "sortOrder": sortOrder,
-                        "action": 'TicketTransactionFilter'
-                    },
-                    success: function(data) {
-                        allData = JSON.parse(data);
-                        displayFilterData(1, noRecord);
-                        var duration = new Date().getTime() - startTime;
-                        var durationInSeconds = duration / 1000;
-                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
-                    },
-                    error: function(xhr, status, error) {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Oops...",
-                            text: "There's Somthing Wrong !!",
-                        });
-                        console.error(xhr.responseText);
-                    }
-                });
-            });
+            getAllData(TicketTransactionSessionID, order, sortOrder);
 
             function displayFilterData(page, noRecord) {
 
@@ -1638,47 +1518,47 @@ if (isset($_SESSION['user'])) {
 
                     // Populate each cell with data
                     newDRow.html(`
-                    <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
-                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
-                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                        ''
-                            }</td>
-                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
-                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
-                        <td hidden>${ticket.TICKET_PERIORITY}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
-                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
-                        <td hidden>${ticket.USER_EN_NAME}</td>
-                        <td hidden>${ticket.EMAIL}</td>
-                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
-                        <td hidden>${ticket.RESPONSE_TIME}</td>
-                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
-                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
-                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
-                        <td hidden>${ticket.EVALUATION_FLAG}</td>
-                    `);
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
+                            ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                            ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
+                            ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                            ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                            ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                            ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                            ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                            ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                            ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                            ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                            ''
+                                }</td>
+                            <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                            <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                            <td hidden>${ticket.TICKET_PERIORITY}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                            <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                            <td hidden>${ticket.USER_EN_NAME}</td>
+                            <td hidden>${ticket.EMAIL}</td>
+                            <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                            <td hidden>${ticket.RESPONSE_TIME}</td>
+                            <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                            <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                            <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                            <td hidden>${ticket.EVALUATION_FLAG}</td>
+                        `);
 
                     // Append the new row to the table body
                     tableDBody.append(newDRow);
@@ -1718,407 +1598,13 @@ if (isset($_SESSION['user'])) {
 
                 console.log('from success case');
             }
-
-            $(document).on('click', '#orderBy', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
-                e.preventDefault();
-                // Get the filter value from the 'data-filter' attribute of the clicked button
-                order = $(this).data('filter');
-                basedon = '#' + order;
-
-                if (sortOrder === 'DESC') {
-                    sortOrder = 'ASC';
-                    $(basedon).removeClass('fa-solid fa-arrow-up').addClass('fa-solid fa-arrow-down');
-                } else {
-                    sortOrder = 'DESC';
-                    $(basedon).removeClass('fa-solid fa-arrow-down').addClass('fa-solid fa-arrow-up');
-                }
-
-                var column = $(this).index(); // Get the index of the clicked column
-
-                // Sort the table rows based on the column data
-                $('#mainTableTicketTransation').each(function() {
-                    var rows = $(this).find('tr').get();
-                    rows.sort(function(a, b) {
-                        var aValue = $(a).children('td').eq(column).text();
-                        var bValue = $(b).children('td').eq(column).text();
-                        if (sortOrder === 'ASC') {
-                            return aValue.localeCompare(bValue);
-                        } else {
-                            return bValue.localeCompare(aValue);
-                        }
-                    });
-                    // Re-render the table rows with the sorted data
-                    $.each(rows, function(index, row) {
-                        $(this).parent().append(row);
-                    });
-                });
-
-            });
-
-            $('#recoredPerPage').on('change', function(e) { // Return Delegated Users Based On Team Number Function
-                e.preventDefault();
-                noRecord = $(this).val();
-                if (filter == ' ' && Object.keys(searchParams).length === 0) {
-                    displayData(page, noRecord);
-                } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
-                    displayFilterData(page, noRecord);
-                } else if (Object.keys(searchParams).length !== 0) {
-                    displaySearchData(page, noRecord);
-                }
-            });
-
-            $(document).on('click', '.pagination_link', function(e) {
-                e.preventDefault();
-                page = $(this).attr("id");
-
-                if (filter == ' ' && Object.keys(searchParams).length === 0) {
-                    displayData(page, noRecord);
-                } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
-                    displayFilterData(page, noRecord);
-                } else if (Object.keys(searchParams).length !== 0) {
-                    displaySearchData(page, noRecord);
-                }
-            });
-
-            ///////////////////////////////////////////***************** Search Ticket Start  *************************/////////////////////////////////////////
-
-            // Define a global object to store search parameters
-            var searchParams = {};
-
-            // Event listener for search button click
-            $(document).on('click', '#SearchTicketButton', function(e) {
-                e.preventDefault();
-
-                refreshMode = 'manually';
-                $('#refreshMode').val('manually');
-                clearInterval(refreshTableData);
-                clearInterval(refreshCountSection);
-                var startTime = new Date().getTime();
-                // Update search parameters from form inputs
-                searchParams = {
-                    SearchTicketNumber: $('#SearchTicketNumber').val(),
-                    SearchTicketStatus: $('#SearchTicketStatus').val(),
-                    SearchTicketBranch: $('#SearchTicketBranch').val(),
-                    SearchTicketPriority: $('#SearchTicketPriority').val(),
-                    SearchITTime: $('#SearchITTime').val(),
-                    SearchITTimePerHour: $('#SearchITTimePerHour').val(),
-                    SearchITTimePerMin: $('#SearchITTimePerMin').val(),
-                    SearchITTimePerSec: $('#SearchITTimePerSec').val(),
-                    SearchITTimePerSec: $('#SearchITTimePerSec').val(),
-                    SearchTotalTime: $('#SearchTotalTime').val(),
-                    SearchTotalTimePerHour: $('#SearchTotalTimePerHour').val(),
-                    SearchTotalTimePerMin: $('#SearchTotalTimePerMin').val(),
-                    SearchTotalTimePerSec: $('#SearchTotalTimePerSec').val(),
-                    SearchTicketAssignedTo: $('#SearchTicketAssignedTo').val(),
-                    SearchTecIssueDiscription: $('#SearchTecIssueDiscription').val(),
-                    SearchTecIssueResolution: $('#SearchTecIssueResolution').val(),
-                    SearchResponsibleDept: $('#SearchResponsibleDept').val(),
-                    SearchServiceType: $('#SearchServiceType').val(),
-                    SearchServiceDetails: $('#SearchServiceDetails').val(),
-                    SearchCreatedBy: $('#SearchCreatedBy').val(),
-                    SearchDepartment: $('#SearchDepartment').val(),
-                    SearchUserIsseDescription: $('#SearchUserIsseDescription').val(),
-                    SearchFromDate: $('#SearchFromDate').val(),
-                    SearchToDate: $('#SearchToDate').val()
-                };
-
-                if (Object.keys(searchParams).length === 0) {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "Please Choose  at least one field to search!",
-                    });
-                } else {
-                    $('#SearchTicket').modal('hide');
-                    $('#paginationContainer').empty();
-                    $('#numberOfPages').empty();
-                    $('#mainTableTicketTransation').empty();
-                    $('#mainTableTicketTransation').append('Loading....');
-                    $.ajax({
-                        type: 'POST',
-                        url: 'function.php',
-                        data: {
-                            // Include search parameters along with page number
-                            "searchParams": searchParams,
-                            "TicketTransactionSessionID": TicketTransactionSessionID,
-                            "USER_ID": 'USER_ID',
-                            "order": order,
-                            "sortOrder": sortOrder,
-                            "action": 'search'
-                        },
-                        success: function(data) {
-                            $('#SearchTicketNumber').val('');
-                            $('#SearchServiceType').val('');
-                            $('#SearchServiceDetails').val('');
-                            $('#SearchCreatedBy').val('');
-                            $('#SearchDepartment').val('');
-                            $('#SearchTicketStatus').val('');
-                            $('#SearchTicketBranch').val('');
-                            $('#SearchTicketPriority').val('');
-                            $('#SearchTicketAssignedTo').val('');
-                            $('#SearchTecIssueDiscription').val('');
-                            $('#SearchTecIssueResolution').val('');
-                            $('#SearchResponsibleDept').val('');
-                            $('#SearchUserIsseDescription').val('');
-
-                            allData = JSON.parse(data);
-                            displaySearchData(1, noRecord);
-                            var duration = new Date().getTime() - startTime;
-                            var durationInSeconds = duration / 1000;
-                            $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
-                        },
-                        error: function(xhr, status, error) {
-                            $('#SearchTicketNumber').val('');
-                            $('#SearchServiceType').val('');
-                            $('#SearchServiceDetails').val('');
-                            $('#SearchCreatedBy').val('');
-                            $('#SearchDepartment').val('');
-                            $('#SearchTicketStatus').val('');
-                            $('#SearchTicketBranch').val('');
-                            $('#SearchTicketPriority').val('');
-                            $('#SearchTicketAssignedTo').val('');
-                            $('#SearchTecIssueDiscription').val('');
-                            $('#SearchTecIssueResolution').val('');
-                            $('#SearchResponsibleDept').val('');
-                            $('#SearchUserIsseDescription').val('');
-                            Swal.fire({
-                                icon: "error",
-                                title: "Oops...",
-                                text: "There's Somthing Wrong !!",
-                            });
-                            console.error(xhr.responseText);
-                        }
-                    });
-                }
-            });
-
-            function displaySearchData(page, noRecord) {
-
-                $('#paginationContainer').empty();
-                $('#numberOfPages').empty();
-
-                let startIndex = (page - 1) * noRecord;
-                let endIndex = page * noRecord;
-
-                let pageData = allData.slice(startIndex, endIndex);
-                var tableDBody = $('#mainTableTicketTransation');
-
-                // Clear existing rows
-                tableDBody.empty();
-
-                // Loop through the data and append rows to the table
-                pageData.forEach(function(ticket) {
-                    var newDRow = $('<tr>');
-
-                    if (ticket.TICKET_STATUS == '70') {
-                        newDRow.addClass('canceled-row');
-                    }
-
-                    // Populate each cell with data
-                    newDRow.html(`
-                    <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
-                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
-                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                        ''
-                            }</td>
-                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
-                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
-                        <td hidden>${ticket.TICKET_PERIORITY}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
-                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
-                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
-                        <td hidden>${ticket.USER_EN_NAME}</td>
-                        <td hidden>${ticket.EMAIL}</td>
-                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
-                        <td hidden>${ticket.RESPONSE_TIME}</td>
-                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
-                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
-                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
-                        <td hidden>${ticket.EVALUATION_FLAG}</td>
-                    `);
-
-                    // Append the new row to the table body
-                    tableDBody.append(newDRow);
-                });
-
-                let noPage = Math.ceil(allData.length / noRecord);
-
-                if (page > 1) {
-                    let previous = (page - 1);
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
-                }
-
-                let count = 0;
-                for (let i = page; i <= noPage - 1; i++) {
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
-                    count++;
-                    if (count == 3 || i == noPage) {
-                        break;
-                    }
-                }
-
-                if (noPage == page) {
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-                } else {
-                    $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-                }
-
-                if (page < noPage) {
-                    var next = parseInt(page) + 1;
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
-                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
-                }
-
-                $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
-
-                console.log('from success case');
-
-            }
-
-            $("#AddNewTicketForm").validate({ // Validate Function For Add New Service PopUp
-                rules: {
-                    service: "required", // Name field is required
-                    details: "required", // Name field is required
-                    description: "required", // Name field is required
-                    device: "required" // Name field is required
-                },
-                messages: {
-                    service: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Name</div>", // Name field is required
-                    details: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Service Details Name</div>", // Name field is required
-                    description: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Enter Service Issue Description</div>", // Name field is required
-                    device: "<div class='alert alert-danger' role='alert' style=' margin-top: 5px;' >Please Choose Device</div>" // Name field is required
-                },
-                submitHandler: function(form) {
-                    // Form is valid, proceed with form submission
-                    form.submit();
-                }
-            });
-
-            $(document).on('click', '#addTicket', function(e) { // Add New Ticket To Tickets Table Function
-
-                e.preventDefault();
-
-                var allRecord = 0;
-                if ($("#AddNewTicketForm").valid()) {
-
-                    $('#AddNewTicketPopup').modal('hide');
-                    $(".overlay").css("display", "flex");
-                    $.ajax({
-                        method: "POST",
-                        url: "function.php", // Function Page For All ajax Function
-                        data: {
-                            "name": $(this).closest('.content').find('#AddUserSessionName').val(),
-                            "service": $(this).closest('.content').find('.service').val(),
-                            "details": $(this).closest('.content').find('.details').val(),
-                            "device": $(this).closest('.content').find('.device').val(),
-                            "description": $(this).closest('.content').find('.description').val(),
-                            "action": "add"
-                        },
-                        success: function(response) {
-
-                            $(".overlay").css("display", "none");
-                            var regex = /[\[\]]/g;
-                            var cleanedText = response.replace(regex, '');
-                            Swal.fire("Ticket # " + cleanedText + " Created Successfully!!!");
-                            $('#service').val('');
-                            $('#details').val('');
-                            $('#device').val('');
-                            $('#description').val('');
-                            $('#addTicket').closest('.content').find('#AddUserSessionName').val();
-                            $('#addTicket').closest('.content').find('#AddUserSessionName').val($('#addTicket').closest('.content').find('#AddUserSessionName').val());
-                            updateCounts();
-                            refreshData();
-                        },
-                        error: function(xhr, status, error) {
-                            $(".overlay").css("display", "none");
-                            $('#service').val('');
-                            $('#details').val('');
-                            $('#device').val('');
-                            $('#description').val('');
-                            Swal.fire({
-                                icon: "error",
-                                title: "Oops...",
-                                text: "There's Somthing Wrong !!",
-                            });
-                            console.error(xhr.responseText);
-                        }
-                    });
-                }
-            });
-
-            $(document).on('click', '#toExcel', function(e) { // Update Ticket Status To Confirme Ticket Function
-
-                e.preventDefault();
-
-                // Convert JSON to worksheet
-                const worksheet = XLSX.utils.json_to_sheet(allData);
-
-                // Create a new workbook
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
-
-                // Generate Excel file
-                const excelBuffer = XLSX.write(workbook, {
-                    bookType: 'xlsx',
-                    type: 'array'
-                });
-
-                // Convert to binary string
-                const data = new Blob([excelBuffer], {
-                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-                });
-
-                // Create download link
-                const url = window.URL.createObjectURL(data);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'e-Ticketing System.xlsx');
-                document.body.appendChild(link);
-
-                // Initiate download
-                link.click();
-
-                // Cleanup
-                setTimeout(function() {
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(link);
-                }, 0);
-
-                // var table2excel = new Table2Excel();
-                // table2excel.export(document.querySelectorAll("table"));
-            });
-
             ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
 
         });
     </script>
 <?php
 } else {
-    header('Location: index.php');
+    header('Location: portal.php');
     exit();
 }
 
