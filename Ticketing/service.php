@@ -22,21 +22,17 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
     $ip_address = $_SERVER['REMOTE_ADDR'];
 }
 
-// $hashKey = $_SESSION['e-Ticketing'];
 $hashKey = $_SESSION['e-Ticketing'];
-$ip_address = '192.168.15.27';
+// $ip_address = '192.168.15.94';
 
 $checkUser = "SELECT xxajmi_sshr_ticketing.xxajmi_user_valid@TKT_TO_SELF_SERV('$hashKey' ,'$ip_address') AS User_Validat
 from dual";
 $parsChek = oci_parse($conn, $checkUser);
-// oci_bind_by_name($parsChek, ":hashKey", $hashKey);
-// oci_bind_by_name($parsChek, ":ip_address", $ip_address);
 oci_execute($parsChek);
-$run = oci_fetch_assoc($parsChek);
-// $run = oci_result($parsChek, 'VALIDAT');
+$returnedFileNumber = oci_fetch_assoc($parsChek);
+$no_file_number = $returnedFileNumber['USER_VALIDAT'];
 
-
-if ($run['USER_VALIDAT'] !== 'User not Valid') {
+if ($no_file_number != 'User not Valid') {
 
     // Check if the last activity time is set
     if (isset($_SESSION['LAST_ACTIVITY'])) {
@@ -57,24 +53,7 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
 
     // Update the last activity time
     $_SESSION['LAST_ACTIVITY'] = time();
-
-
-    $userFileNum =  $run['USER_VALIDAT'];
     // count active Users
-
-    $active = 'Y';
-    // Query to fetch users Information based on User Name
-    $activeUsers   = "UPDATE TICKETING.xxajmi_ticket_user_info SET ACTIVE_LOGIN = '" . $active . "'  WHERE EBS_EMPLOYEE_ID = '" .  $userFileNum . "'";
-    $actives       = oci_parse($conn, $activeUsers);
-    oci_execute($actives);
-
-
-    $userInfo   = "SELECT USER_ID, USERNAME  FROM TICKETING.xxajmi_ticket_user_info WHERE EBS_EMPLOYEE_ID = '" . $userFileNum . "'";
-    $info       = oci_parse($conn, $userInfo);
-    oci_execute($info);
-    $row        = oci_fetch_assoc($info);
-    $_SESSION['USER_ID'] = $row['USER_ID'];
-    $_SESSION['USERNAME'] = $row['USERNAME'];
 
     /*******  This Condition to print DB name to know which one Opened  ***************/
 
@@ -88,7 +67,6 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
 
 ?>
 
-    <input type="hidden" class="form-control" id="ServiceUserSessionID" aria-label="State" value="<?php echo $row['USER_ID']  ?>" disabled readonly>
     <!-- Service Page  Start -->
     <main class="content px-3 py-2"> <!-- Main Start -->
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
@@ -483,7 +461,7 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
 
     include $inc . 'footer.php';
 } else {
-    header('Location: portal.php');
+    header('Location: https://sshr.alajmi.com.sa/public/index.php/login');
     exit();
 }
 $endTime = microtime(true); // CALCULAT page loaded time

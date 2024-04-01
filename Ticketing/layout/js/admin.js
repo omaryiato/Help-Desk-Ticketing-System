@@ -89,6 +89,125 @@ $(function () {
 
     'use strict';
 
+    var UserAccount = localStorage.getItem('UserAccount') || $('#UserAccount option:first').val() ; 
+
+    function getUserPrivilag(UserAccount) { 
+        var userRoleID ;
+        $(".overlay").css("display", "flex");
+        $.ajax({
+            method: "POST",
+            url: "function.php",
+            data: {
+                "UserID":                  UserAccount,
+                "action" :                     "getRoleID"
+            },
+            success: function (response) {
+                $(".overlay").css("display", "none");
+                userRoleID = response;
+
+                $("#NavbarItems").empty();
+                        $("#HomePageItems").empty();
+    
+                $("#NavbarItems").append(`
+            <li><a href="TicketTransaction.php" aria-label="Go To The User Profile"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions</a></li>
+            <li><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account"><i class="fa-solid fa-plus pe-2"></i>New Tickets</a></li>
+                `)
+    
+                if (userRoleID == 1 || userRoleID == 3) {
+                    $("#NavbarItems").append(`<li><a href="delegate.php" aria-label="Logout From User Account"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</a></li>`);
+                } 
+                
+                if (userRoleID == 1) {
+                    $("#NavbarItems").append(`
+                        <li><a href="teams.php" aria-label="Go To The User Orders"><i class="fa-solid fa-users pe-2"></i>Team Member</a></li>
+                        <li><a href="service.php" aria-label="Logout From User Account"><i class="fa-solid fa-headphones pe-2"></i>Services</a></li>
+                        <li><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</a></li>
+                    `);
+                }
+                
+                $("#HomePageItems").append(`
+                    <div class="col-sm-4 mb-3  ">
+                    <div class="card" style="width: 15rem; height: 15rem;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions Page</h5>
+                            <p class="card-text mt-2">Go To The Ticket Transaction Page.</p>
+                            <button class="mt-auto"><a href="TicketTransaction.php" id="TicketTransationTable" aria-label="Go To The User Profile" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="col-sm-4 mb-3 ">
+                        <div class="card" style="width: 15rem; height: 15rem;">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title"><i class="fa-solid fa-plus pe-2"></i>Create New Tickets</h5>
+                                <p class="card-text mt-2">Tell Us About Your Problem.</p>
+                                <button class="mt-auto"><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                            </div>
+                        </div>
+                    </div>
+                `);
+    
+                if (userRoleID == 1 || userRoleID == 3) {
+                    $("#HomePageItems").append(`
+                        <div class="col-sm-4 mb-3 ">
+                            <div class="card" style="width: 15rem; height: 15rem;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</h5>
+                                    <p class="card-text mt-2">Delegate With Other Supervisors.</p>
+                                    <button class="mt-auto"><a href="delegate.php" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                </div>
+                            </div>
+                        </div>
+                    `)
+                } 
+    
+                if (userRoleID == 1) {
+                    $("#HomePageItems").append(`
+                        <div class="col-sm-4 mb-3 ">
+                            <div class="card" style="width: 15rem; height: 15rem;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><i class="fa-solid fa-users pe-2"></i>Team Member</h5>
+                                    <p class="card-text mt-2">Go To The Manage Team Member Page.</p>
+                                    <button class="mt-auto"><a href="teams.php" aria-label="Go To The User Orders" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 mb-3 ">
+                            <div class="card" style="width: 15rem; height: 15rem;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><i class="fa-solid fa-headphones pe-2"></i>Services</h5>
+                                    <p class="card-text mt-2">Go To The Manage Service Page.</p>
+                                    <button class="mt-auto"><a href="service.php" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4 mb-3 ">
+                            <div class="card " style="width: 15rem; height: 15rem;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>
+                                    <p class="card-text mt-2">Confirm All Solved Tickets Thats Not Confirmeds.</p>
+                                    <button class="mt-auto"><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirmhome" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></li>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                }
+                
+            },
+            error: function(xhr, status, error) {
+                $(".overlay").css("display", "none");
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "There's Somthing Wrong !!!",
+                });
+                console.error(xhr.responseText); // For debugging
+                
+            }
+        });
+    }
+
+    getUserPrivilag(UserAccount);
+
     // Hide Placeholder On Form Focus
 
     $('[placeholder]').focus(function () {
@@ -100,24 +219,32 @@ $(function () {
         $(this).attr('placeholder', $(this).attr('data-text'));
     });
 
-    // Toggel User Dropdown List
+    var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
+    var refreshTableData;
+    var refreshCountSection;
 
-    // $('.users').click(function(event) {
-    //     // Prevent the event from bubbling up to the document
-    //     event.stopPropagation();
-    //     // Toggle the .userno element
-    //     $('.userno').toggle(100);
-    // });
+    $('#refreshMode').val(refreshMode); // Set the value of the select element to the saved refresh mode
 
-    // $(document).on('click', function(event) {
-    //     // Check if the clicked element is not part of .users or .userno
-    //     if (!$(event.target).closest('.users, .userno').length) {
-    //         // Hide the user list element
-    //         $('.userno').hide(100);
-    //     }
-        
-    // });
-    
+    $('#refreshMode').on('change', function() { // Event listener for refresh mode change
+        refreshMode = $(this).val();
+        localStorage.setItem('refreshMode', refreshMode); // Save refresh mode to local storage
+
+        // If refresh mode is manually, clear the interval
+        if (refreshMode === 'manually') {
+            clearInterval(refreshTableData);
+            clearInterval(refreshCountSection);
+        } else {
+            // Start intervals for auto refresh
+            refreshTableData = setInterval(refreshData, 180000);
+            refreshCountSection = setInterval(updateCounts, 180000);
+        }
+    });
+
+    if (refreshMode === 'auto') { // If refresh mode is auto, start intervals
+        refreshTableData = setInterval(refreshData, 180000);
+        refreshCountSection = setInterval(updateCounts, 180000);
+    }
+
     // Toggel Ticket Transaction Dropdown List
 
     $('.trans').click(function() {
@@ -132,10 +259,11 @@ $(function () {
         }
     });
 
+    
 
     /////////////////////////////////////////// ***************** Manage Service Page Start  *************************/////////////////////////////////////////
 
-    var ServiceUserSessionID =  $('#ServiceUserSessionID').val(); // User Name In This Session (Who Logged In)
+    var ServiceUserSessionID =  UserAccount; // User Name In This Session (Who Logged In)
 
     $("#AddNewServiceForm").validate({                                          // Validate Function For Add New Service PopUp
         rules: {
@@ -796,7 +924,7 @@ $(function () {
 
     ///////////////////////////////////////////***************** Team Member Page Start  *************************/////////////////////////////////////////
 
-    var TeamPageSessionID = $('#TeamPageSessionID').val();
+    var TeamPageSessionID = UserAccount;
 
     $("#AddNewTeamForm").validate({                                          // Validate Function For Add New Team PopUp
         rules: {
@@ -1291,45 +1419,23 @@ $(function () {
 
 
 
+    
     ///////////////////////////////////////////***************** Ticket Transation Page Start  *************************/////////////////////////////////////////
 
-    var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
-    var refreshTableData;
-    var refreshCountSection;
-
-    $('#refreshMode').val(refreshMode); // Set the value of the select element to the saved refresh mode
-
-    $('#refreshMode').on('change', function() { // Event listener for refresh mode change
-        refreshMode = $(this).val();
-        localStorage.setItem('refreshMode', refreshMode); // Save refresh mode to local storage
-
-        // If refresh mode is manually, clear the interval
-        if (refreshMode === 'manually') {
-            clearInterval(refreshTableData);
-            clearInterval(refreshCountSection);
-        } else {
-            // Start intervals for auto refresh
-            refreshTableData = setInterval(refreshData, 180000);
-            refreshCountSection = setInterval(updateCounts, 180000);
-        }
-    });
-
-    if (refreshMode === 'auto') { // If refresh mode is auto, start intervals
-        refreshTableData = setInterval(refreshData, 180000);
-        refreshCountSection = setInterval(updateCounts, 180000);
-    }
+    
 
     $(document).on('click', function () { // Hide context menu on click outside 
         $('.wrapper').css('visibility', 'hidden');
     });
 
-    var TicketTransactionSessionID = $('#TicketTransactionSessionID').val(); // User Who Logged In To The System
+    
+    var TicketTransactionSessionID = UserAccount; // User Who Logged In To The System
     var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
     var noRecord = $('#recoredPerPage').val();
     var order = '';
     var sortOrder = 'DESC';
     var page = 1;
-    var filter = ' ';
+    var filter = 10;
     var allData = [];
 
     var ticketNumber;
@@ -1362,7 +1468,8 @@ $(function () {
         $('#returnedTicketNumber').val(ticketNumber);
         $('#returnTicketNumber').text(ticketNumber);
 
-        var UserRole = $('#UserRole').val();
+    
+        var UserRole = userRoleID;
         var ticketStatus = $(this).find('td:nth-child(5)').text();
         $('#actionTicketTransactionList').empty();
 
@@ -3005,47 +3112,6 @@ $(function () {
         // table2excel.export(document.querySelectorAll("table"));
     });
     
-    $(document).on('click', '#ticketButton', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
-        e.preventDefault();
-        // Get the filter value from the 'data-filter' attribute of the clicked button
-        $('#paginationContainer').empty();
-        $('#numberOfPages').empty();
-        $('#mainTableTicketTransation').empty();
-        $('#mainTableTicketTransation').append('Loading....');
-
-        filter = $(this).data('filter');
-
-        var startTime = new Date().getTime();
-        $.ajax({
-            type: 'POST',
-            url: 'function.php',
-            data: {
-                "userNamePreResault": 'USER_ID',
-                "TicketTransactionSessionID": TicketTransactionSessionID,
-                "Filter": filter,
-                "order": order,
-                "sortOrder": sortOrder,
-                "action": 'TicketTransactionFilter'
-            },
-            success: function(data) {
-                allData = JSON.parse(data);
-                displayFilterData(1, noRecord);
-                var duration = new Date().getTime() - startTime;
-                var durationInSeconds = duration / 1000;
-                $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
-            },
-            error: function(xhr, status, error) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops...",
-                    text: "There's Somthing Wrong !!",
-                });
-                console.error(xhr.responseText);
-            }
-        });
-    });
-
     $(document).on('click', '#orderBy', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
         e.preventDefault();
         // Get the filter value from the 'data-filter' attribute of the clicked button
@@ -3082,143 +3148,8 @@ $(function () {
 
     });
 
-    $('#recoredPerPage').on('change', function(e) { // Return Delegated Users Based On Team Number Function
-        e.preventDefault();
-        noRecord = $(this).val();
-        if (filter == ' ' && Object.keys(searchParams).length === 0) {
-            displayData(page, noRecord);
-        } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
-            displayFilterData(page, noRecord);
-        } else if (Object.keys(searchParams).length !== 0) {
-            displaySearchData(page, noRecord);
-        }
-    });
-
-    $(document).on('click', '.pagination_link', function(e) {
-        e.preventDefault();
-        page = $(this).attr("id");
-
-        if (filter == ' ' && Object.keys(searchParams).length === 0) {
-            displayData(page, noRecord);
-        } else if (filter != ' ' && Object.keys(searchParams).length === 0) {
-            displayFilterData(page, noRecord);
-        } else if (Object.keys(searchParams).length !== 0) {
-            displaySearchData(page, noRecord);
-        }
-    });
-
-    ///////////////////////////////////////////***************** Search Ticket Start  *************************/////////////////////////////////////////
-
-    // Define a global object to store search parameters
-    var searchParams = {};
-
-    // Event listener for search button click
-    $(document).on('click', '#SearchTicketButton', function(e) {
-        e.preventDefault();
-
-        refreshMode = 'manually';
-        $('#refreshMode').val('manually');
-        clearInterval(refreshTableData);
-        clearInterval(refreshCountSection);
-        var startTime = new Date().getTime();
-        // Update search parameters from form inputs
-        searchParams = {
-            SearchTicketNumber: $('#SearchTicketNumber').val(),
-            SearchTicketStatus: $('#SearchTicketStatus').val(),
-            SearchTicketBranch: $('#SearchTicketBranch').val(),
-            SearchTicketPriority: $('#SearchTicketPriority').val(),
-            SearchITTime: $('#SearchITTime').val(),
-            SearchITTimePerHour: $('#SearchITTimePerHour').val(),
-            SearchITTimePerMin: $('#SearchITTimePerMin').val(),
-            SearchITTimePerSec: $('#SearchITTimePerSec').val(),
-            SearchITTimePerSec: $('#SearchITTimePerSec').val(),
-            SearchTotalTime: $('#SearchTotalTime').val(),
-            SearchTotalTimePerHour: $('#SearchTotalTimePerHour').val(),
-            SearchTotalTimePerMin: $('#SearchTotalTimePerMin').val(),
-            SearchTotalTimePerSec: $('#SearchTotalTimePerSec').val(),
-            SearchTicketAssignedTo: $('#SearchTicketAssignedTo').val(),
-            SearchTecIssueDiscription: $('#SearchTecIssueDiscription').val(),
-            SearchTecIssueResolution: $('#SearchTecIssueResolution').val(),
-            SearchResponsibleDept: $('#SearchResponsibleDept').val(),
-            SearchServiceType: $('#SearchServiceType').val(),
-            SearchServiceDetails: $('#SearchServiceDetails').val(),
-            SearchCreatedBy: $('#SearchCreatedBy').val(),
-            SearchDepartment: $('#SearchDepartment').val(),
-            SearchUserIsseDescription: $('#SearchUserIsseDescription').val(),
-            SearchFromDate: $('#SearchFromDate').val(),
-            SearchToDate: $('#SearchToDate').val()
-        };
-
-        if (Object.keys(searchParams).length === 0) {
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Please Choose  at least one field to search!",
-            });
-        } else {
-            $('#SearchTicket').modal('hide');
-            $('#paginationContainer').empty();
-            $('#numberOfPages').empty();
-            $('#mainTableTicketTransation').empty();
-            $('#mainTableTicketTransation').append('Loading....');
-            $.ajax({
-                type: 'POST',
-                url: 'function.php',
-                data: {
-                    // Include search parameters along with page number
-                    "searchParams": searchParams,
-                    "TicketTransactionSessionID": TicketTransactionSessionID,
-                    "USER_ID": 'USER_ID',
-                    "order": order,
-                    "sortOrder": sortOrder,
-                    "action": 'search'
-                },
-                success: function(data) {
-                    $('#SearchTicketNumber').val('');
-                    $('#SearchServiceType').val('');
-                    $('#SearchServiceDetails').val('');
-                    $('#SearchCreatedBy').val('');
-                    $('#SearchDepartment').val('');
-                    $('#SearchTicketStatus').val('');
-                    $('#SearchTicketBranch').val('');
-                    $('#SearchTicketPriority').val('');
-                    $('#SearchTicketAssignedTo').val('');
-                    $('#SearchTecIssueDiscription').val('');
-                    $('#SearchTecIssueResolution').val('');
-                    $('#SearchResponsibleDept').val('');
-                    $('#SearchUserIsseDescription').val('');
-
-                    allData = JSON.parse(data);
-                    displaySearchData(1, noRecord);
-                    var duration = new Date().getTime() - startTime;
-                    var durationInSeconds = duration / 1000;
-                    $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-
-                },
-                error: function(xhr, status, error) {
-                    $('#SearchTicketNumber').val('');
-                    $('#SearchServiceType').val('');
-                    $('#SearchServiceDetails').val('');
-                    $('#SearchCreatedBy').val('');
-                    $('#SearchDepartment').val('');
-                    $('#SearchTicketStatus').val('');
-                    $('#SearchTicketBranch').val('');
-                    $('#SearchTicketPriority').val('');
-                    $('#SearchTicketAssignedTo').val('');
-                    $('#SearchTecIssueDiscription').val('');
-                    $('#SearchTecIssueResolution').val('');
-                    $('#SearchResponsibleDept').val('');
-                    $('#SearchUserIsseDescription').val('');
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "There's Somthing Wrong !!",
-                    });
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    });
+    
+    ///////////////////////////////////////////***************** Search Ticket Start  *************************////////////////////////////////////////
 
     
 
@@ -3275,21 +3206,12 @@ $(function () {
                 "Filter": 10,
                 "action": 'TicketTransactionFilter'
             },
-            success: function(data) {
-
-                if (data === 'empty') {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: "There's No Data To Show It !!",
-                    });
-                } else {
+            success: function(data) { 
                     allData = JSON.parse(data);
                     displayFilterData(page, noRecord);
                     var duration = new Date().getTime() - startTime;
                     var durationInSeconds = duration / 1000;
                     $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
-                }
             },
             error: function(xhr, status, error) {
                 Swal.fire({
@@ -3302,112 +3224,6 @@ $(function () {
         });
     }
     
-    function displayData(page, noRecord) {
-
-        $('#paginationContainer').empty();
-        $('#numberOfPages').empty();
-
-        let startIndex = (page - 1) * noRecord;
-        let endIndex = page * noRecord;
-
-        let pageData = allData.slice(startIndex, endIndex);
-
-        var tableDBody = $('#mainTableTicketTransation');
-
-        // Clear existing rows
-        tableDBody.empty();
-
-        // Loop through the data and append rows to the table
-        pageData.forEach(function(ticket) {
-            var newDRow = $('<tr>');
-
-            if (ticket.TICKET_STATUS == '70') {
-                newDRow.addClass('canceled-row');
-            }
-
-            // Populate each cell with data
-            newDRow.html(`
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
-                ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
-                ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                ''
-                    }</td>
-                <td hidden>${ticket.REQUEST_TYPE_NO}</td>
-                <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
-                <td hidden>${ticket.TICKET_PERIORITY}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
-                <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
-                <td hidden>${ticket.USER_EN_NAME}</td>
-                <td hidden>${ticket.EMAIL}</td>
-                <td hidden>${ticket.EMP_DEPARTMENT}</td>
-                <td hidden>${ticket.RESPONSE_TIME}</td>
-                <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
-                <td hidden>${ticket.SERVICE_EVALUATION}</td>
-                <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
-                <td hidden>${ticket.EVALUATION_FLAG}</td>
-            `);
-
-            // Append the new row to the table body
-            tableDBody.append(newDRow);
-        });
-
-        let noPage = Math.ceil(allData.length / noRecord);
-
-        if (page > 1) {
-            let previous = (page - 1);
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
-        }
-
-        let count = 0;
-        for (let i = page; i <= noPage - 1; i++) {
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
-            count++;
-            if (count == 3 || i == noPage) {
-                break;
-            }
-        }
-
-        if (noPage == page) {
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-        } else {
-            $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-        }
-
-        if (page < noPage) {
-            var next = parseInt(page) + 1;
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
-        }
-
-        $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
-
-        console.log('from success case');
-    }
-
     function displayFilterData(page, noRecord) {
 
         $('#paginationContainer').empty();
@@ -3513,119 +3329,10 @@ $(function () {
         console.log('from success case');
     }
 
-    function displaySearchData(page, noRecord) {
-
-        $('#paginationContainer').empty();
-        $('#numberOfPages').empty();
-
-        let startIndex = (page - 1) * noRecord;
-        let endIndex = page * noRecord;
-
-        let pageData = allData.slice(startIndex, endIndex);
-        var tableDBody = $('#mainTableTicketTransation');
-
-        // Clear existing rows
-        tableDBody.empty();
-
-        // Loop through the data and append rows to the table
-        pageData.forEach(function(ticket) {
-            var newDRow = $('<tr>');
-
-            if (ticket.TICKET_STATUS == '70') {
-                newDRow.addClass('canceled-row');
-            }
-
-            // Populate each cell with data
-            newDRow.html(`
-            <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
-                ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
-                ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
-                ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
-                ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
-                ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
-                ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
-                ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
-                ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
-                ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
-                ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
-                ''
-                    }</td>
-                <td hidden>${ticket.REQUEST_TYPE_NO}</td>
-                <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
-                <td hidden>${ticket.TICKET_PERIORITY}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
-                <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
-                <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
-                <td hidden>${ticket.USER_EN_NAME}</td>
-                <td hidden>${ticket.EMAIL}</td>
-                <td hidden>${ticket.EMP_DEPARTMENT}</td>
-                <td hidden>${ticket.RESPONSE_TIME}</td>
-                <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
-                <td hidden>${ticket.SERVICE_EVALUATION}</td>
-                <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
-                <td hidden>${ticket.EVALUATION_FLAG}</td>
-            `);
-
-            // Append the new row to the table body
-            tableDBody.append(newDRow);
-        });
-
-        let noPage = Math.ceil(allData.length / noRecord);
-
-        if (page > 1) {
-            let previous = (page - 1);
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
-        }
-
-        let count = 0;
-        for (let i = page; i <= noPage - 1; i++) {
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
-            count++;
-            if (count == 3 || i == noPage) {
-                break;
-            }
-        }
-
-        if (noPage == page) {
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-        } else {
-            $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
-        }
-
-        if (page < noPage) {
-            var next = parseInt(page) + 1;
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
-            $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
-        }
-
-        $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
-
-        console.log('from success case');
-
-    }
-
     
-    
+
 
     ///////////////////////////////////////////***************** Ticket Transation Page End  *************************/////////////////////////////////////////
-
-
-
 
 ///////////////////////////////////////////***************** Add New Ticket Page Start  *************************/////////////////////////////////////////
 
@@ -3778,7 +3485,7 @@ $(document).on('click', '#CreateNewTicket', function(e) {         // Hide Ticket
 
 ///////////////////////////////////////////***************** Delegate Page Start  *************************/////////////////////////////////////////
 
-var delegateSessionID = $('#delegateSessionID').val();
+var delegateSessionID = UserAccount;
 
 var currentDate = new Date();
 
@@ -4013,6 +3720,21 @@ $('#StartDate').attr('min', formattedDate);
         window.location.href = 'logout.php';
 
     }); 
+
+
+    $('#UserAccount').val(UserAccount); // Set the value of the select element to the saved refresh mode
+
+    $('#UserAccount').on('change', function() { // Event listener for refresh mode change
+        UserAccount = $(this).val();
+        localStorage.setItem('UserAccount', UserAccount); // Save refresh mode to local storage
+        TicketTransactionSessionID = UserAccount;
+        TeamPageSessionID = UserAccount;
+        ServiceUserSessionID =  UserAccount;
+        delegateSessionID = UserAccount;
+        getUserPrivilag(UserAccount);
+    });
+
+
 });
 
 

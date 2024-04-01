@@ -7,7 +7,7 @@ include 'DBConnection.php';
 
 ///////////////////////////////////////////***************** Ticket Transation Page Request Functions Start  *************************/////////////////////////////////////////
 
-if (isset($_POST['action'])) {
+if (isset($_POST['action'])) {   // All Ticket Transaction Ajax Requeset
 
     $action = $_POST['action'];
 
@@ -1530,6 +1530,24 @@ if (isset($_POST['action'])) {
             print_r($e->getMessage());
             $conn::rollback();
         }
+    } elseif ($action == 'getRoleID') {
+        $UserID = $_POST['UserID'];
+        // Query to fetch users role based on User ID
+        $permission = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $UserID;
+        $userPermission = oci_parse($conn, $permission);
+        $run = oci_execute($userPermission);
+        $roles = oci_fetch_assoc($userPermission); // User Roles
+        $resault = $roles['ROLE_ID'];
+
+        if ($run) {
+            echo $resault;
+        } else {
+            http_response_code(500); // Internal Server Error
+            $errorMessage = oci_error($userPermission)['message'];
+            echo json_encode(['status' => 'error', 'message' => $errorMessage]);
+            // Optionally, you can log the error message for debugging purposes
+            error_log("Error occurred: $errorMessage");
+        }
     }
 }
 
@@ -1545,7 +1563,7 @@ if (isset($_POST['action'])) {
 
 ////////////////////////////////****************************************** Add New Ticket Page Request Functions Start  ***********************************************///////////////////////////////
 
-if (isset($_POST['NewTicket'])) {
+if (isset($_POST['NewTicket'])) {  // All Add New Ticket Ajax Request
 
     $NewTicket = $_POST['NewTicket'];
 

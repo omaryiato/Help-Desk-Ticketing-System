@@ -15,7 +15,6 @@ session_start();
 
 include 'init.php';  // This File Contain ( Header, Footer, Navbar, Function, connection DB) File
 
-// $_SESSION['e-Ticketing'] = $_GET['hashkey'];
 
 // Get the IP address of the client
 if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -26,24 +25,18 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
     $ip_address = $_SERVER['REMOTE_ADDR'];
 }
 
-// $hashKey = $_SESSION['e-Ticketing'];
 $hashKey = $_SESSION['e-Ticketing'];
 $ip_address = '192.168.203.64';
 
 
-
-// if (isset($_SESSION['user'])) {
-
 $checkUser = "SELECT xxajmi_sshr_ticketing.xxajmi_user_valid@TKT_TO_SELF_SERV('$hashKey' ,'$ip_address') AS User_Validat
 from dual";
 $parsChek = oci_parse($conn, $checkUser);
-// oci_bind_by_name($parsChek, ":hashKey", $hashKey);
-// oci_bind_by_name($parsChek, ":ip_address", $ip_address);
 oci_execute($parsChek);
-$run = oci_fetch_assoc($parsChek);
-// $run = oci_result($parsChek, 'VALIDAT');
+$returnedFileNumber = oci_fetch_assoc($parsChek);
+$no_file_number = $returnedFileNumber['USER_VALIDAT'];
 
-if ($run['USER_VALIDAT'] !== 'User not Valid') {
+if ($no_file_number != 'User not Valid') {
 
     // Check if the last activity time is set
     if (isset($_SESSION['LAST_ACTIVITY'])) {
@@ -62,33 +55,11 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
         }
     }
 
-    $userFileNum =  $run['USER_VALIDAT'];
-
     // Update the last activity time
     $_SESSION['LAST_ACTIVITY'] = time();
 
-    $active = 'Y';
-    // Query to fetch users Information based on User Name
-    $activeUsers   = "UPDATE TICKETING.xxajmi_ticket_user_info SET ACTIVE_LOGIN = '" . $active . "'  WHERE EBS_EMPLOYEE_ID = '" .  $userFileNum . "'";
-    $actives       = oci_parse($conn, $activeUsers);
-    oci_execute($actives);
-
-
-    $userInfo   = "SELECT USER_ID, USERNAME  FROM TICKETING.xxajmi_ticket_user_info WHERE EBS_EMPLOYEE_ID = '" . $userFileNum . "'";
-    $info       = oci_parse($conn, $userInfo);
-    oci_execute($info);
-    $row        = oci_fetch_assoc($info);
-    $_SESSION['USER_ID'] = $row['USER_ID'];
-    $_SESSION['USERNAME'] = $row['USERNAME'];
 
     // Select User Roles Based On UserID To Display Data Based On Users Permission
-
-    $role = " SELECT ROLE_ID FROM TICKETING.TKT_REL_ROLE_USERS WHERE USER_ID =  " . $_SESSION['USER_ID'];
-    $userRole = oci_parse($conn, $role);
-    oci_execute($userRole);
-    $roles = oci_fetch_assoc($userRole); // User Roles
-
-    $USER_ID = 'USER_ID';
 
     if ($sid == 'ARCHDEV') {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
@@ -97,11 +68,9 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
     } else {
         echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
     }
-
 ?>
 
     <!-- Main Table Start -->
-    <input type="hidden" id="TicketTransactionSessionID" value="<?php echo $_SESSION['USER_ID'] ?>" disabled readonly>
 
     <main class="content px-3 py-2">
         <div class="container-fluid">
@@ -307,8 +276,7 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
                 <div class="contents">
                     <span style="padding: 10px;"> Ticket No#:</span>
                     <span id="returnTicketNumber"></span>
-                    <input type="hidden" id="TicketTransactionSessionID" value="<?php echo  $userNamePreResault ?>" disabled readonly>
-                    <input type="hidden" id="UserRole" value="<?php echo  $roles['ROLE_ID'] ?>" disabled readonly>
+                    <input type="hidden" id="UserRole" disabled readonly>
                     <ul class="menu" id="actionTicketTransactionList">
 
                     </ul>
@@ -1405,7 +1373,134 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
     <script>
         $(function() {
 
-            var TicketTransactionSessionID = $('#TicketTransactionSessionID').val(); // User Who Logged In To The System
+            var UserAccount = localStorage.getItem('UserAccount') || $('#UserAccount option:first').val(); // Get refresh mode from local storage or default to 'auto'
+            var TicketTransactionSessionID = UserAccount; // User Who Logged In To The System
+
+            $('#UserAccount').val(UserAccount); // Set the value of the select element to the saved refresh mode
+
+            $('#UserAccount').on('change', function() { // Event listener for refresh mode change
+                UserAccount = $(this).val();
+                localStorage.setItem('UserAccount', UserAccount); // Save refresh mode to local storage
+                TicketTransactionSessionID = UserAccount;
+                updateCounts();
+                getAllData(TicketTransactionSessionID, order, sortOrder);
+                getUserPrivilag(UserAccount);
+            });
+
+            function getUserPrivilag(UserAccount) {
+                $.ajax({
+                    method: "POST",
+                    url: "function.php",
+                    data: {
+                        "UserID": UserAccount,
+                        "action": "getRoleID"
+                    },
+                    success: function(response) {
+
+                        userRoleID = response;
+
+                        $("#NavbarItems").empty();
+                        $("#HomePageItems").empty();
+
+                        $("#NavbarItems").append(`
+                            <li><a href="TicketTransaction.php" aria-label="Go To The User Profile"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions</a></li>
+                            <li><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account"><i class="fa-solid fa-plus pe-2"></i>New Tickets</a></li>
+                        `)
+
+                        if (userRoleID == 1 || userRoleID == 3) {
+                            $("#NavbarItems").append(`<li><a href="delegate.php" aria-label="Logout From User Account"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</a></li>`);
+                        }
+
+                        if (userRoleID == 1) {
+                            $("#NavbarItems").append(`
+                                <li><a href="teams.php" aria-label="Go To The User Orders"><i class="fa-solid fa-users pe-2"></i>Team Member</a></li>
+                                <li><a href="service.php" aria-label="Logout From User Account"><i class="fa-solid fa-headphones pe-2"></i>Services</a></li>
+                                <li><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirm"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</a></li>
+                            `);
+                        }
+
+                        $("#HomePageItems").append(`
+                            <div class="col-sm-4 mb-3  ">
+                            <div class="card" style="width: 15rem; height: 15rem;">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions Page</h5>
+                                    <p class="card-text mt-2">Go To The Ticket Transaction Page.</p>
+                                    <button class="mt-auto"><a href="TicketTransaction.php" id="TicketTransationTable" aria-label="Go To The User Profile" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                </div>
+                            </div>
+                            </div>
+                            <div class="col-sm-4 mb-3 ">
+                                <div class="card" style="width: 15rem; height: 15rem;">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title"><i class="fa-solid fa-plus pe-2"></i>Create New Tickets</h5>
+                                        <p class="card-text mt-2">Tell Us About Your Problem.</p>
+                                        <button class="mt-auto"><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+
+                        if (userRoleID == 1 || userRoleID == 3) {
+                            $("#HomePageItems").append(`
+                                <div class="col-sm-4 mb-3 ">
+                                    <div class="card" style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</h5>
+                                            <p class="card-text mt-2">Delegate With Other Supervisors.</p>
+                                            <button class="mt-auto"><a href="delegate.php" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            `)
+                        }
+
+                        if (userRoleID == 1) {
+                            $("#HomePageItems").append(`
+                                <div class="col-sm-4 mb-3 ">
+                                    <div class="card" style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-users pe-2"></i>Team Member</h5>
+                                            <p class="card-text mt-2">Go To The Manage Team Member Page.</p>
+                                            <button class="mt-auto"><a href="teams.php" aria-label="Go To The User Orders" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 mb-3 ">
+                                    <div class="card" style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-headphones pe-2"></i>Services</h5>
+                                            <p class="card-text mt-2">Go To The Manage Service Page.</p>
+                                            <button class="mt-auto"><a href="service.php" aria-label="Logout From User Account" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 mb-3 ">
+                                    <div class="card " style="width: 15rem; height: 15rem;">
+                                        <div class="card-body d-flex flex-column">
+                                            <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>
+                                            <p class="card-text mt-2">Confirm All Solved Tickets Thats Not Confirmeds.</p>
+                                            <button class="mt-auto"><a href="##" aria-label="Confirm All Solved Ticket " id="UpdateAllSolveTicketToConfirmhome" style="font-weight: bold;">Go To<i class="fa-solid fa-arrow-right ps-2"></i></a></li>
+                                        </div>
+                                    </div>
+                                </div>
+                            `);
+                        }
+
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "There's Somthing Wrong !!!",
+                        });
+                        console.error(xhr.responseText); // For debugging
+
+                    }
+                });
+            }
+
+            getUserPrivilag(UserAccount);
+
             var USER_ID = 'USER_ID'; //  Add To Global Table To Fetch User Ticket Data 
             var noRecord = $('#recoredPerPage').val();
             var order = '';
@@ -1413,6 +1508,243 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
             var page = 1;
             var filter = ' ';
             var allData = [];
+
+            // Define a global object to store search parameters
+            var searchParams = {};
+
+            var refreshMode = localStorage.getItem('refreshMode') || 'auto'; // Get refresh mode from local storage or default to 'auto'
+            var refreshTableData;
+            var refreshCountSection;
+
+            $('#refreshMode').val(refreshMode); // Set the value of the select element to the saved refresh mode
+
+            $('#refreshMode').on('change', function() { // Event listener for refresh mode change
+                refreshMode = $(this).val();
+                localStorage.setItem('refreshMode', refreshMode); // Save refresh mode to local storage
+
+                // If refresh mode is manually, clear the interval
+                if (refreshMode === 'manually') {
+                    clearInterval(refreshTableData);
+                    clearInterval(refreshCountSection);
+                } else {
+                    // Start intervals for auto refresh
+                    refreshTableData = setInterval(refreshData, 180000);
+                    refreshCountSection = setInterval(updateCounts, 180000);
+                }
+            });
+
+            if (refreshMode === 'auto') { // If refresh mode is auto, start intervals
+                refreshTableData = setInterval(refreshData, 180000);
+                refreshCountSection = setInterval(updateCounts, 180000);
+            }
+
+            // Event listener for search button click
+            $(document).on('click', '#SearchTicketButton', function(e) {
+                e.preventDefault();
+
+                refreshMode = 'manually';
+                $('#refreshMode').val('manually');
+                clearInterval(refreshTableData);
+                clearInterval(refreshCountSection);
+                var startTime = new Date().getTime();
+                // Update search parameters from form inputs
+                searchParams = {
+                    SearchTicketNumber: $('#SearchTicketNumber').val(),
+                    SearchTicketStatus: $('#SearchTicketStatus').val(),
+                    SearchTicketBranch: $('#SearchTicketBranch').val(),
+                    SearchTicketPriority: $('#SearchTicketPriority').val(),
+                    SearchITTime: $('#SearchITTime').val(),
+                    SearchITTimePerHour: $('#SearchITTimePerHour').val(),
+                    SearchITTimePerMin: $('#SearchITTimePerMin').val(),
+                    SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+                    SearchITTimePerSec: $('#SearchITTimePerSec').val(),
+                    SearchTotalTime: $('#SearchTotalTime').val(),
+                    SearchTotalTimePerHour: $('#SearchTotalTimePerHour').val(),
+                    SearchTotalTimePerMin: $('#SearchTotalTimePerMin').val(),
+                    SearchTotalTimePerSec: $('#SearchTotalTimePerSec').val(),
+                    SearchTicketAssignedTo: $('#SearchTicketAssignedTo').val(),
+                    SearchTecIssueDiscription: $('#SearchTecIssueDiscription').val(),
+                    SearchTecIssueResolution: $('#SearchTecIssueResolution').val(),
+                    SearchResponsibleDept: $('#SearchResponsibleDept').val(),
+                    SearchServiceType: $('#SearchServiceType').val(),
+                    SearchServiceDetails: $('#SearchServiceDetails').val(),
+                    SearchCreatedBy: $('#SearchCreatedBy').val(),
+                    SearchDepartment: $('#SearchDepartment').val(),
+                    SearchUserIsseDescription: $('#SearchUserIsseDescription').val(),
+                    SearchFromDate: $('#SearchFromDate').val(),
+                    SearchToDate: $('#SearchToDate').val()
+                };
+
+                if (Object.keys(searchParams).length === 0) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Please Choose  at least one field to search!",
+                    });
+                } else {
+                    $('#SearchTicket').modal('hide');
+                    $('#paginationContainer').empty();
+                    $('#numberOfPages').empty();
+                    $('#mainTableTicketTransation').empty();
+                    $('#mainTableTicketTransation').append('Loading....');
+                    $.ajax({
+                        type: 'POST',
+                        url: 'function.php',
+                        data: {
+                            // Include search parameters along with page number
+                            "searchParams": searchParams,
+                            "TicketTransactionSessionID": TicketTransactionSessionID,
+                            "USER_ID": 'USER_ID',
+                            "order": order,
+                            "sortOrder": sortOrder,
+                            "action": 'search'
+                        },
+                        success: function(data) {
+                            $('#SearchTicketNumber').val('');
+                            $('#SearchServiceType').val('');
+                            $('#SearchServiceDetails').val('');
+                            $('#SearchCreatedBy').val('');
+                            $('#SearchDepartment').val('');
+                            $('#SearchTicketStatus').val('');
+                            $('#SearchTicketBranch').val('');
+                            $('#SearchTicketPriority').val('');
+                            $('#SearchTicketAssignedTo').val('');
+                            $('#SearchTecIssueDiscription').val('');
+                            $('#SearchTecIssueResolution').val('');
+                            $('#SearchResponsibleDept').val('');
+                            $('#SearchUserIsseDescription').val('');
+
+                            allData = JSON.parse(data);
+                            displaySearchData(1, noRecord);
+                            var duration = new Date().getTime() - startTime;
+                            var durationInSeconds = duration / 1000;
+                            $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+                        },
+                        error: function(xhr, status, error) {
+                            $('#SearchTicketNumber').val('');
+                            $('#SearchServiceType').val('');
+                            $('#SearchServiceDetails').val('');
+                            $('#SearchCreatedBy').val('');
+                            $('#SearchDepartment').val('');
+                            $('#SearchTicketStatus').val('');
+                            $('#SearchTicketBranch').val('');
+                            $('#SearchTicketPriority').val('');
+                            $('#SearchTicketAssignedTo').val('');
+                            $('#SearchTecIssueDiscription').val('');
+                            $('#SearchTecIssueResolution').val('');
+                            $('#SearchResponsibleDept').val('');
+                            $('#SearchUserIsseDescription').val('');
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "There's Somthing Wrong !!",
+                            });
+                            console.error(xhr.responseText);
+                        }
+                    });
+                }
+            });
+
+            $(document).on('click', '#ticketButton', function(e) { // Fetch Ticket Transaction Data From DB Based On User Session And Ticket Status When Click On Tickets Button
+                e.preventDefault();
+                // Get the filter value from the 'data-filter' attribute of the clicked button
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+                $('#mainTableTicketTransation').empty();
+                $('#mainTableTicketTransation').append('Loading....');
+
+                filter = $(this).data('filter');
+
+                var startTime = new Date().getTime();
+                $.ajax({
+                    type: 'POST',
+                    url: 'function.php',
+                    data: {
+                        "userNamePreResault": 'USER_ID',
+                        "TicketTransactionSessionID": TicketTransactionSessionID,
+                        "Filter": filter,
+                        "order": order,
+                        "sortOrder": sortOrder,
+                        "action": 'TicketTransactionFilter'
+                    },
+                    success: function(data) {
+                        allData = JSON.parse(data);
+                        displayFilterData(1, noRecord);
+                        var duration = new Date().getTime() - startTime;
+                        var durationInSeconds = duration / 1000;
+                        $('#time').html("<h5 class='text-center' style='color: red; border: 1px solid black; max-width: 300px; padding: 10px; margin-left: 20px;  '>AJAX request took " + durationInSeconds + " seconds</h5>");
+
+                    },
+                    error: function(xhr, status, error) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: "There's Somthing Wrong !!",
+                        });
+                        console.error(xhr.responseText);
+                    }
+                });
+            });
+
+            $('#recoredPerPage').on('change', function(e) { // Return Delegated Users Based On Team Number Function
+                e.preventDefault();
+                noRecord = $(this).val();
+                if (filter >= 10 && Object.keys(searchParams).length === 0) {
+                    displayFilterData(page, noRecord);
+                } else if (Object.keys(searchParams).length !== 0) {
+                    displaySearchData(page, noRecord);
+                }
+            });
+
+            $(document).on('click', '.pagination_link', function(e) {
+                e.preventDefault();
+                page = $(this).attr("id");
+
+                if (filter = 10) {
+                    displayFilterData(page, noRecord);
+                } else if (filter >= 10) {
+                    displayFilterData(page, noRecord);
+                } else if (Object.keys(searchParams).length !== 0) {
+                    displaySearchData(page, noRecord);
+                }
+            });
+
+            function updateCounts() {
+
+                var allRecord = 0; // Initialize the total count
+
+                $('.tickets').each(function() {
+                    var filter = $(this).data('filter');
+                    $.ajax({
+                        type: 'POST',
+                        url: 'function.php', // Replace with the URL of your PHP file to get the count
+                        data: {
+                            "filter": filter,
+                            "USER_ID": USER_ID,
+                            "TicketTransactionSessionID": TicketTransactionSessionID,
+                            "action": 'getFilterdData'
+                        },
+                        success: function(response) {
+                            $('#count-' + filter).text('( ' + response + ' )');
+                            allRecord += parseInt(response);
+                            $('#allRows').text('( ' + allRecord + ' )');
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Oops...",
+                                text: "There's Somthing Wrong !!",
+                            });
+                            console.error(xhr.responseText);
+                        }
+                    });
+                });
+            }
+
+            function refreshData() {
+                getAllData(TicketTransactionSessionID, order, sortOrder);
+            }
 
             function getAllData(TicketTransactionSessionID, order, sortOrder) {
                 $('.tran').hide(100);
@@ -1458,43 +1790,117 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
                 });
             }
 
-            function updateCounts() {
-
-                var allRecord = 0; // Initialize the total count
-
-                $('.tickets').each(function() {
-                    var filter = $(this).data('filter');
-                    $.ajax({
-                        type: 'POST',
-                        url: 'function.php', // Replace with the URL of your PHP file to get the count
-                        data: {
-                            "filter": filter,
-                            "USER_ID": USER_ID,
-                            "TicketTransactionSessionID": TicketTransactionSessionID,
-                            "action": 'getFilterdData'
-                        },
-                        success: function(response) {
-                            $('#count-' + filter).text('( ' + response + ' )');
-                            allRecord += parseInt(response);
-                            $('#allRows').text('( ' + allRecord + ' )');
-                        },
-                        error: function(xhr, status, error) {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Oops...",
-                                text: "There's Somthing Wrong !!",
-                            });
-                            console.error(xhr.responseText);
-                        }
-                    });
-                });
-            }
 
             updateCounts();
 
             getAllData(TicketTransactionSessionID, order, sortOrder);
 
             function displayFilterData(page, noRecord) {
+
+                $('#paginationContainer').empty();
+                $('#numberOfPages').empty();
+
+                let startIndex = (page - 1) * noRecord;
+                let endIndex = page * noRecord;
+
+                let pageData = allData.slice(startIndex, endIndex);
+                var tableDBody = $('#mainTableTicketTransation');
+
+                // Clear existing rows
+                tableDBody.empty();
+
+                // Loop through the data and append rows to the table
+                pageData.forEach(function(ticket) {
+                    var newDRow = $('<tr>');
+
+                    if (ticket.TICKET_STATUS == '70') {
+                        newDRow.addClass('canceled-row');
+                    }
+
+                    // Populate each cell with data
+                    newDRow.html(`
+                    <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_NO}'>${ticket.TICKET_NO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_TYPE}'>${ticket.SERVICE_TYPE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.SERVICE_DETAIL}'>${ticket.SERVICE_DETAIL}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_PERIORITY_MEANING}'>${ticket.TICKET_PERIORITY_MEANING}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_STATUS}'>${
+                        ticket.TICKET_STATUS == '10' ? '<span class="badge bg-secondary">New</span>' :
+                        ticket.TICKET_STATUS == '20' ? '<span class="badge bg-warning">Assigned</span>' :
+                        ticket.TICKET_STATUS == '30' ? '<span class="badge bg-info">Started</span>' :
+                        ticket.TICKET_STATUS == '60' ? '<span class="badge bg-success">Solved</span>' :
+                        ticket.TICKET_STATUS == '40' ? '<span class="badge bg-success">Confirmed</span>' :
+                        ticket.TICKET_STATUS == '50' ? '<span class="badge bg-danger">Rejected</span>' :
+                        ticket.TICKET_STATUS == '70' ? '<span class="badge bg-danger">Canceled</span>' :
+                        ticket.TICKET_STATUS == '110' ? '<span class="badge bg-info">Sent Out</span>' :
+                        ticket.TICKET_STATUS == '120' ? '<span class="badge bg-primary">Recevied</span>' :
+                        ticket.TICKET_STATUS == '140' ? '<span class="badge bg-success">Confirmed by system</span>' :
+                        ''
+                            }</td>
+                        <td hidden>${ticket.REQUEST_TYPE_NO}</td>
+                        <td hidden>${ticket.SERVICE_DETAIL_NO}</td>
+                        <td hidden>${ticket.TICKET_PERIORITY}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ISSUE_DESCRIPTION}'>${ticket.ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_DESCRIPTION}'>${ticket.TECHNICAL_ISSUE_DESCRIPTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TECHNICAL_ISSUE_RESOLUTION}'>${ticket.TECHNICAL_ISSUE_RESOLUTION}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.USERNAME}'>${ticket.USERNAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.DEPARTMENT_NAME}'>${ticket.DEPARTMENT_NAME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_START_DATE}'>${ticket.TICKET_START_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.BRANCH_CODE}'>${ticket.BRANCH_CODE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.ASSIGNED_TO}'>${ticket.ASSIGNED_TO}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TICKET_END_DATE}'>${ticket.TICKET_END_DATE}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TTOTAL_TIME}'>${ticket.TTOTAL_TIME}</td>
+                        <td data-bs-toggle='tooltip' data-bs-placement='top' title='${ticket.TOTAL_TIME}'>${ticket.TOTAL_TIME}</td>
+                        <td hidden>${ticket.TICKET_STATUS_MEANING}</td>
+                        <td hidden>${ticket.USER_EN_NAME}</td>
+                        <td hidden>${ticket.EMAIL}</td>
+                        <td hidden>${ticket.EMP_DEPARTMENT}</td>
+                        <td hidden>${ticket.RESPONSE_TIME}</td>
+                        <td hidden>${ticket.TECHNICIAN_ATTITUDE}</td>
+                        <td hidden>${ticket.SERVICE_EVALUATION}</td>
+                        <td hidden>${ticket.REQUESTOR_COMMENTS}</td>
+                        <td hidden>${ticket.EVALUATION_FLAG}</td>
+                    `);
+
+                    // Append the new row to the table body
+                    tableDBody.append(newDRow);
+                });
+
+                let noPage = Math.ceil(allData.length / noRecord);
+
+                if (page > 1) {
+                    let previous = (page - 1);
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + 1 + "'>First</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + previous + "'>Previous</span></li>");
+                }
+
+                let count = 0;
+                for (let i = page; i <= noPage - 1; i++) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + i + "'>" + i + "</span></li>");
+                    count++;
+                    if (count == 3 || i == noPage) {
+                        break;
+                    }
+                }
+
+                if (noPage == page) {
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                } else {
+                    $('#paginationContainer').append("<li class='page-item'><span class='' style='margin: 5px;' >....</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link ' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>" + noPage + "</span></li>");
+                }
+
+                if (page < noPage) {
+                    var next = parseInt(page) + 1;
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + next + "'>Next</span></li>");
+                    $('#paginationContainer').append("<li class='page-item'><span class='pagination_link pagination page-link' style='cursor: pointer; padding: 5px 10px; margin: 5px; border: 1px solid #0069d9; border-radius: 50% ; ' id='" + noPage + "'>Last</span></li>");
+                }
+
+                $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
+
+                console.log('from success case');
+            }
+
+            function displaySearchData(page, noRecord) {
 
                 $('#paginationContainer').empty();
                 $('#numberOfPages').empty();
@@ -1597,14 +2003,14 @@ if ($run['USER_VALIDAT'] !== 'User not Valid') {
                 $('#numberOfPages').html('<span style="color: #0069d9;"> Showing <b> ' + page + ' </b> of <b>' + noPage + ' </b> Pages : </span>');
 
                 console.log('from success case');
+
             }
-            ///////////////////////////////////////////***************** Search Ticket End  *************************/////////////////////////////////////////
 
         });
     </script>
 <?php
 } else {
-    header('Location: portal.php');
+    header('Location: https://sshr.alajmi.com.sa/public/index.php/login');
     exit();
 }
 
