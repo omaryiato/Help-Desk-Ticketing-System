@@ -57,7 +57,7 @@ if ($no_file_number != 'User not Valid') {
             session_destroy(); // Destroy the session
 
             // Redirect the user to the login page
-            header("Location: portal.php");
+            header("Location: https://sshr.alajmi.com.sa/public/index.php/login");
             exit(); // Ensure that no further code is executed
         }
     }

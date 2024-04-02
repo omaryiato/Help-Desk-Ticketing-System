@@ -106,11 +106,11 @@ $(function () {
                 userRoleID = response;
 
                 $("#NavbarItems").empty();
-                        $("#HomePageItems").empty();
+                $("#HomePageItems").empty();
     
                 $("#NavbarItems").append(`
-            <li><a href="TicketTransaction.php" aria-label="Go To The User Profile"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions</a></li>
-            <li><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account"><i class="fa-solid fa-plus pe-2"></i>New Tickets</a></li>
+                    <li><a href="TicketTransaction.php" aria-label="Go To The User Profile"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions</a></li>
+                    <li><a href="##" id="CreateNewTicket" data-bs-toggle='modal' data-bs-target="#AddNewTicketPopup" data-bs-whatever="AddNewTicketPopup" aria-label="Logout From User Account"><i class="fa-solid fa-plus pe-2"></i>New Tickets</a></li>
                 `)
     
                 if (userRoleID == 1 || userRoleID == 3) {
@@ -3714,7 +3714,8 @@ $('#StartDate').attr('min', formattedDate);
             iconHtml: '<i class="fas fa-power-off"></i>',
             title: "Logging  Out ...",
             text: "Good Bye",
-            showConfirmButton: false
+            showConfirmButton: false,
+            allowOutsideClick: false 
         });
 
         window.location.href = 'logout.php';
