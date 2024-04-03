@@ -1,9 +1,6 @@
 /* Start Main Rulez */
 
-body {
-  background-color: white;
-  font-size: 16px;
-}
+body { background-color: white; font-size: 16px;}
 
 .asterisk {
   color: red;
@@ -18,40 +15,23 @@ body {
 
 /* Start Login Form */
 
-.login {
-  width: 450px;
-  margin: 20px auto;
-}
+.login { width: 450px; margin: 20px auto; }
 
-.login h4 {
-  color: #888;
-}
+.login h4 {color: #888;}
 
-.login input {
-  margin-bottom: 10px;
-}
+.login input {margin-bottom: 10px;}
 
-.login .form-control {
-  background-color: #eaeaee;
-}
+.login .form-control {background-color: #eaeaee;}
 
-.login .btn {
-  background-color: #008dde;
-}
+.login .btn {background-color: #008dde;}
 
 /* End Login Form */
 
 /*  Start Bootstrap Edits  */
 
-.navbar {
-  border-radius: 10px;
-  margin-bottom: 0;
-  color: white;
-}
+.navbar { border-radius: 10px; margin-bottom: 0; color: white; }
 
-.navbar-nav {
-  color: white !important;
-}
+.navbar-nav { color: white !important; }
 
 .navbar-nav > li > a {
   padding-top: 15px;
@@ -60,14 +40,9 @@ body {
   color: white;
 }
 
-.nav > li > a {
-  padding: 15px 12px;
-  transition: all 0.5s ease;
-}
+.nav > li > a { padding: 15px 12px; transition: all 0.5s ease; }
 
-.form-control {
-  position: relative;
-}
+.form-control { position: relative; }
 
 .nice-message {
   background-color: white;
@@ -95,22 +70,14 @@ h1 {
   font-size: 25px;
 }
 
-.first {
-  max-width: 500px !important;
-}
+.first {max-width: 500px !important;}
 
-.main-table {
-  box-shadow: 0 3px 10px #ccc;
-}
+.main-table {box-shadow: 0 3px 10px #ccc;}
 
 .main-table .activate,
-.main-table .deactivate {
-  margin-left: 5px;
-}
+.main-table .deactivate { margin-left: 5px;}
 
-.main-table .activate {
-  margin-right: 5px;
-}
+.main-table .activate { margin-right: 5px;}
 
 .main-table .admin,
 .main-table .member {
@@ -121,9 +88,7 @@ h1 {
   border-radius: 10px;
 }
 
-.main-table .admin {
-  background-color: rgb(230, 189, 5);
-}
+.main-table .admin { background-color: rgb(230, 189, 5);}
 
 .main-table .open,
 .main-table .cloes,
@@ -135,72 +100,39 @@ h1 {
   border-radius: 10px;
 }
 
-.main-table .cloes {
-  background-color: rgb(6, 127, 220);
-}
+.main-table .cloes {background-color: rgb(6, 127, 220);}
 
-.main-table .solve {
-  background-color: green;
-}
+.main-table .solve {background-color: green;}
 /*  End Users Page  */
 
 /*  Start Ticket Page  */
 
 .information,
-.review {
-  margin-top: 20px;
-}
+.review {margin-top: 20px;}
 
 .information ul,
-.review ul {
-  padding: 0;
-  margin: 0;
-}
+.review ul { padding: 0; margin: 0;}
 
 .information ul li,
-.review ul li {
-  padding: 5px;
-}
+.review ul li {padding: 5px;}
 
 .information ul li:nth-child(odd),
-.review ul li:nth-child(odd) {
-  background-color: #eee;
-}
+.review ul li:nth-child(odd) {background-color: #eee;}
 
 .information ul li span,
-.review ul li span {
-  display: inline-block;
-  width: 250px;
-}
+.review ul li span { display: inline-block; width: 250px;}
 
-.add-respanse h3 {
-  margin: 0 0 10px;
-}
+.add-respanse h3 { margin: 0 0 10px;}
 
-.add-respanse .input {
-  display: block;
-  margin-bottom: 10px;
-  width: 400px;
-}
+.add-respanse .input { display: block; margin-bottom: 10px; width: 400px;}
 
-.add-respanse .send {
-  margin-bottom: 30px;
-}
+.add-respanse .send { margin-bottom: 30px; }
 
-h3 {
-  font-size: 1.2375rem;
-  color: white;
-}
+h3 { font-size: 1.2375rem; color: white;}
 
-a {
-  cursor: pointer;
-  text-decoration: none;
-  font-family: "Poppins", sans-serif;
-}
+a { cursor: pointer; text-decoration: none; font-family: "Poppins", sans-serif; }
 
-li {
-  list-style: none;
-}
+li { list-style: none; }
 
 /* .userno {
   z-index: 9999;
@@ -242,15 +174,9 @@ li {
   display: none;
 }
 
-.tran a {
-  padding: 0;
-  font-size: 18px;
-}
+.tran a { padding: 0; font-size: 18px; }
 
-.tran li {
-  padding: 0 10px;
-  height: 50px;
-}
+.tran li { padding: 0 10px; height: 50px; }
 
 /* Sidebar */
 
@@ -263,21 +189,11 @@ li {
   transition: all 0.35s ease-in-out;
 }
 
-.sidebar-logo a {
-  color: #00205b;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
+.sidebar-logo a { color: #00205b; font-size: 1.25rem; font-weight: 600; }
 
-.sidebar-nav {
-  padding: 0;
-}
+.sidebar-nav {padding: 0;}
 
-.sidebar-header {
-  color: #00205b;
-  font-size: 0.75rem;
-  padding: 1.5rem 1.5rem 0.375rem;
-}
+.sidebar-header { color: #00205b; font-size: 0.75rem; padding: 1.5rem 1.5rem 0.375rem; }
 
 a.sidebar-link {
   padding: 0.625rem 1.625rem;
@@ -299,9 +215,7 @@ a.sidebar-link {
 /* Responsive */
 
 @media (min-width: 768px) {
-  .content {
-    width: auto;
-  }
+  .content {width: auto;}
 }
 
 /*  End  Ticket Page  */
@@ -319,8 +233,7 @@ a.sidebar-link {
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
-.check input:checked[type="checkbox"] {
-  background-color: #03a9f4;
+.check input:checked[type="checkbox"] {background-color: #03a9f4;
 }
 
 .check input[type="checkbox"]::before {
@@ -337,9 +250,7 @@ a.sidebar-link {
   transition: 0.5s;
 }
 
-.check input:checked[type="checkbox"]::before {
-  left: 30px;
-}
+.check input:checked[type="checkbox"]::before {left: 30px;}
 
 /****************   Action List Start **************/
 
@@ -351,13 +262,9 @@ a.sidebar-link {
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
 }
 
-.wrapper .menu {
-  padding: 10px 12px;
-}
+.wrapper .menu {padding: 10px 12px;}
 
-.contents ul li {
-  list-style: none;
-}
+.contents ul li {list-style: none;}
 
 .contents .item {
   text-decoration: none;
@@ -375,22 +282,13 @@ a.sidebar-link {
   background-color: white;
 }
 
-.contents .item:hover {
-  background: #f2f2f2f2;
-}
+.contents .item:hover {background: #f2f2f2f2;}
 
-.contents .item span {
-  font-size: 19px;
-  margin-left: 8px;
-}
+.contents .item span {font-size: 19px; margin-left: 8px;}
 
 /* Table Design */
 
-.scroll-wrapper {
-  max-width: calc(100vw - 50px);
-  max-height: calc(60vh - 50px);
-  /* overflow-x: scroll; */
-}
+.scroll-wrapper {max-width: calc(100vw - 50px); max-height: calc(60vh - 50px);}
 
 .content .scro,
 .content .teamMember {
@@ -421,59 +319,30 @@ a.sidebar-link {
 }
 
 .content .scro tbody tr,
-.content .teamMember tbody tr {
-  background: white;
-  border-bottom: 1px solid #ccc;
-  cursor: pointer;
-}
+.content .teamMember tbody tr { background: white; border-bottom: 1px solid #ccc; cursor: pointer;}
 
-.content .scro td {
-  height: 50px;
-  text-align: center;
-  cursor: pointer;
-}
+.content .scro td { height: 50px; text-align: center; cursor: pointer; }
 
 .content .scro th:nth-child(1),
-.content .scro td:nth-child(1) {
-  position: sticky;
-  left: 0;
-}
+.content .scro td:nth-child(1) { position: sticky; left: 0;}
 
 .content .scro th:nth-child(2),
-.content .scro td:nth-child(2) {
-  position: sticky;
-  left: 150px;
-}
+.content .scro td:nth-child(2) { position: sticky; left: 150px;}
 
 .content .scro th:nth-child(3),
-.content .scro td:nth-child(3) {
-  position: sticky;
-  left: 300px;
-}
+.content .scro td:nth-child(3) { position: sticky; left: 300px; }
 
 .content .scro th:nth-child(4),
-.content .scro td:nth-child(4) {
-  position: sticky;
-  left: 450px;
-}
+.content .scro td:nth-child(4) { position: sticky; left: 450px;}
 
 .content .scro th:nth-child(5),
-.content .scro td:nth-child(5) {
-  position: sticky;
-  left: 500px;
-}
+.content .scro td:nth-child(5) { position: sticky; left: 500px; }
 
 .content .scro th:nth-child(18),
-.content .scro td:nth-child(18) {
-  position: sticky;
-  right: 150px;
-}
+.content .scro td:nth-child(18) { position: sticky; right: 150px; }
 
 .content .scro th:nth-child(19),
-.content .scro td:nth-child(19) {
-  position: sticky;
-  right: 0;
-}
+.content .scro td:nth-child(19) { position: sticky; right: 0; }
 
 .content .scro td:nth-child(1),
 .content .scro td:nth-child(2),
@@ -481,9 +350,7 @@ a.sidebar-link {
 .content .scro td:nth-child(4),
 .content .scro td:nth-child(5),
 .content .scro td:nth-child(18),
-.content .scro td:nth-child(19) {
-  background: white;
-}
+.content .scro td:nth-child(19) {background: white;}
 
 .content .scro th:nth-child(1),
 .content .scro th:nth-child(2),
@@ -491,34 +358,20 @@ a.sidebar-link {
 .content .scro th:nth-child(4),
 .content .scro th:nth-child(5),
 .content .scro th:nth-child(18),
-.content .scro th:nth-child(19) {
-  z-index: 2;
-}
+.content .scro th:nth-child(19) {z-index: 2;}
 
-.content .scroll tr:hover td {
-  background-color: #e0e0e0;
-}
+.content .scroll tr:hover td {background-color: #e0e0e0;}
 
-.content .scroll tr.selected td {
-  background: #e0e0e0;
-}
+.content .scroll tr.selected td {background: #e0e0e0;}
 
-.content .teamMemberTable tr:hover td {
-  background-color: #e0e0e0;
-}
+.content .teamMemberTable tr:hover td {background-color: #e0e0e0;}
 
-.content .teamMemberTable tr.selected td {
-  background: #e0e0e0;
-}
+.content .teamMemberTable tr.selected td {background: #e0e0e0;}
 
 .content .details tr:hover td:not(:last-child):not(:nth-last-child(2)),
-.content .details tr.selected td:not(:last-child):not(:nth-last-child(2)) {
-  background-color: #e0e0e0;
-}
+.content .details tr.selected td:not(:last-child):not(:nth-last-child(2)) {background-color: #e0e0e0;}
 
-.content .scro td:nth-child(5) {
-  border-right: 2px solid #ccc;
-}
+.content .scro td:nth-child(5) {border-right: 2px solid #ccc;}
 
 .content .scro th,
 .content .scro td {
@@ -528,9 +381,7 @@ a.sidebar-link {
   white-space: nowrap;
   overflow: hidden;
 }
-.content .scro th {
-  min-width: 150px;
-}
+.content .scro th {min-width: 150px;}
 
 .content .scro th:nth-child(1),
 .content .scro th:nth-child(2),
@@ -538,46 +389,26 @@ a.sidebar-link {
 .content .scro th:nth-child(3),
 .content .scro td:nth-child(3),
 .content .scro th:nth-child(12),
-.content .scro td:nth-child(12) {
-  min-width: 150px;
-}
+.content .scro td:nth-child(12) {min-width: 150px;}
 
 .content .scro th:nth-child(4),
-.content .scro td:nth-child(4) {
-  min-width: 50px;
-}
+.content .scro td:nth-child(4) {min-width: 50px;}
 
 .content .scro th:nth-child(5),
-.content .scro td:nth-child(5) {
-  min-width: 150px;
-}
+.content .scro td:nth-child(5) {min-width: 150px;}
 
 .content .scro th:nth-child(9),
 .content .scro td:nth-child(9),
 .content .scro th:nth-child(10),
 .content .scro td:nth-child(10),
 .content .scro th:nth-child(11),
-.content .scro td:nth-child(11) {
-  min-width: 450px;
-  max-width: 450px;
-  max-height: 50px;
-}
+.content .scro td:nth-child(11) { min-width: 450px; max-width: 450px; max-height: 50px;}
 
-.scroll {
-  max-height: 300px;
-  overflow-y: scroll;
-}
+.scroll { max-height: 300px; overflow-y: scroll;}
 
-.teamMemberTable {
-  max-height: 300px;
-  overflow-y: scroll;
-}
+.teamMemberTable { max-height: 300px; overflow-y: scroll; }
 
-.details {
-  max-height: 300px;
-  overflow-y: scroll;
-  cursor: pointer;
-}
+.details { max-height: 300px; overflow-y: scroll; cursor: pointer; }
 
 .main-table th {
   padding: 5px;
@@ -617,13 +448,9 @@ a.sidebar-link {
   z-index: 1000;
 }
 
-.serviceList .shortMenu {
-  padding: 10px 12px;
-}
+.serviceList .shortMenu {padding: 10px 12px;}
 
-.contentes ul li {
-  list-style: none;
-}
+.contentes ul li {list-style: none;}
 
 .contentes .item {
   text-decoration: none;
@@ -641,19 +468,11 @@ a.sidebar-link {
   background-color: white;
 }
 
-.contentes .item:hover {
-  background: #f2f2f2f2;
-}
+.contentes .item:hover {background: #f2f2f2f2;}
 
-.contentes .item span {
-  font-size: 19px;
-  margin-left: 8px;
-}
+.contentes .item span { font-size: 19px; margin-left: 8px; }
 
-.canceled-row {
-  background-color: #ffcccc;
-  text-decoration: line-through;
-}
+.canceled-row { background-color: #ffcccc; text-decoration: line-through; }
 
 /* Radio Button Design Start */
 
@@ -704,55 +523,34 @@ a.sidebar-link {
   transition: all 0.3s ease;
 }
 
-input[type="radio"] {
-  display: none;
-}
+input[type="radio"] {display: none;}
 
 #confirm:checked:checked~.confirm,
 #reject:checked:checked~.reject,
 #fast:checked:checked~.fast,
 #slow:checked:checked~.slow,
 #nice:checked:checked~.nice,
-#bad:checked:checked~.bad {
-  border-color: #0069d9;
-  background: #0069d9;
-}
+#bad:checked:checked~.bad { border-color: #0069d9; background: #0069d9; }
 
 #confirm:checked:checked~.confirm .dot,
-#reject:checked:checked~.reject .dot {
-  background: #fff;
-}
+#reject:checked:checked~.reject .dot {background: #fff; }
 
 #confirm:checked:checked~.confirm .dot::before,
-#reject:checked:checked~.reject .dot::before {
-  opacity: 1;
-  transform: scale(1);
-}
+#reject:checked:checked~.reject .dot::before { opacity: 1; transform: scale(1); }
 
-.radioConfirm .option span {
-  font-size: 20px;
-  color: #808080;
-  padding-left: 10px;
-}
+.radioConfirm .option span { font-size: 20px; color: #808080; padding-left: 10px; }
 
-.radioConfirm .option .emoji {
-  font-size: 35px;
-  color: #808080;
-  padding-left: 0;
-}
+.radioConfirm .option .emoji { font-size: 35px; color: #808080; padding-left: 0; }
 
 #confirm:checked:checked~.confirm span,
 #reject:checked:checked~.reject span,
 #fast:checked:checked~.fast span,
 #slow:checked:checked~.slow span,
 #nice:checked:checked~.nice span,
-#bad:checked:checked~.bad span {
-  color: #fff;
-}
+#bad:checked:checked~.bad span { color: #fff; }
 
 
-.homeMenu { margin-top: 50px; max-width: 750px; margin-left: auto;
-  margin-right: auto;}
+.homeMenu { margin-top: 50px; max-width: 750px; margin-left: auto; margin-right: auto;}
 
 .homeMenu .row {display: flex; justify-content: center; align-items: center; }
 
@@ -769,31 +567,15 @@ input[type="radio"] {
 
 .homeMenu button:hover a { color: white !important;}
 
-.hidden {
-  display: none;
-}
+.hidden {display: none;}
 
-#allEmployee  tr {
-  cursor: pointer;
-}
+#allEmployee  tr {cursor: pointer;}
 
-#paginationContainer .pagination {
-  color: #0069d9;  
-  background-color: white;
-  transition: all ease-in 0.3s;
-}
+#paginationContainer .pagination { color: #0069d9;   background-color: white; transition: all ease-in 0.3s;}
 
-#paginationContainer .pagination:hover {
-  background-color: #008dde;
-  color: white;
-}
+#paginationContainer .pagination:hover { background-color: #008dde; color: white; }
 
-
-.paginationContainer .page-item .active {
-  background-color: #008dde;
-  color: white;
-}
-
+.paginationContainer .page-item .active { background-color: #008dde; color: white; }
 
 .toExcel {
   border: 2px solid #0069d9;
@@ -803,10 +585,7 @@ input[type="radio"] {
   transition: all 0.3s ease-in;
 }
 
-.toExcel:hover {
-  background-color: #0069d9;
-  color: white;
-}
+.toExcel:hover { background-color: #0069d9; color: white; }
 
 .overlay {
   background-color: black;
@@ -822,7 +601,7 @@ input[type="radio"] {
   align-items: center;
 }
 
- .loader {
+.loader {
   width: 48px;
   height: 48px;
   border: 5px solid #FFF;
@@ -831,8 +610,7 @@ input[type="radio"] {
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
-  
-  }
+}
 
 
 @keyframes rotation {
@@ -844,11 +622,18 @@ input[type="radio"] {
   }
   }  
 
-  .turnOff{
-    transition: all 0.3s ease-in-out;
-  }
+.turnOff{transition: all 0.3s ease-in-out;}
 
-  .turnOff:hover {
-    color: red;
-    cursor: pointer;
-  }
+.turnOff:hover {color: red; cursor: pointer;}
+
+#UserAccount { color: white;    border: none;  cursor: pointer; transition: all 0.5s ease-in-out; background-color: #0d6efd;}
+
+#UserAccount:hover { color: white; background-color: #0069d9;}
+
+#UserAccount option { color: white; cursor: pointer;}
+
+#refreshMode { color: white; border: none;  cursor: pointer;  background-color: #0d6efd; transition: all 0.5s ease-in-out;}
+
+#refreshMode:hover { color: white; background-color: #0069d9;}
+
+#refreshMode option { color: white; cursor: pointer;}

@@ -23,7 +23,7 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 }
 
 $hashKey = $_SESSION['e-Ticketing'];
-// $ip_address = '192.168.15.94';
+$ip_address = '192.168.15.94';
 
 $checkUser = "SELECT xxajmi_sshr_ticketing.xxajmi_user_valid@TKT_TO_SELF_SERV('$hashKey' ,'$ip_address') AS User_Validat
 from dual";
@@ -46,7 +46,7 @@ if ($no_file_number != 'User not Valid') {
             session_destroy(); // Destroy the session
 
             // Redirect the user to the login page
-            header("Location: index.php");
+            header("Location: https://sshr.alajmi.com.sa/public/index.php/login");
             exit(); // Ensure that no further code is executed
         }
     }
@@ -58,11 +58,11 @@ if ($no_file_number != 'User not Valid') {
     /*******  This Condition to print DB name to know which one Opened  ***************/
 
     if ($sid == 'ARCHDEV') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;"># Production_Application</span></div>';
     } else {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;">' . $sid . '</span></div>';
     }
 
 ?>
@@ -72,7 +72,7 @@ if ($no_file_number != 'User not Valid') {
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
             <div class="mb-3">
 
-                <h2 class="text-center mt-3 ">Services</h2>
+                <h2 class="text-center">Services</h2>
                 <div class="scro container-fluid mb-2 mt-2">
                     <div class="row d-flex justify-content-center">
                         <div class="col-sm-10 mx-2" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
@@ -115,7 +115,7 @@ if ($no_file_number != 'User not Valid') {
 
                 <div class=" container-fluid mb-4 mt-2">
                     <div class="row d-flex justify-content-center">
-                        <div class=" col-sm-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                        <div class="col-md-10 col-lg-5 mx-1 " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                             <div class=" d-flex justify-content-between">
                                 <div class="">
                                     <h3 class=" mt-3 mb-4 text-dark d-inline">Service Details</h3>
@@ -143,7 +143,7 @@ if ($no_file_number != 'User not Valid') {
                                 <!-- Update button will be appended here -->
                             </div>
                         </div>
-                        <div class=" col-sm-5 mx-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
+                        <div class="col-md-10 col-lg-5 mx-1 mt-1" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                             <div class="d-flex justify-content-between">
                                 <div class="div">
                                     <h3 class=" mt-3 mb-4 text-dark">Teams</h3>
@@ -379,7 +379,7 @@ if ($no_file_number != 'User not Valid') {
                                 <h2 class="text-center" id="AddNewTicketPopupLabel">Create New Ticket</h2>
                                 <div class=" container  mt-2">
                                     <form class="row " id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class=" col-sm-6 ">
+                                        <div class=" col-sm-12 col-lg-6 ">
                                             <div class="row">
                                                 <!-- Start Ticket Branch Field -->
                                                 <div class='col-sm-10'>
@@ -423,7 +423,7 @@ if ($no_file_number != 'User not Valid') {
                                                 <!-- End Device End -->
                                             </div>
                                         </div>
-                                        <div class=" col-sm-6 ">
+                                        <div class=" col-sm-12 col-lg-6 mt-1 ">
                                             <!-- Start Issue Description Field -->
                                             <div class='col-sm-12'>
                                                 <label class="control-lable" for="description">Issue Description</label>
@@ -431,12 +431,12 @@ if ($no_file_number != 'User not Valid') {
                                             </div>
                                             <!-- End Issue Description Field -->
                                         </div>
-                                        <div class=" col-sm-10 mx-1 ">
+                                        <div class=" col-sm-10 ">
                                             <div class="row">
                                                 <!-- Start Submit Button -->
                                                 <div class="form-group">
                                                     <div class="col-sm-offset-2 col-sm-10">
-                                                        <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" id="addTicket" name="addTicket">Create Ticket</button>
+                                                        <button type="submit" class="btn btn-primary mt-3  addTicket" id="addTicket" name="addTicket">Create Ticket</button>
                                                     </div>
                                                 </div>
                                                 <!-- End Submit Button  -->

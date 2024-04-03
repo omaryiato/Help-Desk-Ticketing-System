@@ -92,11 +92,11 @@ if ($no_file_number != 'User not Valid') {
 
     /*******  This Condition to print DB name to know which one Opened  ***************/
     if ($sid == 'ARCHDEV') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;"># Production_Application</span></div>';
     } else {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;">' . $sid . '</span></div>';
     }
 ?>
     <input type="hidden" value="<?php echo $row['USER_ID'] ?>" id="userID">
@@ -105,7 +105,7 @@ if ($no_file_number != 'User not Valid') {
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
             <div class="mb-3">
 
-                <h2 class="text-center mt-3 ">Ticketing System</h2>
+                <h2 class="text-center">e-Ticketing System</h2>
                 <div class="home">
                     <div class="homeMenu">
                         <div class="row " id="HomePageItems">
@@ -132,7 +132,7 @@ if ($no_file_number != 'User not Valid') {
                                 <h2 class="text-center" id="AddNewTicketPopupLabel">Create New Ticket</h2>
                                 <div class=" container  mt-2">
                                     <form class="row d-flex justify-content-center" id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class=" col-sm-5 mx-1 ">
+                                        <div class="col-sm-12 col-lg-6 ">
                                             <div class="row">
                                                 <!-- Start Name SelectBox -->
                                                 <div class='col-sm-10'>
@@ -176,7 +176,7 @@ if ($no_file_number != 'User not Valid') {
                                                 <!-- End Device End -->
                                             </div>
                                         </div>
-                                        <div class=" col-sm-5 mx-1">
+                                        <div class="col-sm-12 col-lg-6 mt-1">
                                             <!-- Start Issue Description Field -->
                                             <div class='col-sm-12'>
                                                 <label class="control-lable" for="description">Issue Description</label>
@@ -184,12 +184,12 @@ if ($no_file_number != 'User not Valid') {
                                             </div>
                                             <!-- End Issue Description Field -->
                                         </div>
-                                        <div class=" col-sm-10 mx-1 ">
+                                        <div class=" col-sm-10 ">
                                             <div class="row">
                                                 <!-- Start Submit Button -->
                                                 <div class="form-group">
                                                     <div class="col-sm-offset-2 col-sm-10">
-                                                        <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" id="addTicket" name="addTicket">Create Ticket</button>
+                                                        <button type="submit" class="btn btn-primary mt-3  addTicket" id="addTicket" name="addTicket">Create Ticket</button>
                                                     </div>
                                                 </div>
                                                 <!-- End Submit Button  -->

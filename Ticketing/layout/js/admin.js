@@ -126,7 +126,7 @@ $(function () {
                 }
                 
                 $("#HomePageItems").append(`
-                    <div class="col-sm-4 mb-3  ">
+                    <div class="col-sm-12 col-md-6 col-lg-4 mb-3  ">
                     <div class="card" style="width: 15rem; height: 15rem;">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><i class="fa-solid fa-ticket pe-2"></i>Ticketing Transactions Page</h5>
@@ -135,7 +135,7 @@ $(function () {
                         </div>
                     </div>
                     </div>
-                    <div class="col-sm-4 mb-3 ">
+                    <div class="col-sm-12 col-md-6 col-lg-4 mb-3 ">
                         <div class="card" style="width: 15rem; height: 15rem;">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title"><i class="fa-solid fa-plus pe-2"></i>Create New Tickets</h5>
@@ -148,7 +148,7 @@ $(function () {
     
                 if (userRoleID == 1 || userRoleID == 3) {
                     $("#HomePageItems").append(`
-                        <div class="col-sm-4 mb-3 ">
+                        <div class="col-sm-12 col-md-6 col-lg-4 mb-3 ">
                             <div class="card" style="width: 15rem; height: 15rem;">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title"><i class="fa-solid fa-user-minus pe-2"></i>Delegate Supervisors</h5>
@@ -162,7 +162,7 @@ $(function () {
     
                 if (userRoleID == 1) {
                     $("#HomePageItems").append(`
-                        <div class="col-sm-4 mb-3 ">
+                        <div class="col-sm-12 col-md-6 col-lg-4 mb-3 ">
                             <div class="card" style="width: 15rem; height: 15rem;">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title"><i class="fa-solid fa-users pe-2"></i>Team Member</h5>
@@ -171,7 +171,7 @@ $(function () {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 mb-3 ">
+                        <div class="col-sm-12 col-md-6 col-lg-4 mb-3 ">
                             <div class="card" style="width: 15rem; height: 15rem;">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title"><i class="fa-solid fa-headphones pe-2"></i>Services</h5>
@@ -180,7 +180,7 @@ $(function () {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-sm-4 mb-3 ">
+                        <div class="col-sm-12 col-md-6 col-lg-4 mb-3 ">
                             <div class="card " style="width: 15rem; height: 15rem;">
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title"><i class="fa-solid fa-circle-check pe-2"></i>Update Solved to Confirm</h5>

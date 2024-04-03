@@ -50,7 +50,7 @@ if ($no_file_number != 'User not Valid') {
             session_destroy(); // Destroy the session
 
             // Redirect the user to the login page
-            header("Location: index.php");
+            header("Location: https://sshr.alajmi.com.sa/public/index.php/login");
             exit(); // Ensure that no further code is executed
         }
     }
@@ -62,11 +62,11 @@ if ($no_file_number != 'User not Valid') {
     // Select User Roles Based On UserID To Display Data Based On Users Permission
 
     if ($sid == 'ARCHDEV') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Test_Application</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;"># Test_Application</span></div>';
     } elseif ($sid == 'ARCHPROD') {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;"># Production_Application</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;"># Production_Application</span></div>';
     } else {
-        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px; margin-bottom: 5px;">' . $sid . '</span></div>';
+        echo '<div style="text-align: right;"><span style="color: #0069d9; font-weight: bold; padding: 15px;">' . $sid . '</span></div>';
     }
 ?>
 
@@ -75,12 +75,12 @@ if ($no_file_number != 'User not Valid') {
     <main class="content px-3 py-2">
         <div class="container-fluid">
             <div class="mb-1">
-                <h2 class="text-center mt-2">Ticketing Transactions</h2>
-                <div class="scroll-wrapper  mt-3" style="margin-bottom: 80px;">
+                <h2 class="text-center">Ticketing Transactions</h2>
+                <div class="scroll-wrapper  mt-1" style="margin-bottom: 80px;">
 
-                    <div class='my-2 d-flex justify-content-between'>
-                        <div class='my-1  d-flex'>
-                            <div class='my-1  d-flex'>
+                    <div class='d-flex justify-content-between'>
+                        <div class='  d-flex'>
+                            <div class='  d-flex'>
                                 <label class="pe-1" style="width: 200px;" for="recoredPerPage">No Of Record</label>
                                 <select class="form-select " id="recoredPerPage">
                                     <option value="10" selected>10</option>
@@ -175,7 +175,7 @@ if ($no_file_number != 'User not Valid') {
                 <!-- Ticket Filtering Section Start ( Filter Ticket Based On Ticket Status)-->
                 <div class="container-fluid  " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                     <div class="row">
-                        <div class="col-2">
+                        <div class="col-md-6 col-lg-2">
                             <div class="card text-bg-secondary text-white mb-3" style="max-width: 15rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="10"><i class="fa-solid fa-plus pe-2"></i>New Ticket </button>
@@ -184,7 +184,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-3">
+                        <div class="col-md-6 col-lg-3">
                             <div class="card text-bg-primary mb-3" style="max-width: 20rem;">
                                 <div class="card-header " style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="30" style="display: block;"><i class="fa-solid fa-envelope-open pe-2"></i>Started working on ticket </button>
@@ -193,7 +193,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-2">
+                        <div class="col-md-6 col-lg-2">
                             <div class="card text-bg-primary mb-3" style="max-width: 17rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="110"><i class="fa-solid fa-paper-plane pe-2"></i>Sent Out </button>
@@ -202,7 +202,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-3">
+                        <div class="col-md-6 col-lg-3">
                             <div class="card text-bg-success mb-3" style="max-width: 17rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="40"><i class="fa-solid fa-check-double pe-2"></i>Requester confirmation </button>
@@ -211,7 +211,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-2">
+                        <div class="col-md-6 col-lg-2">
                             <div class="card text-bg-danger mb-3" style="max-width: 15rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="70"><i class="fa-solid fa-circle-xmark pe-2"></i>Canceled Ticket </button>
@@ -220,7 +220,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-2">
+                        <div class="col-md-6 col-lg-2">
                             <div class="card text-bg-warning mb-3" style="max-width: 15rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="20"><i class="fa-solid fa-at pe-2"></i>Ticket assigned </button>
@@ -229,7 +229,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-3">
+                        <div class="col-md-6 col-lg-3">
                             <div class="card text-bg-success mb-3" style="max-width: 20rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="60"><i class="fa-solid fa-circle-check pe-2"></i>Solved by technician </button>
@@ -238,7 +238,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-2">
+                        <div class="col-md-6 col-lg-2">
                             <div class="card text-bg-info mb-3" style="max-width: 17rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="120"><i class="fa-solid fa-arrow-right-to-bracket pe-2"></i>Received </button>
@@ -247,7 +247,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-3">
+                        <div class="col-md-6 col-lg-3">
                             <div class="card text-bg-danger mb-3" style="max-width: 17rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="tickets" id="ticketButton" data-filter="50"><i class="fa-solid fa-heart-crack pe-2"></i>Rejected By requester </button>
@@ -256,7 +256,7 @@ if ($no_file_number != 'User not Valid') {
                             </div>
                         </div>
 
-                        <div class="col-2">
+                        <div class="col-md-6 col-lg-2">
                             <div class="card text-bg-light mb-3" style="max-width: 15rem;">
                                 <div class="card-header" style="text-align: center;">
                                     <button class="Alltickets" style="color: black;"><i class="fa-solid fa-layer-group pe-2"></i>Total </button>

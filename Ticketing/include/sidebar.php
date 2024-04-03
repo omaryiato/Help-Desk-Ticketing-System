@@ -19,18 +19,18 @@
                 <li class="nav-item">
                     <a class="nav-link" href="#" data-bs-toggle='modal' data-bs-target="#SearchTicket" data-bs-whatever="SearchTicket"><i class="fa-solid fa-magnifying-glass px-2"></i>Search</a>
                 </li>
-                <li class="nav-item ms-3 mt-2">
-                    <div class='my-1  d-flex'>
-                        <label class="pe-1" style="width: 125px;" for="refreshMode"> / Refresh Mode</label>
-                        <select class="form-select w-50" id="refreshMode">
+                <li class="nav-item ms-3 mt-1">
+                    <div class='d-flex'>
+                        <label class="pe-1 mt-1" style="width: 125px;" for="refreshMode"> / Refresh Mode</label>
+                        <select class="form-select w-50 " id="refreshMode">
                             <option value="auto" selected>Auto</option>
                             <option value="manually">Manually</option>
                         </select>
                     </div>
                 </li>
-                <li class="nav-item ms-auto wel">
-                    <div class="d-flex  mt-2">
-                        <span class="me-3 ">Welcome: </span>
+                <li class="nav-item ms-auto wel mt-1">
+                    <div class="d-flex ">
+                        <span class="me-1 mt-1">Welcome: </span>
                         <span> <?php if ($_SESSION['NoAccount'] == 1) { ?>
                                 <select class="form-select " id="UserAccount">
                                     <option value="<?php echo $_SESSION['USER_ID'] ?>" selected><?php echo $_SESSION['USERNAME']; ?></option>";
@@ -51,10 +51,9 @@
                                 </select></span>
                     <?php
                                 } ?>
+                    <a href="logout.php" style="color: white; font-size: 20px;" class="mt-1 ps-2"><span class="turnOff" id="turnoff"><i class="fa-solid fa-power-off ps-2"></i></span></a>
+
                     </div>
-                </li>
-                <li class="nav-item ms-auto wel mt-2">
-                    <a href="logout.php" style="color: white; font-size: 20px;"><span class="turnOff" id="turnoff"><i class="fa-solid fa-power-off ps-5"></i></span></a>
                 </li>
             </ul>
         </div>
