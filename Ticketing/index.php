@@ -13,8 +13,12 @@ session_start();
 
 include 'DBConnection.php';
 
-
-$_SESSION['e-Ticketing'] = $_GET['hashkey'];
+if (isset($_SESSION['e-Ticketing'])) {
+    $hashKey = $_SESSION['e-Ticketing'];
+} else {
+    $_SESSION['e-Ticketing'] = $_GET['hashkey'];
+    $hashKey = $_SESSION['e-Ticketing'];
+}
 
 // Get the IP address of the client
 if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -24,8 +28,6 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 } else {
     $ip_address = $_SERVER['REMOTE_ADDR'];
 }
-
-$hashKey = $_SESSION['e-Ticketing'];
 
 // $ip_address = '192.168.203.64';
 $ip_address = '192.168.15.94';
@@ -104,7 +106,6 @@ if ($no_file_number != 'User not Valid') {
     <main class="content px-3 py-2"> <!-- Main Start -->
         <div class="container-fluid"> <!-- Container-fluid Div Start -->
             <div class="mb-3">
-
                 <h2 class="text-center">e-Ticketing System</h2>
                 <div class="home">
                     <div class="homeMenu">

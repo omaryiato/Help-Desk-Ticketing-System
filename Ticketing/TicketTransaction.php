@@ -300,7 +300,7 @@ if ($no_file_number != 'User not Valid') {
                                 <h2 class="text-center" id="AddNewTicketPopupLabel">Create New Ticket</h2>
                                 <div class=" container  mt-2">
                                     <form class="row " id="AddNewTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class=" col-sm-6 ">
+                                        <div class=" col-sm-12 col-lg-6 ">
                                             <div class="row">
                                                 <!-- Start Ticket Branch Field -->
                                                 <div class='col-sm-10'>
@@ -344,7 +344,7 @@ if ($no_file_number != 'User not Valid') {
                                                 <!-- End Device End -->
                                             </div>
                                         </div>
-                                        <div class=" col-sm-6 ">
+                                        <div class=" col-sm-12 col-lg-6 mt-1 ">
                                             <!-- Start Issue Description Field -->
                                             <div class='col-sm-12'>
                                                 <label class="control-lable" for="description">Issue Description</label>
@@ -352,12 +352,12 @@ if ($no_file_number != 'User not Valid') {
                                             </div>
                                             <!-- End Issue Description Field -->
                                         </div>
-                                        <div class=" col-sm-10 mx-1 ">
+                                        <div class=" col-sm-10 ">
                                             <div class="row">
                                                 <!-- Start Submit Button -->
                                                 <div class="form-group">
                                                     <div class="col-sm-offset-2 col-sm-10">
-                                                        <button type="submit" class="btn btn-primary btn-lg mt-3  addTicket" id="addTicket" name="addTicket">Create Ticket</button>
+                                                        <button type="submit" class="btn btn-primary mt-3  addTicket" id="addTicket" name="addTicket">Create Ticket</button>
                                                     </div>
                                                 </div>
                                                 <!-- End Submit Button  -->
@@ -389,29 +389,29 @@ if ($no_file_number != 'User not Valid') {
                                 <div class="container  mt-1">
                                     <h3 class="text-start mt-3 mb-4 text-dark">Ticket Information</h3>
                                     <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-4">
+                                        <div class=" col-md-6 col-lg-4">
                                             <label class="" for="ticketNumber">Ticket #</label>
                                             <input type="text" class="form-control" id="ticketNumber" aria-label="City" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="RequestedBy">Requested By</label>
                                             <input type="text" class="form-control" id="RequestedBy" aria-label="State" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="ticketWeight">Ticket Weight</label>
                                             <select class="form-select" id="ticketWeight">
                                                 <option value='0' selected>Select Weight...</option>
                                             </select>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="requestType">Service Name</label>
                                             <input type="text" class="form-control" id="requestType" aria-label="City" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="serviceFor">Service For</label>
                                             <input type="text" class="form-control" id="serviceFor" aria-label="State" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="ticketPeriority">Ticket Periority</label>
                                             <select class="form-select" id="ticketPeriority">
                                                 <option value='0' selected>Select Priority...</option>
@@ -431,7 +431,7 @@ if ($no_file_number != 'User not Valid') {
                                 </div>
                                 <div class="container-fluid ">
                                     <div class="row d-flex justify-content-center"> <!-- Container Div Start  -->
-                                        <div class="col-sm-6 ">
+                                        <div class="col-sm-10 col-lg-6">
                                             <h3 class="text-start mt-1 text-dark">Team Member</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3 ">
@@ -449,7 +449,7 @@ if ($no_file_number != 'User not Valid') {
                                                 </table>
                                             </div>
                                         </div>
-                                        <div class=" col-sm-6 ">
+                                        <div class=" col-sm-10 col-lg-6 mt-2">
                                             <h3 class="text-start mt-1 text-dark">Selected Team Member for Ticket</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3  ">
@@ -499,29 +499,29 @@ if ($no_file_number != 'User not Valid') {
                                 <div class="container  mt-1">
                                     <h3 class="text-start  mb-2 text-dark">Ticket Information</h3>
                                     <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="ticketNumberChange">Ticket #</label>
                                             <input type="text" class="form-control" id="ticketNumberChange" aria-label="City" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="RequestedByChange">Requested By</label>
                                             <input type="text" class="form-control" id="RequestedByChange" aria-label="State" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="ticketWeightChange">Ticket Weight</label>
                                             <select class="form-select" id="ticketWeightChange">
                                                 <option value='0' selected>Select Weight...</option>
                                             </select>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="requestTypeChange">Service Name</label>
                                             <input type="text" class="form-control" id="requestTypeChange" aria-label="City" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="serviceForChange">Service For</label>
                                             <input type="text" class="form-control" id="serviceForChange" aria-label="State" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-md-6 col-lg-4">
                                             <label class="" for="ticketPeriorityChange">Ticket Periority</label>
                                             <select class="form-select" id="ticketPeriorityChange">
                                                 <option value='0' selected>Select Priority...</option>
@@ -543,7 +543,7 @@ if ($no_file_number != 'User not Valid') {
 
                                 <div class="container-fluid ">
                                     <div class="row d-flex justify-content-center"> <!-- Container Div Start  -->
-                                        <div class="col-sm-6 ">
+                                        <div class="col-sm-10 col-lg-6 ">
                                             <div class=" text-center mt-5" id="waitingMessageForTeamAssignMemberChange">
                                                 <div class="alert alert-primary" role="alert">
                                                     There Is No Data You Can See It Yet.
@@ -566,7 +566,7 @@ if ($no_file_number != 'User not Valid') {
                                                 </table>
                                             </div>
                                         </div>
-                                        <div class=" col-sm-6 ">
+                                        <div class=" col-sm-10 col-lg-6 mt-2 ">
                                             <h3 class="text-start mt-1 text-dark">Selected Team Member for Ticket</h3>
                                             <div class="teamMemberTable">
                                                 <table class="main-table text-center table table-bordered mt-3  ">
@@ -654,16 +654,16 @@ if ($no_file_number != 'User not Valid') {
                         </label>
                     </div>
                     <label for="returnedTicketNumber" class="d-inline">Ticket Number:</label>
-                    <input style="width: 100px;" id="returnedTicketNumber">
+                    <input style="width: 100px; margin-bottom:10px;" id="returnedTicketNumber">
                     <div class=" " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
                         <div class="text-center">
                             <h4>Quick Evaluation</h4>
                             <p>( Take few second to serve you better )</p>
                         </div>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div style="margin-right: 40px;">
+                        <div class=" row">
+                            <div class="col-sm-10 col-lg-6">
+                                <div class="d-flex align-items-center ">
+                                    <div>
                                         <p>Response Time:</p>
                                     </div>
                                     <div class="radioConfirm" style="width: 100px; height: 90px;">
@@ -677,8 +677,8 @@ if ($no_file_number != 'User not Valid') {
                                         </label>
                                     </div>
                                 </div>
-                                <div class="d-flex  align-items-center justify-content-between">
-                                    <div style="margin-right: 40px;">
+                                <div class="d-flex  align-items-center ">
+                                    <div>
                                         <p>Technician Attitude:</p>
                                     </div>
                                     <div class="radioConfirm" style="width: 100px; height: 90px;">
@@ -693,7 +693,7 @@ if ($no_file_number != 'User not Valid') {
                                     </div>
                                 </div>
                             </div>
-                            <div>
+                            <div class="col-sm-10 col-lg-6">
                                 <div class=" row ms-2">
                                     <label for="generalEvaluation" class="col-sm-10 col-form-label">Service Evaluation In General</label>
                                     <div class="col-sm-10 mb-3">
@@ -837,13 +837,13 @@ if ($no_file_number != 'User not Valid') {
                                     <form class="row" id="SearchTicketForm" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
 
                                         <!-- Start Ticket Number Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTicketNumber">Ticket #</label>
                                             <input type="text" class="form-control" id="SearchTicketNumber" name="TICKET_NO" aria-label="SearchTicketNumber">
                                         </div>
                                         <!-- End  Ticket Number Field -->
                                         <!-- Start Ticket Status Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTicketStatus">Status</label>
                                             <select class="form-select" id="SearchTicketStatus">
                                                 <?php
@@ -859,7 +859,7 @@ if ($no_file_number != 'User not Valid') {
                                         </div>
                                         <!-- End Ticket Status Field -->
                                         <!-- Start Ticket Branch Field-->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTicketBranch">Branch</label>
                                             <select class="form-select" id="SearchTicketBranch">
                                                 <option></option>
@@ -870,7 +870,7 @@ if ($no_file_number != 'User not Valid') {
                                         </div>
                                         <!-- End Ticket Branch Field -->
                                         <!-- Start Ticket Priority Field-->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTicketPriority">Priority</label>
                                             <select class="form-select" id="SearchTicketPriority">
                                                 <?php
@@ -887,55 +887,55 @@ if ($no_file_number != 'User not Valid') {
 
                                         <!-- End Ticket Priority Field -->
                                         <!-- Start Ticket IT Time Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchITTime">IT Time</label>
                                             <input type="number" class="form-control" id="SearchITTime" min="0" aria-label="SearchITTime" disabled>
                                         </div>
                                         <!-- End Ticket IT Time Field -->
                                         <!-- Start Ticket IT Time Per Hour Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchITTimePerHour">Hour</label>
                                             <input type="number" class="form-control" id="SearchITTimePerHour" min="0" max="24" aria-label="SearchITTimePerHour" disabled>
                                         </div>
                                         <!-- End Ticket IT Time Per Hour Field -->
                                         <!-- Start Ticket IT Time Per Min Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchITTimePerMin">Min</label>
                                             <input type="number" class="form-control" id="SearchITTimePerMin" min="0" max="59" aria-label="SearchITTimePerMin" disabled>
                                         </div>
                                         <!-- End Ticket IT Time Per Min Field -->
                                         <!-- Start Ticket IT Time Per Sec Field -->
-                                        <div class='col-sm-3  '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3  '>
                                             <label class="" for="SearchITTimePerSec">Sec</label>
                                             <input type="number" class="form-control" id="SearchITTimePerSec" min="0" max="59" aria-label="SearchITTimePerSec" disabled>
                                         </div>
                                         <!-- End Ticket IT Time Per Sec Field -->
                                         <!-- Start Ticket Total Time Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTotalTime">Total Time</label>
                                             <input type="number" class="form-control" id="SearchTotalTime" min="0" aria-label="SearchTotalTime" disabled>
                                         </div>
                                         <!-- End Ticket Total Time Field -->
                                         <!-- Start Ticket Total Time Per Hour Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTotalTimePerHour">Hour</label>
                                             <input type="number" class="form-control" id="SearchTotalTimePerHour" min="0" max="24" aria-label="SearchTotalTimePerHour" disabled>
                                         </div>
                                         <!-- End Ticket Total Time Per Hour Field -->
                                         <!-- Start Ticket Total Time Per Min Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-3 '>
                                             <label class="" for="SearchTotalTimePerMin">Min</label>
                                             <input type="number" class="form-control" id="SearchTotalTimePerMin" min="0" max="59" aria-label="SearchTotalTimePerMin" disabled>
                                         </div>
                                         <!-- End Ticket Total Time Per Min Field -->
                                         <!-- Start Ticket Total Time Per Sec Field -->
-                                        <div class='col-sm-3 '>
+                                        <div class='col-sm-12 col-lg-3 '>
                                             <label class="" for="SearchTotalTimePerSec">Sec</label>
                                             <input type="number" class="form-control" id="SearchTotalTimePerSec" min="0" max="59" aria-label="SearchTotalTimePerSec" disabled>
                                         </div>
                                         <!-- End Ticket Total Time Per Sec Field -->
                                         <!-- Start Ticket Assigned To Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4'>
                                             <label class="" for="SearchTicketAssignedTo">Assigned To</label>
                                             <select class="form-select" id="SearchTicketAssignedTo" aria-label="SearchTicketAssignedTo">
                                                 <option value="">Choes Service</option>
@@ -960,19 +960,19 @@ if ($no_file_number != 'User not Valid') {
                                         </div>
                                         <!-- End Ticket Assigned To Field -->
                                         <!-- Start Ticket Tec Issue Discription Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchTecIssueDiscription">Tec Issue Discription</label>
                                             <input type="text" class="form-control" id="SearchTecIssueDiscription" aria-label="SearchTecIssueDiscription">
                                         </div>
                                         <!-- End Ticket Tec Issue Discription Field -->
                                         <!-- Start Ticket Tec Issue Resolution Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchTecIssueResolution">Tec Issue Resolution</label>
                                             <input type="text" class="form-control" id="SearchTecIssueResolution" aria-label="SearchTecIssueResolution">
                                         </div>
                                         <!-- End Ticket Tec Issue Resolution Field -->
                                         <!-- Start Ticket User Issue Description Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchUserIsseDescription">User Issue Description</label>
                                             <input type="text" class="form-control" id="SearchUserIsseDescription" aria-label="SearchUserIsseDescription">
                                         </div>
@@ -980,7 +980,7 @@ if ($no_file_number != 'User not Valid') {
 
 
                                         <!-- Start Ticket Responsible Dept Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchResponsibleDept">Responsible Dept</label>
                                             <select class="form-select " name="SearchResponsibleDept" id="SearchResponsibleDept" aria-label="SearchResponsibleDept">
                                                 <option value="">Choes Department...</option>
@@ -999,7 +999,7 @@ if ($no_file_number != 'User not Valid') {
                                         </div>
                                         <!-- End Ticket Responsible Dept Field -->
                                         <!-- Start Ticket Service Type Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchServiceType">Service Type</label>
                                             <select class="form-select service" name="service" id="SearchServiceType" aria-label="SearchServiceType">
                                                 <option value="">Choes Service</option>
@@ -1017,7 +1017,7 @@ if ($no_file_number != 'User not Valid') {
                                         </div>
                                         <!-- End Ticket Service Type Field -->
                                         <!-- Start Ticket Service Details Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchServiceDetails">Service Details</label>
                                             <select class="form-select details" name="details" id="SearchServiceDetails" aria-label="SearchServiceDetails">
                                                 <option value="">Choose Service Detail</option>
@@ -1035,32 +1035,32 @@ if ($no_file_number != 'User not Valid') {
                                         </div>
                                         <!-- End Ticket Service Details Field -->
                                         <!-- Start Ticket Created By Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchCreatedBy">File Number</label>
                                             <input type="text" class="form-control" id="SearchCreatedBy" aria-label="SearchCreatedBy">
                                         </div>
                                         <!-- End Ticket Created By Field -->
                                         <!-- Start Ticket Department Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchDepartment">Department</label>
                                             <input type="text" class="form-control" id="SearchDepartment" aria-label="SearchDepartment">
                                         </div>
                                         <!-- End Ticket Department Field -->
 
                                         <!-- Start Ticket From Date Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchFromDate">From Date</label>
                                             <input type="text" class="form-control" id="SearchFromDate" aria-label="SearchFromDate">
                                         </div>
                                         <!-- End Ticket From Date Field -->
                                         <!-- Start Ticket To Date Field -->
-                                        <div class='col-sm-4 '>
+                                        <div class='col-sm-12 col-md-6 col-lg-4 '>
                                             <label class="" for="SearchToDate">To Date</label>
                                             <input type="text" class="form-control" id="SearchToDate" aria-label="SearchToDate">
                                         </div>
                                         <!-- End Ticket To Date Field -->
                                         <!-- Start Submit Button -->
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-12 col-md-6 col-lg-4">
                                             <button type="submit" class="btn btn-primary  mt-3  " id="SearchTicketButton"> <i class="fa-solid fa-magnifying-glass px-1"></i> Search</button>
                                         </div>
                                         <!-- End Submit Button  -->
@@ -1091,51 +1091,51 @@ if ($no_file_number != 'User not Valid') {
                                 <div class="container  mt-1">
                                     <h3 class="text-start mt-2 mb-2 text-dark">Ticket Information</h3>
                                     <div class="row " style=" border: #bcbaba 1px solid; padding: 5px; border-radius: 10px;">
-                                        <div class="col-sm-2">
+                                        <div class="col-sm-12 col-md-4 col-lg-2">
                                             <label class="" for="TicketNumberDetails">Ticket #</label>
                                             <input type="text" class="form-control" id="TicketNumberDetails" aria-label="City" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-1">
+                                        <div class="col-sm-12 col-md-2 col-lg-1">
                                             <label class="" for="BranchCodeDetails">Branch</label>
                                             <input type="text" class="form-control" id="BranchCodeDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-2">
+                                        <div class="col-sm-12 col-md-4 col-lg-2">
                                             <label class="" for="StartDateDetails">Start Date</label>
                                             <input type="text" class="form-control" id="StartDateDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-12 col-md-6 col-lg-4">
                                             <label class="" for="ServiceTypeDetails">Service Type</label>
                                             <input type="text" class="form-control" id="ServiceTypeDetails" aria-label="City" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-2">
+                                        <div class="col-sm-12 col-md-4 col-lg-2">
                                             <label class="" for="ITTotaleTimeDetails">IT Totale Time</label>
                                             <input type="text" class="form-control" id="ITTotaleTimeDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-2">
+                                        <div class="col-sm-12 col-md-4 col-lg-2">
                                             <label class="" for="TicketStatusDetails">Status</label>
                                             <input type="text" class="form-control" id="TicketStatusDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-1">
+                                        <div class="col-sm-12 col-md-2 col-lg-1">
                                             <label class="" for="TicketPeriorityDetails">Periority</label>
                                             <input type="text" class="form-control" id="TicketPeriorityDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-2">
+                                        <div class="col-sm-12 col-md-4 col-lg-2">
                                             <label class="" for="EndDateDetails">End Date</label>
                                             <input type="text" class="form-control" id="EndDateDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-12 col-md-6 col-lg-4">
                                             <label class="" for="ServiceDetailsDetails">Service Details</label>
                                             <input type="text" class="form-control" id="ServiceDetailsDetails" aria-label="State" title="" disabled readonly>
                                         </div>
 
-                                        <div class="col-sm-3">
+                                        <div class="col-sm-12 col-md-6 col-lg-3">
                                             <label class="" for="EvaluationDetails">Evaluation</label>
                                             <div class="check"><input type="checkbox" id="EvaluationDetails" disabled></div>
                                         </div>
@@ -1145,24 +1145,24 @@ if ($no_file_number != 'User not Valid') {
                                 <div class="container  mt-1 ">
                                     <h3 class="text-start mt-2 mb-2 text-dark">Requestor Information</h3>
                                     <div class="row " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-12 col-md-6 col-lg-4">
                                             <label class="" for="RequestorNameDetails">Name</label>
                                             <input type="text" class="form-control" id="RequestorNameDetails" aria-label="City" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-12 col-md-6 col-lg-4">
                                             <label class="" for="RequestorDepartmentDetails">Department</label>
                                             <input type="text" class="form-control" id="RequestorDepartmentDetails" aria-label="State" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-sm-12 col-md-6 col-lg-4">
                                             <label class="" for="RequestorEmailDetails">Email</label>
                                             <input type="text" class="form-control" id="RequestorEmailDetails" aria-label="State" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="" for="RequestorIssueDiscriptionDetails">Issue Discription</label>
                                             <input type="text" class="form-control" id="RequestorIssueDiscriptionDetails" aria-label="City" title="" disabled readonly>
                                         </div>
-                                        <form id="ticketDetailsForm">
-                                            <div class="col-sm-6">
+                                        <form id="ticketDetailsForm" class="col-sm-12 col-md-12 col-lg-6">
+                                            <div class="col-sm-12 col-md-12 col-lg-12">
                                                 <label class="" for="RequestorCommentDetails">Comment</label>
                                                 <textarea type="text" class="form-control" id="RequestorCommentDetails" name="RequestorCommentDetails" title="" style="overflow: scroll;"></textarea>
                                             </div>
@@ -1172,19 +1172,19 @@ if ($no_file_number != 'User not Valid') {
                                 <div class="container  mt-1 " id="hideEvaluation">
                                     <h3 class="text-start mt-2 mb-2 text-dark">Technician Information</h3>
                                     <div class="row " style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="" for="TechnicianNameDetails">Name</label>
                                             <input type="text" class="form-control" id="TechnicianNameDetails" aria-label="City" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="" for="TechnicianDepartmentDetails">Department</label>
                                             <input type="text" class="form-control" id="TechnicianDepartmentDetails" aria-label="State" title="" disabled readonly>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="" for="TechnicianIssueDiscriptionDetails">Issue Discription</label>
                                             <textarea type="text" class="form-control" id="TechnicianIssueDiscriptionDetails" name="TechnicianIssueDiscriptionDetails" title="" style="overflow: scroll; "></textarea>
                                         </div>
-                                        <div class="col-sm-6">
+                                        <div class="col-sm-12 col-md-6 col-lg-6">
                                             <label class="" for="TechnicianIssueResolutionDetails">Issue Resolution</label>
                                             <textarea type="text" class="form-control" id="TechnicianIssueResolutionDetails" name="TechnicianIssueResolutionDetails" title="" style="overflow: scroll; "></textarea>
                                         </div>
@@ -1194,27 +1194,27 @@ if ($no_file_number != 'User not Valid') {
                                 <div class="container  mt-1" id="hideTechnician">
                                     <h3 class="text-start mt-3 mb-4 text-dark">Evaluation</h3>
                                     <div class="row g-3" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
-                                        <div class="col-sm-4">
+                                        <div class="col-lg-4">
                                             <label class="" for="ResponsTimeDetails">Respons Time</label><br>
                                             <span style="text-align: center;" id="ResponsTimeDetails" aria-label="City" title="" disabled readonly></span>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-lg-4">
                                             <label class="" for="TechnicianAttitudeDetails">Technician Attitude</label><br>
                                             <span style="text-align: center;" id="TechnicianAttitudeDetails" aria-label="State" title="" disabled readonly></span>
                                         </div>
-                                        <div class="col-sm-4">
+                                        <div class="col-lg-4">
                                             <label class="" for="ServiceEvaluationInGeneralDetails">Service Evaluation In General</label>
                                             <input type="text" class="form-control" id="ServiceEvaluationInGeneralDetails" aria-label="State" title="" disabled readonly>
                                         </div>
                                     </div>
 
                                 </div>
-                                <div class=" col-sm-10 mx-1 ">
+                                <div class="col-md-6 col-lg-10 mx-1 ">
                                     <div class="row">
                                         <!-- Start Submit Button -->
                                         <div class="form-group">
                                             <div class="col-sm-offset-2 col-sm-10">
-                                                <button type="submit" class="btn btn-primary btn-lg mt-3  " id="SaveTicketDetailsInformation"> <i class="fa-solid fa-bookmark px-1"></i> Save</button>
+                                                <button type="submit" class="btn btn-primary  mt-3  " id="SaveTicketDetailsInformation"> <i class="fa-solid fa-bookmark px-1"></i> Save</button>
                                             </div>
                                         </div>
                                         <!-- End Submit Button  -->
@@ -1340,13 +1340,15 @@ if ($no_file_number != 'User not Valid') {
                                         <div class='col-sm-12 mb-3' id="chatScreen" style=" border: #bcbaba 1px solid; padding: 10px; border-radius: 10px;">
 
                                         </div>
-                                        <div class='col-sm-8 d-flex'>
-                                            <div>
-                                                <label class="control-lable mb-2" for="messageFeild">Send Message </label>
-                                                <textarea name="messageFeild" id="messageFeild" class="messageFeild" cols="50" rows="2" style="overflow: scroll;" placeholder=" Chat With Technician..." required='required'></textarea>
-                                            </div>
-                                            <div class="mx-3 mt-3">
-                                                <button type="submit" class="btn btn-primary  mt-3  sendMessage" id="sendMessage" name="sendMessage">Send</button>
+                                        <div class='col-sm-8 '>
+                                            <div class="row">
+                                                <div class='col-md-6 col-lg-8 '>
+                                                    <label class="control-lable mb-2" for="messageFeild">Send Message </label>
+                                                    <textarea name="messageFeild" id="messageFeild" class="messageFeild" cols="50" rows="2" style="overflow: scroll;" placeholder=" Chat With Technician..." required='required'></textarea>
+                                                </div>
+                                                <div class="mx-3 mt-3 col-md-2 col-lg-3 ">
+                                                    <button type="submit" class="btn btn-primary  mt-3  sendMessage" id="sendMessage" name="sendMessage">Send</button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
